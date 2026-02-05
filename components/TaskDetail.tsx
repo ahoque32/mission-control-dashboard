@@ -3,6 +3,7 @@
 import { Task, Agent, Message, Priority, TaskStatus } from '../types';
 import ReactMarkdown from 'react-markdown';
 import { useState } from 'react';
+import TaskComments from './TaskComments';
 
 interface TaskDetailProps {
   task: Task;
@@ -279,67 +280,17 @@ export default function TaskDetail({
               </div>
             )}
 
-            {/* Comments Thread */}
+            {/* Comments Thread with TaskComments Component */}
             <div>
-              <h3 className="text-sm font-semibold text-[#d4a574] mb-2">
+              <h3 className="text-sm font-semibold text-[#d4a574] mb-4">
                 Comments ({sortedMessages.length})
               </h3>
               
-              {sortedMessages.length === 0 ? (
-                <div className="text-center py-8 text-[#666]">
-                  No comments yet
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {sortedMessages.map(message => {
-                    const author = agents.find(agent => agent.id === message.fromAgentId);
-                    return (
-                      <div
-                        key={message.id}
-                        className="
-                          bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg
-                          p-4
-                        "
-                      >
-                        {/* Comment Header */}
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="text-lg">{author?.emoji || '👤'}</span>
-                          <div className="flex-1">
-                            <span className="text-sm font-medium text-[#ededed]">
-                              {author?.name || 'Unknown'}
-                            </span>
-                          </div>
-                          <span className="text-xs text-[#666]">
-                            {formatTimestamp(message.createdAt)}
-                          </span>
-                        </div>
-
-                        {/* Comment Content */}
-                        <div className="text-sm text-[#ededed] pl-8">
-                          {message.content}
-                        </div>
-
-                        {/* Attachments */}
-                        {message.attachments.length > 0 && (
-                          <div className="mt-2 pl-8 flex flex-wrap gap-2">
-                            {message.attachments.map((attachment, index) => (
-                              <span
-                                key={index}
-                                className="
-                                  text-xs px-2 py-1 rounded
-                                  bg-[#0a0a0a] text-[#d4a574] border border-[#2a2a2a]
-                                "
-                              >
-                                📎 {attachment}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+              <TaskComments 
+                taskId={task.id} 
+                agents={agents}
+                currentAgentId="user"
+              />
             </div>
 
             {/* Metadata Footer */}

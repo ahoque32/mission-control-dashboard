@@ -47,6 +47,15 @@ export interface Task {
   updatedAt: Timestamp;
 }
 
+// Subcollection: tasks/{taskId}/comments
+export interface TaskComment {
+  id: string;
+  fromAgentId: string;
+  content: string;
+  mentions: string[];
+  createdAt: Timestamp;
+}
+
 // ============================================================================
 // Message Types
 // ============================================================================

@@ -170,3 +170,79 @@ export function useMessages() {
 
   return { messages, loading, error };
 }
+
+// Import Document type for the hook
+import type { Document } from '../types';
+
+/**
+ * Subscribe to documents collection
+ * Returns all documents sorted by updatedAt (most recent first)
+ */
+export function useDocuments() {
+  const [documents, setDocuments] = useState<Document[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const q = query(collection(db, 'documents'), orderBy('updatedAt', 'desc'));
+    
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const data = snapshotToArray<Document>(snapshot);
+        setDocuments(data);
+        setLoading(false);
+      },
+      (err) => {
+        console.error('Error subscribing to documents:', err);
+        setError(err as Error);
+        setLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
+
+  return { documents, loading, error };
+}
+
+/**
+ * Subscribe to messages subcollection for a specific task
+ * Returns messages sorted by createdAt (oldest first for chat-like display)
+ */
+export function useTaskMessages(taskId: string | null) {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    if (!taskId) {
+      setMessages([]);
+      setLoading(false);
+      return;
+    }
+
+    const q = query(
+      collection(db, 'tasks', taskId, 'messages'), 
+      orderBy('createdAt', 'asc')
+    );
+    
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const data = snapshotToArray<Message>(snapshot);
+        setMessages(data);
+        setLoading(false);
+      },
+      (err) => {
+        console.error('Error subscribing to task messages:', err);
+        setError(err as Error);
+        setLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [taskId]);
+
+  return { messages, loading, error };
+}
