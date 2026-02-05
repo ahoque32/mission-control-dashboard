@@ -9,7 +9,7 @@ import {
   DocumentData,
   QuerySnapshot 
 } from 'firebase/firestore';
-import { db } from './firebase-config.js';
+import { db } from './firebase-config';
 
 // Import types from dedicated types file
 export type {
