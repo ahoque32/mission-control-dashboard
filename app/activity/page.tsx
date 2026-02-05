@@ -60,7 +60,7 @@ function ActivityCard({ activity }: { activity: Activity }) {
       
       {/* Timestamp */}
       <div className="text-xs text-[#666] whitespace-nowrap">
-        {formatTimestamp(activity.timestamp)}
+        {formatTimestamp(activity.createdAt)}
       </div>
     </div>
   );
