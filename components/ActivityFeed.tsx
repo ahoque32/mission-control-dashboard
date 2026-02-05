@@ -30,8 +30,19 @@ export default function ActivityFeed() {
   const previousCountRef = useRef<number>(0);
 
   // Create a map of agent IDs to agent data for quick lookup
+  // Map by: Firebase doc ID, name (lowercase), and sessionKey
   const agentMap = agents.reduce((map, agent) => {
     map[agent.id] = agent;
+    if (agent.name) {
+      map[agent.name.toLowerCase()] = agent;
+      map[agent.name] = agent;
+    }
+    if (agent.sessionKey) {
+      // Map by full sessionKey and by the agent name part (e.g., "jhawk-sys" from "agent:jhawk-sys:main")
+      map[agent.sessionKey] = agent;
+      const match = agent.sessionKey.match(/^agent:([^:]+):/);
+      if (match) map[match[1]] = agent;
+    }
     return map;
   }, {} as Record<string, typeof agents[0]>);
 
