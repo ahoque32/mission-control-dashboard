@@ -20,6 +20,7 @@ import { Task, TaskStatus, Priority } from '../../types';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import KanbanColumn from '../../components/KanbanColumn';
 import DraggableTaskCard from '../../components/DraggableTaskCard';
+import NewTaskForm from '../../components/NewTaskForm';
 
 // Column definitions
 const COLUMNS: { id: TaskStatus; label: string; color: string }[] = [
@@ -37,6 +38,7 @@ export default function TasksPage() {
   const { tasks, loading, error } = useTasks();
   const { agents } = useAgents();
   const [activeTask, setActiveTask] = useState<Task | null>(null);
+  const [isNewTaskFormOpen, setIsNewTaskFormOpen] = useState(false);
 
   // Filter state
   const [selectedAssignees, setSelectedAssignees] = useState<string[]>([]);
@@ -155,8 +157,7 @@ export default function TasksPage() {
 
   // Handle New Task button
   const handleNewTask = () => {
-    console.log('New Task clicked - form coming in mc-013');
-    alert('New Task form coming soon! (mc-013)');
+    setIsNewTaskFormOpen(true);
   };
 
   if (loading) {
@@ -185,7 +186,17 @@ export default function TasksPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] p-6">
+    <>
+      {/* New Task Form Modal */}
+      <NewTaskForm
+        isOpen={isNewTaskFormOpen}
+        onClose={() => setIsNewTaskFormOpen(false)}
+        onSuccess={() => {
+          console.log('Task created successfully!');
+        }}
+      />
+
+      <div className="min-h-screen bg-[#0a0a0a] p-6">
       {/* Header with New Task button */}
       <div className="mb-6 flex items-center justify-between">
         <div>
@@ -347,6 +358,7 @@ export default function TasksPage() {
           ) : null}
         </DragOverlay>
       </DndContext>
-    </div>
+      </div>
+    </>
   );
 }
