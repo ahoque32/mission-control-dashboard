@@ -87,7 +87,7 @@ export default function TaskDetail({
     <>
       {/* Backdrop */}
       <div 
-        className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40"
+        className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 modal-backdrop"
         onClick={onClose}
       />
 
@@ -99,6 +99,7 @@ export default function TaskDetail({
             w-full max-w-4xl max-h-[90vh]
             flex flex-col
             shadow-2xl shadow-[#d4a574]/20
+            modal-content
           "
           onClick={(e) => e.stopPropagation()}
         >

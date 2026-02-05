@@ -307,7 +307,46 @@ export default function TasksPage() {
         )}
       </div>
 
+      {/* Empty State for Filtered Tasks */}
+      {filteredTasks.length === 0 && tasks.length > 0 && (
+        <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-12 text-center mb-6">
+          <div className="text-5xl mb-4">🔍</div>
+          <h3 className="text-xl font-semibold text-[#ededed] mb-2">
+            No tasks match your filters
+          </h3>
+          <p className="text-[#888] mb-4">
+            Try adjusting your filter criteria to see more tasks
+          </p>
+          <button
+            onClick={clearFilters}
+            className="px-4 py-2 bg-[#d4a574] text-[#0a0a0a] rounded-lg hover:bg-[#c9996a] transition-colors"
+          >
+            Clear Filters
+          </button>
+        </div>
+      )}
+
+      {/* Empty State for No Tasks at All */}
+      {tasks.length === 0 && (
+        <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-12 text-center">
+          <div className="text-5xl mb-4">📋</div>
+          <h3 className="text-xl font-semibold text-[#ededed] mb-2">
+            No tasks yet
+          </h3>
+          <p className="text-[#888] mb-4">
+            Create your first task to get started
+          </p>
+          <button
+            onClick={handleNewTask}
+            className="px-6 py-3 bg-[#d4a574] text-[#0a0a0a] font-semibold rounded-lg hover:bg-[#c9996a] transition-colors"
+          >
+            + New Task
+          </button>
+        </div>
+      )}
+
       {/* Kanban Board */}
+      {filteredTasks.length > 0 && (
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}
@@ -358,6 +397,7 @@ export default function TasksPage() {
           ) : null}
         </DragOverlay>
       </DndContext>
+      )}
       </div>
     </>
   );

@@ -29,7 +29,9 @@ export default function DraggableTaskCard({ task }: DraggableTaskCardProps) {
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.5 : 1
+    opacity: isDragging ? 0.5 : 1,
+    scale: isDragging ? '1.02' : '1',
+    zIndex: isDragging ? 50 : 'auto'
   };
 
   const priorityStyle = PRIORITY_COLORS[task.priority];

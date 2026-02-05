@@ -127,7 +127,7 @@ export default function NewTaskForm({ isOpen, onClose, onSuccess }: NewTaskFormP
     <>
       {/* Backdrop */}
       <div 
-        className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40"
+        className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 modal-backdrop"
         onClick={handleCancel}
       />
 
@@ -139,6 +139,7 @@ export default function NewTaskForm({ isOpen, onClose, onSuccess }: NewTaskFormP
             w-full max-w-2xl max-h-[90vh]
             flex flex-col
             shadow-2xl shadow-[#d4a574]/20
+            modal-content
           "
           onClick={(e) => e.stopPropagation()}
         >
@@ -223,7 +224,7 @@ export default function NewTaskForm({ isOpen, onClose, onSuccess }: NewTaskFormP
               <label className="block text-sm font-semibold text-[#d4a574] mb-2">
                 Priority
               </label>
-              <div className="flex gap-2">
+              <div className="grid grid-cols-2 sm:flex gap-2">
                 {PRIORITY_OPTIONS.map(option => (
                   <button
                     key={option.value}
@@ -249,7 +250,7 @@ export default function NewTaskForm({ isOpen, onClose, onSuccess }: NewTaskFormP
               <label className="block text-sm font-semibold text-[#d4a574] mb-2">
                 Assign To
               </label>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {agents.map(agent => (
                   <label
                     key={agent.id}

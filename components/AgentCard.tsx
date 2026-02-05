@@ -73,7 +73,7 @@ export default function AgentCard({ agent, currentTask }: AgentCardProps) {
   const statusDisplay = getStatusDisplay(agent);
 
   return (
-    <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-5 hover:border-[#d4a574]/30 transition-all">
+    <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-5 hover:border-[#d4a574]/30 transition-all card-hover">
       {/* Header: Emoji + Status */}
       <div className="flex items-start justify-between mb-4">
         <div className="text-5xl leading-none">{agent.emoji}</div>
