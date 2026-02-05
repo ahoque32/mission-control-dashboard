@@ -34,7 +34,7 @@ export default function DraggableTaskCard({ task }: DraggableTaskCardProps) {
     zIndex: isDragging ? 50 : 'auto'
   };
 
-  const priorityStyle = PRIORITY_COLORS[task.priority];
+  const priorityStyle = PRIORITY_COLORS[task.priority] || PRIORITY_COLORS.medium;
 
   return (
     <div

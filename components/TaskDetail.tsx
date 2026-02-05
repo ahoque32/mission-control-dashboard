@@ -58,7 +58,7 @@ export default function TaskDetail({
     a.createdAt.toMillis() - b.createdAt.toMillis()
   );
 
-  const priorityStyle = PRIORITY_COLORS[task.priority];
+  const priorityStyle = PRIORITY_COLORS[task.priority] || PRIORITY_COLORS.medium;
   const statusStyle = STATUS_INFO[task.status];
 
   const handleStatusChange = (newStatus: TaskStatus) => {

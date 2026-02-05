@@ -27,8 +27,8 @@ const STATUS_COLORS: Record<TaskStatus, { bg: string; text: string }> = {
 };
 
 export default function TaskCard({ task, assigneeEmojis = [], onClick }: TaskCardProps) {
-  const priorityStyle = PRIORITY_COLORS[task.priority];
-  const statusStyle = STATUS_COLORS[task.status];
+  const priorityStyle = PRIORITY_COLORS[task.priority] || PRIORITY_COLORS.medium;
+  const statusStyle = STATUS_COLORS[task.status] || STATUS_COLORS.inbox;
 
   const handleClick = (e: React.MouseEvent) => {
     if (onClick) {
