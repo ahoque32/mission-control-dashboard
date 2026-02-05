@@ -1,0 +1,385 @@
+'use client';
+
+import { useMemo } from 'react';
+import { useAgents, useTasks, useActivity } from '../../lib/firebase';
+import { Agent, Task, Activity } from '../../types';
+import { Timestamp } from 'firebase/firestore';
+
+// Helper function to format relative time
+function formatRelativeTime(timestamp: Timestamp): string {
+  const now = Date.now();
+  const then = timestamp.toMillis();
+  const diffMs = now - then;
+  const diffMinutes = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  if (diffMinutes < 1) return 'just now';
+  if (diffMinutes === 1) return '1 min ago';
+  if (diffMinutes < 60) return `${diffMinutes} mins ago`;
+  if (diffHours === 1) return '1 hour ago';
+  if (diffHours < 24) return `${diffHours} hours ago`;
+  if (diffDays === 1) return '1 day ago';
+  return `${diffDays} days ago`;
+}
+
+// Determine if agent is offline based on last heartbeat
+function isOffline(lastHeartbeat: Timestamp): boolean {
+  const now = Date.now();
+  const then = lastHeartbeat.toMillis();
+  const diffMinutes = Math.floor((now - then) / 60000);
+  return diffMinutes > 5; // Consider offline if no heartbeat in 5+ minutes
+}
+
+// Get status color and label
+function getStatusDisplay(agent: Agent) {
+  const offline = isOffline(agent.lastHeartbeat);
+  
+  if (offline) {
+    return {
+      color: 'bg-[#333]',
+      label: 'offline',
+      textColor: 'text-[#666]',
+      dotColor: 'bg-[#555]'
+    };
+  }
+
+  switch (agent.status) {
+    case 'active':
+      return {
+        color: 'bg-green-500/20',
+        label: 'active',
+        textColor: 'text-green-400',
+        dotColor: 'bg-green-500'
+      };
+    case 'blocked':
+      return {
+        color: 'bg-red-500/20',
+        label: 'blocked',
+        textColor: 'text-red-400',
+        dotColor: 'bg-red-500'
+      };
+    case 'idle':
+    default:
+      return {
+        color: 'bg-gray-500/20',
+        label: 'idle',
+        textColor: 'text-gray-400',
+        dotColor: 'bg-gray-500'
+      };
+  }
+}
+
+// Get agent workload stats
+function getAgentWorkload(agentId: string, tasks: Task[]) {
+  const assigned = tasks.filter(t => 
+    t.assigneeIds.includes(agentId) && 
+    (t.status === 'assigned' || t.status === 'in_progress')
+  );
+  
+  const inProgress = assigned.filter(t => t.status === 'in_progress');
+  
+  return {
+    total: assigned.length,
+    inProgress: inProgress.length,
+    assigned: assigned.filter(t => t.status === 'assigned').length
+  };
+}
+
+// Get recent status changes for an agent
+function getStatusHistory(agentId: string, activities: Activity[]): Activity[] {
+  return activities
+    .filter(a => 
+      a.agentId === agentId && 
+      a.type === 'agent_status_changed'
+    )
+    .slice(0, 5); // Last 5 status changes
+}
+
+// Generate 24-hour heartbeat timeline data
+function getHeartbeatTimeline(agent: Agent, activities: Activity[]) {
+  const now = Date.now();
+  const oneDayAgo = now - 24 * 60 * 60 * 1000;
+  
+  // Get all agent activities in last 24h as heartbeat indicators
+  const recentActivities = activities
+    .filter(a => 
+      a.agentId === agent.id && 
+      a.createdAt.toMillis() > oneDayAgo
+    )
+    .sort((a, b) => a.createdAt.toMillis() - b.createdAt.toMillis());
+  
+  // Divide 24h into 24 hourly segments
+  const segments: Array<{ active: boolean; count: number }> = [];
+  for (let i = 0; i < 24; i++) {
+    const segmentStart = oneDayAgo + (i * 60 * 60 * 1000);
+    const segmentEnd = segmentStart + 60 * 60 * 1000;
+    
+    const activitiesInSegment = recentActivities.filter(a => {
+      const time = a.createdAt.toMillis();
+      return time >= segmentStart && time < segmentEnd;
+    });
+    
+    segments.push({
+      active: activitiesInSegment.length > 0,
+      count: activitiesInSegment.length
+    });
+  }
+  
+  return segments;
+}
+
+interface AgentDetailCardProps {
+  agent: Agent;
+  tasks: Task[];
+  activities: Activity[];
+}
+
+function AgentDetailCard({ agent, tasks, activities }: AgentDetailCardProps) {
+  const statusDisplay = getStatusDisplay(agent);
+  const workload = getAgentWorkload(agent.id, tasks);
+  const statusHistory = getStatusHistory(agent.id, activities);
+  const heartbeatTimeline = getHeartbeatTimeline(agent, activities);
+  
+  const currentTask = useMemo(() => {
+    if (!agent.currentTaskId) return null;
+    return tasks.find(t => t.id === agent.currentTaskId);
+  }, [agent.currentTaskId, tasks]);
+
+  return (
+    <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-6 hover:border-[#d4a574]/30 transition-all">
+      {/* Header: Emoji, Name, Status */}
+      <div className="flex items-start gap-4 mb-6">
+        <div className="text-5xl leading-none">{agent.emoji}</div>
+        
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-3 mb-2">
+            <div className="flex-1 min-w-0">
+              <h3 className="text-xl font-semibold text-[#ededed] mb-1 truncate">
+                {agent.name}
+              </h3>
+              <p className="text-sm text-[#888]">{agent.role}</p>
+            </div>
+            
+            <div className={`px-3 py-1 rounded-full ${statusDisplay.color} flex items-center gap-2`}>
+              <div className={`w-2 h-2 rounded-full ${statusDisplay.dotColor}`} />
+              <span className={`text-xs font-medium uppercase tracking-wide ${statusDisplay.textColor}`}>
+                {statusDisplay.label}
+              </span>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-4 text-xs text-[#666]">
+            <div className="flex items-center gap-1.5">
+              <span className="uppercase tracking-wide">Level:</span>
+              <span className="text-[#d4a574] font-medium">{agent.level}</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="uppercase tracking-wide">Last heartbeat:</span>
+              <span className="text-[#888] font-mono">{formatRelativeTime(agent.lastHeartbeat)}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Current Task */}
+      {currentTask && (
+        <div className="mb-6 pb-6 border-b border-[#2a2a2a]">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="text-xs text-[#d4a574] uppercase tracking-wide font-medium">
+              ⚡ Current Task
+            </div>
+          </div>
+          <p className="text-sm text-[#ededed] mb-1">{currentTask.title}</p>
+          <p className="text-xs text-[#888] line-clamp-2">{currentTask.description}</p>
+        </div>
+      )}
+
+      {/* Workload Stats */}
+      <div className="mb-6 pb-6 border-b border-[#2a2a2a]">
+        <div className="text-xs text-[#666] uppercase tracking-wide mb-3">Workload</div>
+        <div className="grid grid-cols-3 gap-4">
+          <div>
+            <div className="text-2xl font-bold text-[#ededed] mb-1">{workload.total}</div>
+            <div className="text-xs text-[#888]">Total Tasks</div>
+          </div>
+          <div>
+            <div className="text-2xl font-bold text-[#d4a574] mb-1">{workload.inProgress}</div>
+            <div className="text-xs text-[#888]">In Progress</div>
+          </div>
+          <div>
+            <div className="text-2xl font-bold text-[#666] mb-1">{workload.assigned}</div>
+            <div className="text-xs text-[#888]">Assigned</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Status History */}
+      {statusHistory.length > 0 && (
+        <div className="mb-6 pb-6 border-b border-[#2a2a2a]">
+          <div className="text-xs text-[#666] uppercase tracking-wide mb-3">Recent Status Changes</div>
+          <div className="space-y-2">
+            {statusHistory.map((activity) => (
+              <div key={activity.id} className="flex items-center justify-between text-xs">
+                <span className="text-[#aaa] line-clamp-1 flex-1 min-w-0 mr-3">
+                  {activity.message}
+                </span>
+                <span className="text-[#666] font-mono whitespace-nowrap">
+                  {formatRelativeTime(activity.createdAt)}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Heartbeat Timeline (Last 24h) */}
+      <div>
+        <div className="text-xs text-[#666] uppercase tracking-wide mb-3">
+          Activity Timeline (Last 24h)
+        </div>
+        <div className="flex items-end gap-0.5 h-12">
+          {heartbeatTimeline.map((segment, index) => {
+            const height = segment.active ? Math.min(100, 20 + segment.count * 15) : 10;
+            const bgColor = segment.active ? 'bg-[#d4a574]' : 'bg-[#2a2a2a]';
+            
+            return (
+              <div
+                key={index}
+                className={`flex-1 ${bgColor} rounded-sm transition-all hover:opacity-80`}
+                style={{ height: `${height}%` }}
+                title={`${24 - index}h ago: ${segment.count} activities`}
+              />
+            );
+          })}
+        </div>
+        <div className="flex justify-between text-[10px] text-[#555] mt-2">
+          <span>24h ago</span>
+          <span>12h ago</span>
+          <span>now</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function AgentsPage() {
+  const { agents, loading: agentsLoading, error: agentsError } = useAgents();
+  const { tasks, loading: tasksLoading } = useTasks();
+  const { activities, loading: activitiesLoading } = useActivity();
+
+  const loading = agentsLoading || tasksLoading || activitiesLoading;
+
+  // Sort agents: active first, then by name
+  const sortedAgents = useMemo(() => {
+    return [...agents].sort((a, b) => {
+      const aOffline = isOffline(a.lastHeartbeat);
+      const bOffline = isOffline(b.lastHeartbeat);
+      
+      // Online agents first
+      if (aOffline && !bOffline) return 1;
+      if (!aOffline && bOffline) return -1;
+      
+      // Then sort by status (active > idle > blocked)
+      const statusOrder = { active: 0, idle: 1, blocked: 2 };
+      const statusDiff = statusOrder[a.status] - statusOrder[b.status];
+      if (statusDiff !== 0) return statusDiff;
+      
+      // Finally by name
+      return a.name.localeCompare(b.name);
+    });
+  }, [agents]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] p-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-[#666]">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#d4a574] mx-auto mb-4"></div>
+              <p>Loading agents...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (agentsError) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] p-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-6 text-center">
+            <div className="text-4xl mb-3">⚠️</div>
+            <h2 className="text-xl font-semibold text-red-400 mb-2">Error Loading Agents</h2>
+            <p className="text-sm text-[#888]">{agentsError.message}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (agents.length === 0) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0a] p-8">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-4xl font-bold text-[#ededed] mb-8">🤖 Agents</h1>
+          
+          <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-12 text-center">
+            <div className="text-6xl mb-4">👻</div>
+            <h2 className="text-2xl font-semibold text-[#ededed] mb-2">No Agents Yet</h2>
+            <p className="text-[#888]">
+              Agents will appear here once they're registered in the system.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const activeCount = sortedAgents.filter(a => !isOffline(a.lastHeartbeat) && a.status === 'active').length;
+  const onlineCount = sortedAgents.filter(a => !isOffline(a.lastHeartbeat)).length;
+
+  return (
+    <div className="min-h-screen bg-[#0a0a0a] p-4 sm:p-6 lg:p-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl sm:text-4xl font-bold text-[#ededed] mb-3">🤖 Agents</h1>
+          <div className="flex flex-wrap items-center gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-green-500"></div>
+              <span className="text-[#888]">
+                <span className="text-[#ededed] font-medium">{activeCount}</span> active
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-[#d4a574]"></div>
+              <span className="text-[#888]">
+                <span className="text-[#ededed] font-medium">{onlineCount}</span> online
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-[#555]"></div>
+              <span className="text-[#888]">
+                <span className="text-[#ededed] font-medium">{sortedAgents.length - onlineCount}</span> offline
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Agents Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {sortedAgents.map((agent) => (
+            <AgentDetailCard
+              key={agent.id}
+              agent={agent}
+              tasks={tasks}
+              activities={activities}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
