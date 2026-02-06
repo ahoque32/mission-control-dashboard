@@ -8,8 +8,10 @@ import {
   orderBy,
   where,
   doc,
+  limit,
   DocumentData,
-  QuerySnapshot 
+  QuerySnapshot,
+  FirestoreError
 } from 'firebase/firestore';
 import { db } from './firebase-config';
 
@@ -30,10 +32,55 @@ export type {
 } from '../types';
 
 // Re-import for local use
-import type { Agent, Task, Activity, Message } from '../types';
+import type { Agent, Task, Activity, Message, Document } from '../types';
 
 // Export db instance for direct use
 export { db };
+
+// Default query limits to prevent unbounded data fetching
+const DEFAULT_LIMITS = {
+  agents: 100,
+  tasks: 200,
+  activities: 100,
+  messages: 500,
+  documents: 100
+} as const;
+
+/**
+ * Categorizes Firestore errors for appropriate handling
+ */
+function categorizeFirestoreError(error: FirestoreError): 'permission' | 'network' | 'not-found' | 'other' {
+  switch (error.code) {
+    case 'permission-denied':
+    case 'unauthenticated':
+      return 'permission';
+    case 'unavailable':
+    case 'deadline-exceeded':
+    case 'cancelled':
+      return 'network';
+    case 'not-found':
+      return 'not-found';
+    default:
+      return 'other';
+  }
+}
+
+/**
+ * Creates a user-friendly error message from Firestore errors
+ */
+function getErrorMessage(error: FirestoreError, context: string): string {
+  const category = categorizeFirestoreError(error);
+  switch (category) {
+    case 'permission':
+      return `Access denied to ${context}. Please check your permissions.`;
+    case 'network':
+      return `Network error while loading ${context}. Will retry when connection is restored.`;
+    case 'not-found':
+      return `${context} not found.`;
+    default:
+      return `Error loading ${context}: ${error.message}`;
+  }
+}
 
 // Helper function to convert Firestore snapshot to typed array
 function snapshotToArray<T>(snapshot: QuerySnapshot<DocumentData>): T[] {
@@ -43,19 +90,42 @@ function snapshotToArray<T>(snapshot: QuerySnapshot<DocumentData>): T[] {
   })) as T[];
 }
 
+// Hook result type for consistency
+interface UseCollectionResult<T> {
+  data: T[];
+  loading: boolean;
+  error: Error | null;
+  errorType: 'permission' | 'network' | 'not-found' | 'other' | null;
+}
+
+interface UseDocumentResult<T> {
+  data: T | null;
+  loading: boolean;
+  error: Error | null;
+  errorType: 'permission' | 'network' | 'not-found' | 'other' | null;
+}
+
 // React Hooks for real-time subscriptions
 
 /**
  * Subscribe to agents collection
- * Returns all agents sorted by name
+ * Returns all agents sorted by name (limited to DEFAULT_LIMITS.agents)
+ * 
+ * Required Firestore Security Rules:
+ * - Read access to 'agents' collection for authenticated users
  */
-export function useAgents() {
+export function useAgents(): UseCollectionResult<Agent> & { agents: Agent[] } {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [errorType, setErrorType] = useState<'permission' | 'network' | 'not-found' | 'other' | null>(null);
 
   useEffect(() => {
-    const q = query(collection(db, 'agents'), orderBy('name'));
+    const q = query(
+      collection(db, 'agents'), 
+      orderBy('name'),
+      limit(DEFAULT_LIMITS.agents)
+    );
     
     const unsubscribe = onSnapshot(
       q,
@@ -63,10 +133,15 @@ export function useAgents() {
         const data = snapshotToArray<Agent>(snapshot);
         setAgents(data);
         setLoading(false);
+        setError(null);
+        setErrorType(null);
       },
       (err) => {
-        console.error('Error subscribing to agents:', err);
-        setError(err as Error);
+        const firestoreError = err as FirestoreError;
+        console.error('Error subscribing to agents:', firestoreError);
+        const errType = categorizeFirestoreError(firestoreError);
+        setError(new Error(getErrorMessage(firestoreError, 'agents')));
+        setErrorType(errType);
         setLoading(false);
       }
     );
@@ -74,20 +149,28 @@ export function useAgents() {
     return () => unsubscribe();
   }, []);
 
-  return { agents, loading, error };
+  return { agents, data: agents, loading, error, errorType };
 }
 
 /**
  * Subscribe to tasks collection
- * Returns all tasks sorted by updatedAt (most recent first)
+ * Returns all tasks sorted by updatedAt (most recent first, limited to DEFAULT_LIMITS.tasks)
+ * 
+ * Required Firestore Security Rules:
+ * - Read access to 'tasks' collection for authenticated users
  */
-export function useTasks() {
+export function useTasks(): UseCollectionResult<Task> & { tasks: Task[] } {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [errorType, setErrorType] = useState<'permission' | 'network' | 'not-found' | 'other' | null>(null);
 
   useEffect(() => {
-    const q = query(collection(db, 'tasks'), orderBy('updatedAt', 'desc'));
+    const q = query(
+      collection(db, 'tasks'), 
+      orderBy('updatedAt', 'desc'),
+      limit(DEFAULT_LIMITS.tasks)
+    );
     
     const unsubscribe = onSnapshot(
       q,
@@ -95,10 +178,15 @@ export function useTasks() {
         const data = snapshotToArray<Task>(snapshot);
         setTasks(data);
         setLoading(false);
+        setError(null);
+        setErrorType(null);
       },
       (err) => {
-        console.error('Error subscribing to tasks:', err);
-        setError(err as Error);
+        const firestoreError = err as FirestoreError;
+        console.error('Error subscribing to tasks:', firestoreError);
+        const errType = categorizeFirestoreError(firestoreError);
+        setError(new Error(getErrorMessage(firestoreError, 'tasks')));
+        setErrorType(errType);
         setLoading(false);
       }
     );
@@ -106,20 +194,28 @@ export function useTasks() {
     return () => unsubscribe();
   }, []);
 
-  return { tasks, loading, error };
+  return { tasks, data: tasks, loading, error, errorType };
 }
 
 /**
  * Subscribe to activity collection
- * Returns recent activity sorted by createdAt (most recent first)
+ * Returns recent activity sorted by createdAt (most recent first, limited to DEFAULT_LIMITS.activities)
+ * 
+ * Required Firestore Security Rules:
+ * - Read access to 'activities' collection for authenticated users
  */
-export function useActivity() {
+export function useActivity(): UseCollectionResult<Activity> & { activities: Activity[] } {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [errorType, setErrorType] = useState<'permission' | 'network' | 'not-found' | 'other' | null>(null);
 
   useEffect(() => {
-    const q = query(collection(db, 'activities'), orderBy('createdAt', 'desc'));
+    const q = query(
+      collection(db, 'activities'), 
+      orderBy('createdAt', 'desc'),
+      limit(DEFAULT_LIMITS.activities)
+    );
     
     const unsubscribe = onSnapshot(
       q,
@@ -127,10 +223,15 @@ export function useActivity() {
         const data = snapshotToArray<Activity>(snapshot);
         setActivities(data);
         setLoading(false);
+        setError(null);
+        setErrorType(null);
       },
       (err) => {
-        console.error('Error subscribing to activities:', err);
-        setError(err as Error);
+        const firestoreError = err as FirestoreError;
+        console.error('Error subscribing to activities:', firestoreError);
+        const errType = categorizeFirestoreError(firestoreError);
+        setError(new Error(getErrorMessage(firestoreError, 'activities')));
+        setErrorType(errType);
         setLoading(false);
       }
     );
@@ -138,20 +239,28 @@ export function useActivity() {
     return () => unsubscribe();
   }, []);
 
-  return { activities, loading, error };
+  return { activities, data: activities, loading, error, errorType };
 }
 
 /**
  * Subscribe to messages collection
- * Returns all messages sorted by createdAt (oldest first for chat-like display)
+ * Returns all messages sorted by createdAt (oldest first for chat-like display, limited to DEFAULT_LIMITS.messages)
+ * 
+ * Required Firestore Security Rules:
+ * - Read access to 'messages' collection for authenticated users
  */
-export function useMessages() {
+export function useMessages(): UseCollectionResult<Message> & { messages: Message[] } {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [errorType, setErrorType] = useState<'permission' | 'network' | 'not-found' | 'other' | null>(null);
 
   useEffect(() => {
-    const q = query(collection(db, 'messages'), orderBy('createdAt', 'asc'));
+    const q = query(
+      collection(db, 'messages'), 
+      orderBy('createdAt', 'asc'),
+      limit(DEFAULT_LIMITS.messages)
+    );
     
     const unsubscribe = onSnapshot(
       q,
@@ -159,10 +268,15 @@ export function useMessages() {
         const data = snapshotToArray<Message>(snapshot);
         setMessages(data);
         setLoading(false);
+        setError(null);
+        setErrorType(null);
       },
       (err) => {
-        console.error('Error subscribing to messages:', err);
-        setError(err as Error);
+        const firestoreError = err as FirestoreError;
+        console.error('Error subscribing to messages:', firestoreError);
+        const errType = categorizeFirestoreError(firestoreError);
+        setError(new Error(getErrorMessage(firestoreError, 'messages')));
+        setErrorType(errType);
         setLoading(false);
       }
     );
@@ -170,23 +284,28 @@ export function useMessages() {
     return () => unsubscribe();
   }, []);
 
-  return { messages, loading, error };
+  return { messages, data: messages, loading, error, errorType };
 }
-
-// Import Document type for the hook
-import type { Document } from '../types';
 
 /**
  * Subscribe to documents collection
- * Returns all documents sorted by updatedAt (most recent first)
+ * Returns all documents sorted by updatedAt (most recent first, limited to DEFAULT_LIMITS.documents)
+ * 
+ * Required Firestore Security Rules:
+ * - Read access to 'documents' collection for authenticated users
  */
-export function useDocuments() {
+export function useDocuments(): UseCollectionResult<Document> & { documents: Document[] } {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [errorType, setErrorType] = useState<'permission' | 'network' | 'not-found' | 'other' | null>(null);
 
   useEffect(() => {
-    const q = query(collection(db, 'documents'), orderBy('updatedAt', 'desc'));
+    const q = query(
+      collection(db, 'documents'), 
+      orderBy('updatedAt', 'desc'),
+      limit(DEFAULT_LIMITS.documents)
+    );
     
     const unsubscribe = onSnapshot(
       q,
@@ -194,10 +313,15 @@ export function useDocuments() {
         const data = snapshotToArray<Document>(snapshot);
         setDocuments(data);
         setLoading(false);
+        setError(null);
+        setErrorType(null);
       },
       (err) => {
-        console.error('Error subscribing to documents:', err);
-        setError(err as Error);
+        const firestoreError = err as FirestoreError;
+        console.error('Error subscribing to documents:', firestoreError);
+        const errType = categorizeFirestoreError(firestoreError);
+        setError(new Error(getErrorMessage(firestoreError, 'documents')));
+        setErrorType(errType);
         setLoading(false);
       }
     );
@@ -205,29 +329,37 @@ export function useDocuments() {
     return () => unsubscribe();
   }, []);
 
-  return { documents, loading, error };
+  return { documents, data: documents, loading, error, errorType };
 }
 
 /**
  * Subscribe to messages for a specific task (from top-level messages collection)
  * Returns messages sorted by createdAt (oldest first for chat-like display)
+ * 
+ * Required Firestore Security Rules:
+ * - Read access to 'messages' collection where taskId matches
+ * - Composite index on (taskId, createdAt)
  */
-export function useTaskMessages(taskId: string | null) {
+export function useTaskMessages(taskId: string | null): UseCollectionResult<Message> & { messages: Message[] } {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [errorType, setErrorType] = useState<'permission' | 'network' | 'not-found' | 'other' | null>(null);
 
   useEffect(() => {
     if (!taskId) {
       setMessages([]);
       setLoading(false);
+      setError(null);
+      setErrorType(null);
       return;
     }
 
     const q = query(
       collection(db, 'messages'), 
       where('taskId', '==', taskId),
-      orderBy('createdAt', 'asc')
+      orderBy('createdAt', 'asc'),
+      limit(DEFAULT_LIMITS.messages)
     );
     
     const unsubscribe = onSnapshot(
@@ -236,10 +368,15 @@ export function useTaskMessages(taskId: string | null) {
         const data = snapshotToArray<Message>(snapshot);
         setMessages(data);
         setLoading(false);
+        setError(null);
+        setErrorType(null);
       },
       (err) => {
-        console.error('Error subscribing to task messages:', err);
-        setError(err as Error);
+        const firestoreError = err as FirestoreError;
+        console.error('Error subscribing to task messages:', firestoreError);
+        const errType = categorizeFirestoreError(firestoreError);
+        setError(new Error(getErrorMessage(firestoreError, 'task messages')));
+        setErrorType(errType);
         setLoading(false);
       }
     );
@@ -247,21 +384,27 @@ export function useTaskMessages(taskId: string | null) {
     return () => unsubscribe();
   }, [taskId]);
 
-  return { messages, loading, error };
+  return { messages, data: messages, loading, error, errorType };
 }
 
 /**
  * Get a single task by ID
+ * 
+ * Required Firestore Security Rules:
+ * - Read access to 'tasks/{taskId}' for authenticated users
  */
-export function useTask(taskId: string | null) {
+export function useTask(taskId: string | null): UseDocumentResult<Task> & { task: Task | null } {
   const [task, setTask] = useState<Task | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [errorType, setErrorType] = useState<'permission' | 'network' | 'not-found' | 'other' | null>(null);
 
   useEffect(() => {
     if (!taskId) {
       setTask(null);
       setLoading(false);
+      setError(null);
+      setErrorType(null);
       return;
     }
 
@@ -274,10 +417,15 @@ export function useTask(taskId: string | null) {
           setTask(null);
         }
         setLoading(false);
+        setError(null);
+        setErrorType(null);
       },
       (err) => {
-        console.error('Error subscribing to task:', err);
-        setError(err as Error);
+        const firestoreError = err as FirestoreError;
+        console.error('Error subscribing to task:', firestoreError);
+        const errType = categorizeFirestoreError(firestoreError);
+        setError(new Error(getErrorMessage(firestoreError, 'task')));
+        setErrorType(errType);
         setLoading(false);
       }
     );
@@ -285,5 +433,5 @@ export function useTask(taskId: string | null) {
     return () => unsubscribe();
   }, [taskId]);
 
-  return { task, loading, error };
+  return { task, data: task, loading, error, errorType };
 }
