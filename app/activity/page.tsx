@@ -3,6 +3,10 @@
 import { useActivity } from '../../lib/firebase';
 import { Activity } from '../../types';
 
+// Note: Metadata must be exported from a Server Component.
+// For client components, we set document.title in useEffect if needed,
+// or move metadata to a parent layout.tsx
+
 // Activity type icons and colors
 const ACTIVITY_STYLES: Record<string, { icon: string; color: string; bg: string }> = {
   task_complete: { icon: '✅', color: 'text-green-400', bg: 'bg-green-500/20' },
