@@ -13,9 +13,9 @@ export default function AgentGrid() {
   // Loading state
   if (agentsLoading || tasksLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex items-center justify-center min-h-[400px]" role="status" aria-label="Loading agents">
         <div className="text-center">
-          <div className="inline-block w-8 h-8 border-4 border-[#d4a574] border-t-transparent rounded-full animate-spin mb-3" />
+          <div className="inline-block w-8 h-8 border-4 border-[#d4a574] border-t-transparent rounded-full animate-spin mb-3" aria-hidden="true" />
           <p className="text-[#888]">Loading agents...</p>
         </div>
       </div>

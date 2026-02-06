@@ -91,9 +91,9 @@ export default function KanbanBoard() {
   // Loading state
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
+      <div className="flex items-center justify-center h-96" role="status" aria-label="Loading tasks">
         <div className="text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#d4a574] border-r-transparent mb-4" />
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#d4a574] border-r-transparent mb-4" aria-hidden="true" />
           <p className="text-[#888]">Loading tasks...</p>
         </div>
       </div>
@@ -125,7 +125,7 @@ export default function KanbanBoard() {
       onDragEnd={handleDragEnd}
     >
       {/* Kanban Board Grid */}
-      <div className="flex gap-4 overflow-x-auto pb-4">
+      <div className="flex gap-4 overflow-x-auto pb-4" role="region" aria-label="Task board">
         {COLUMNS.map(column => {
           const columnTasks = tasksByStatus[column.id];
           const taskIds = columnTasks.map(task => task.id);

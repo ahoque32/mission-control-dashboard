@@ -151,6 +151,7 @@ export default function NewTaskForm({ isOpen, onClose, onSuccess }: NewTaskFormP
               </h2>
               <button
                 onClick={handleCancel}
+                aria-label="Close form"
                 className="
                   text-[#888] hover:text-[#ededed]
                   text-2xl leading-none

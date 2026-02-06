@@ -225,8 +225,9 @@ export default function TaskComments({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <div className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-solid border-[#d4a574] border-r-transparent" />
+      <div className="flex items-center justify-center py-8" role="status" aria-label="Loading comments">
+        <div className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-solid border-[#d4a574] border-r-transparent" aria-hidden="true" />
+        <span className="sr-only">Loading comments...</span>
       </div>
     );
   }

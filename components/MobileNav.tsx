@@ -37,7 +37,9 @@ export default function MobileNav() {
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="text-[#ededed] p-2 hover:bg-[#1a1a1a] rounded-lg transition-colors"
-            aria-label="Toggle menu"
+            aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"}
+            aria-expanded={isOpen}
+            aria-controls="mobile-nav-menu"
           >
             {isOpen ? (
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -60,8 +62,14 @@ export default function MobileNav() {
             onClick={() => setIsOpen(false)}
           />
           
-          <div className="lg:hidden fixed top-[73px] left-0 right-0 bottom-0 bg-[#0a0a0a] z-40 overflow-y-auto">
-            <nav className="p-4 space-y-1">
+          <div 
+            id="mobile-nav-menu"
+            className="lg:hidden fixed top-[73px] left-0 right-0 bottom-0 bg-[#0a0a0a] z-40 overflow-y-auto"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Navigation menu"
+          >
+            <nav className="p-4 space-y-1" role="navigation" aria-label="Main navigation">
               {navItems.map((item) => {
                 const isActive = pathname === item.href;
                 

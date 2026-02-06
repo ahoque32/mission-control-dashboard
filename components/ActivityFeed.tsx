@@ -58,9 +58,9 @@ export default function ActivityFeed() {
   // Loading state
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex items-center justify-center h-64" role="status" aria-label="Loading activity">
         <div className="text-center">
-          <div className="w-8 h-8 border-2 border-[#d4a574] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+          <div className="w-8 h-8 border-2 border-[#d4a574] border-t-transparent rounded-full animate-spin mx-auto mb-3" aria-hidden="true" />
           <p className="text-sm text-[#888]">Loading activity...</p>
         </div>
       </div>
@@ -94,7 +94,7 @@ export default function ActivityFeed() {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3" role="feed" aria-label="Activity feed" aria-busy={loading}>
       {/* Scroll anchor at top */}
       <div ref={feedEndRef} />
 
@@ -104,8 +104,10 @@ export default function ActivityFeed() {
         const agentName = agent?.name || 'Unknown Agent';
 
         return (
-          <div
+          <article
             key={activity.id}
+            role="article"
+            aria-label={`Activity by ${agentName}: ${activity.message}`}
             className="
               bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-4
               hover:border-[#d4a574]/30 transition-all
@@ -151,7 +153,7 @@ export default function ActivityFeed() {
                 </span>
               </div>
             </div>
-          </div>
+          </article>
         );
       })}
     </div>

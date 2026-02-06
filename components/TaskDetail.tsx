@@ -1,6 +1,7 @@
 'use client';
 
 import { Task, Agent, Message, Priority, TaskStatus } from '../types';
+import { Timestamp } from 'firebase/firestore';
 import ReactMarkdown from 'react-markdown';
 import { useState } from 'react';
 import TaskComments from './TaskComments';
@@ -69,7 +70,7 @@ export default function TaskDetail({
     setShowStatusMenu(false);
   };
 
-  const formatTimestamp = (timestamp: any) => {
+  const formatTimestamp = (timestamp: Timestamp) => {
     const date = timestamp.toDate();
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
@@ -176,6 +177,7 @@ export default function TaskDetail({
               {/* Close Button */}
               <button
                 onClick={onClose}
+                aria-label="Close task details"
                 className="
                   text-[#888] hover:text-[#ededed]
                   text-2xl leading-none
@@ -261,17 +263,17 @@ export default function TaskDetail({
                   <ReactMarkdown
                     components={{
                       // Style markdown elements to match dark theme
-                      h1: ({ node, ...props }) => <h1 className="text-xl font-bold text-[#ededed] mb-2" {...props} />,
-                      h2: ({ node, ...props }) => <h2 className="text-lg font-bold text-[#ededed] mb-2" {...props} />,
-                      h3: ({ node, ...props }) => <h3 className="text-base font-bold text-[#ededed] mb-2" {...props} />,
-                      p: ({ node, ...props }) => <p className="text-[#ededed] mb-2" {...props} />,
-                      a: ({ node, ...props }) => <a className="text-[#d4a574] hover:underline" {...props} />,
-                      code: ({ node, ...props }) => <code className="bg-[#0a0a0a] text-[#d4a574] px-1 rounded" {...props} />,
-                      pre: ({ node, ...props }) => <pre className="bg-[#0a0a0a] p-3 rounded overflow-x-auto" {...props} />,
-                      ul: ({ node, ...props }) => <ul className="list-disc list-inside mb-2" {...props} />,
-                      ol: ({ node, ...props }) => <ol className="list-decimal list-inside mb-2" {...props} />,
-                      li: ({ node, ...props }) => <li className="text-[#ededed] mb-1" {...props} />,
-                      blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-[#d4a574] pl-4 italic text-[#888]" {...props} />,
+                      h1: (props) => <h1 className="text-xl font-bold text-[#ededed] mb-2" {...props} />,
+                      h2: (props) => <h2 className="text-lg font-bold text-[#ededed] mb-2" {...props} />,
+                      h3: (props) => <h3 className="text-base font-bold text-[#ededed] mb-2" {...props} />,
+                      p: (props) => <p className="text-[#ededed] mb-2" {...props} />,
+                      a: (props) => <a className="text-[#d4a574] hover:underline" {...props} />,
+                      code: (props) => <code className="bg-[#0a0a0a] text-[#d4a574] px-1 rounded" {...props} />,
+                      pre: (props) => <pre className="bg-[#0a0a0a] p-3 rounded overflow-x-auto" {...props} />,
+                      ul: (props) => <ul className="list-disc list-inside mb-2" {...props} />,
+                      ol: (props) => <ol className="list-decimal list-inside mb-2" {...props} />,
+                      li: (props) => <li className="text-[#ededed] mb-1" {...props} />,
+                      blockquote: (props) => <blockquote className="border-l-4 border-[#d4a574] pl-4 italic text-[#888]" {...props} />,
                     }}
                   >
                     {task.description}
