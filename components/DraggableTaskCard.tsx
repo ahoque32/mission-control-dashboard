@@ -2,6 +2,7 @@
 
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import Link from 'next/link';
 import { Task, Priority } from '../types';
 
 interface DraggableTaskCardProps {
@@ -49,9 +50,13 @@ export default function DraggableTaskCard({ task }: DraggableTaskCardProps) {
       "
     >
       {/* Task Title */}
-      <h4 className="text-sm font-medium text-[#ededed] mb-2 line-clamp-2">
+      <Link 
+        href={`/tasks/${task.id}`}
+        className="block text-sm font-medium text-[#ededed] mb-2 line-clamp-2 hover:text-[#d4a574] transition-colors"
+        onClick={(e) => e.stopPropagation()}
+      >
         {task.title}
-      </h4>
+      </Link>
 
       {/* Task Description (truncated) */}
       {task.description && (

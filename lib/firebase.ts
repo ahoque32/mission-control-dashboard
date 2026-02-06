@@ -6,6 +6,8 @@ import {
   onSnapshot, 
   query, 
   orderBy,
+  where,
+  doc,
   DocumentData,
   QuerySnapshot 
 } from 'firebase/firestore';
@@ -207,7 +209,7 @@ export function useDocuments() {
 }
 
 /**
- * Subscribe to messages subcollection for a specific task
+ * Subscribe to messages for a specific task (from top-level messages collection)
  * Returns messages sorted by createdAt (oldest first for chat-like display)
  */
 export function useTaskMessages(taskId: string | null) {
@@ -223,7 +225,8 @@ export function useTaskMessages(taskId: string | null) {
     }
 
     const q = query(
-      collection(db, 'tasks', taskId, 'messages'), 
+      collection(db, 'messages'), 
+      where('taskId', '==', taskId),
       orderBy('createdAt', 'asc')
     );
     
@@ -245,4 +248,42 @@ export function useTaskMessages(taskId: string | null) {
   }, [taskId]);
 
   return { messages, loading, error };
+}
+
+/**
+ * Get a single task by ID
+ */
+export function useTask(taskId: string | null) {
+  const [task, setTask] = useState<Task | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    if (!taskId) {
+      setTask(null);
+      setLoading(false);
+      return;
+    }
+
+    const unsubscribe = onSnapshot(
+      doc(db, 'tasks', taskId),
+      (snapshot) => {
+        if (snapshot.exists()) {
+          setTask({ id: snapshot.id, ...snapshot.data() } as Task);
+        } else {
+          setTask(null);
+        }
+        setLoading(false);
+      },
+      (err) => {
+        console.error('Error subscribing to task:', err);
+        setError(err as Error);
+        setLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [taskId]);
+
+  return { task, loading, error };
 }
