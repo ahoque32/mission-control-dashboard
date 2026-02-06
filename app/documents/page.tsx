@@ -393,7 +393,7 @@ export default function DocumentsPage() {
             <div className="text-6xl mb-4">📂</div>
             <h2 className="text-2xl font-semibold text-[#ededed] mb-2">No Documents Yet</h2>
             <p className="text-[#888]">
-              Documents will appear here once they're created in the system.
+              Documents will appear here once they&apos;re created in the system.
             </p>
           </div>
         )}

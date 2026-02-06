@@ -127,7 +127,7 @@ export default function CommentInput({
     <div className="relative">
       {/* Toolbar */}
       <div className="flex items-center justify-between mb-2 px-1">
-        <div className="flex items-center gap-2 text-xs text-gray-500">
+        <div className="flex items-center gap-2 text-xs text-[#666]">
           <span>💬 Markdown supported</span>
           <span>•</span>
           <span>@ to mention</span>
@@ -139,7 +139,7 @@ export default function CommentInput({
             className={`text-xs px-2 py-1 rounded transition-colors ${
               showPreview
                 ? 'bg-[#d4a574] text-[#0a0a0a]'
-                : 'text-gray-500 hover:text-[#ededed]'
+                : 'text-[#666] hover:text-[#ededed]'
             }`}
           >
             {showPreview ? '✏️ Edit' : '👁️ Preview'}
@@ -149,13 +149,13 @@ export default function CommentInput({
 
       {/* Input or Preview */}
       {showPreview ? (
-        <div className="min-h-[120px] max-h-[300px] overflow-y-auto px-4 py-3 bg-[#1a1a1a] border border-gray-700 rounded-lg">
+        <div className="min-h-[120px] max-h-[300px] overflow-y-auto px-4 py-3 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg">
           {content.trim() ? (
             <div className="prose prose-invert prose-sm max-w-none">
               <ReactMarkdown>{content}</ReactMarkdown>
             </div>
           ) : (
-            <p className="text-gray-500 italic">Nothing to preview...</p>
+            <p className="text-[#666] italic">Nothing to preview...</p>
           )}
         </div>
       ) : (
@@ -167,12 +167,12 @@ export default function CommentInput({
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
             disabled={disabled}
-            className="w-full min-h-[120px] max-h-[300px] px-4 py-3 bg-[#1a1a1a] border border-gray-700 rounded-lg text-[#ededed] placeholder-gray-500 focus:outline-none focus:border-[#d4a574] resize-y transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full min-h-[120px] max-h-[300px] px-4 py-3 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg text-[#ededed] placeholder-[#666] focus:outline-none focus:border-[#d4a574] resize-y transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           />
 
           {/* @mention autocomplete dropdown */}
           {showMentions && filteredAgents.length > 0 && (
-            <div className="absolute bottom-full left-0 mb-2 w-64 bg-[#1a1a1a] border border-gray-700 rounded-lg shadow-xl max-h-48 overflow-y-auto z-10">
+            <div className="absolute bottom-full left-0 mb-2 w-64 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg shadow-xl max-h-48 overflow-y-auto z-10">
               {filteredAgents.map((agent, index) => (
                 <button
                   key={agent.id}
@@ -181,14 +181,14 @@ export default function CommentInput({
                   className={`w-full text-left px-3 py-2 flex items-center gap-2 transition-colors ${
                     index === selectedMentionIndex
                       ? 'bg-[#d4a574] text-[#0a0a0a]'
-                      : 'hover:bg-gray-800 text-[#ededed]'
+                      : 'hover:bg-[#2a2a2a] text-[#ededed]'
                   }`}
                 >
                   <span className="text-lg">{agent.emoji}</span>
                   <div className="flex-1 min-w-0">
                     <div className="font-medium truncate">{agent.name}</div>
                     <div className={`text-xs truncate ${
-                      index === selectedMentionIndex ? 'text-[#0a0a0a]/70' : 'text-gray-500'
+                      index === selectedMentionIndex ? 'text-[#0a0a0a]/70' : 'text-[#666]'
                     }`}>
                       {agent.role}
                     </div>
@@ -196,7 +196,7 @@ export default function CommentInput({
                   <div className={`text-xs px-1.5 py-0.5 rounded ${
                     index === selectedMentionIndex
                       ? 'bg-[#0a0a0a]/20 text-[#0a0a0a]'
-                      : 'bg-gray-700 text-gray-400'
+                      : 'bg-[#2a2a2a] text-[#888]'
                   }`}>
                     {agent.status}
                   </div>
@@ -214,7 +214,7 @@ export default function CommentInput({
           <button
             type="button"
             disabled={true}
-            className="p-2 text-gray-500 hover:text-[#ededed] hover:bg-gray-800 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            className="p-2 text-[#666] hover:text-[#ededed] hover:bg-[#2a2a2a] rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
             title="File attachments (coming soon)"
           >
             <svg
@@ -234,14 +234,14 @@ export default function CommentInput({
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-500">
+          <span className="text-xs text-[#666]">
             {content.length > 0 && `${content.length} chars`}
           </span>
           <button
             type="button"
             onClick={handleSubmit}
             disabled={!content.trim() || disabled}
-            className="px-4 py-2 bg-[#d4a574] text-[#0a0a0a] font-medium rounded-lg hover:bg-[#c69563] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+            className="px-4 py-2 bg-[#d4a574] text-[#0a0a0a] font-medium rounded-lg hover:bg-[#c9996a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
           >
             Send
           </button>
@@ -249,8 +249,8 @@ export default function CommentInput({
       </div>
 
       {/* Keyboard shortcuts hint */}
-      <div className="mt-2 text-xs text-gray-600 px-1">
-        <kbd className="px-1 py-0.5 bg-gray-800 rounded">⌘/Ctrl</kbd> + <kbd className="px-1 py-0.5 bg-gray-800 rounded">Enter</kbd> to send
+      <div className="mt-2 text-xs text-[#555] px-1">
+        <kbd className="px-1 py-0.5 bg-[#2a2a2a] rounded">⌘/Ctrl</kbd> + <kbd className="px-1 py-0.5 bg-[#2a2a2a] rounded">Enter</kbd> to send
       </div>
     </div>
   );

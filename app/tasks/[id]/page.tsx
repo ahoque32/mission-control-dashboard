@@ -1,6 +1,6 @@
 'use client';
 
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useTask, useTaskMessages, useAgents } from '../../../lib/firebase';
 import { Timestamp } from 'firebase/firestore';
@@ -49,7 +49,6 @@ function getPriorityColor(priority: string) {
 
 export default function TaskDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const taskId = params.id as string;
   
   const { task, loading: taskLoading, error: taskError } = useTask(taskId);

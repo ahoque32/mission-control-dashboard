@@ -438,7 +438,7 @@ export default function TaskComments({
               type="button"
               onClick={handleSubmit}
               disabled={!content.trim() || sending}
-              className="px-4 py-2 bg-[#d4a574] text-[#0a0a0a] font-medium rounded-lg hover:bg-[#c69563] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center gap-2"
+              className="px-4 py-2 bg-[#d4a574] text-[#0a0a0a] font-medium rounded-lg hover:bg-[#c9996a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center gap-2"
             >
               {sending ? (
                 <>

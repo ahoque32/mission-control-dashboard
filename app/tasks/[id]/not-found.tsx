@@ -14,7 +14,7 @@ export default function TaskNotFound() {
             Task Not Found
           </h1>
           <p className="text-[#888] mb-8">
-            The task you're looking for doesn't exist or may have been deleted.
+            The task you&apos;re looking for doesn&apos;t exist or may have been deleted.
           </p>
           <Link
             href="/tasks"
