@@ -80,7 +80,14 @@ export type ActivityType =
   | 'task_assigned' 
   | 'message_sent' 
   | 'document_created' 
-  | 'agent_status_changed';
+  | 'agent_status_changed'
+  | 'session_created'
+  | 'session_state_changed'
+  | 'agent_task_started'
+  | 'agent_task_completed'
+  | 'agent_task_failed'
+  | 'agent_run_started'
+  | 'agent_run_completed';
 
 export interface Activity {
   id: string;
