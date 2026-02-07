@@ -1,6 +1,6 @@
 /**
  * Mission Control TypeScript Type Definitions
- * Based on schema.js - Firestore data model
+ * Generated from schema.js
  */
 
 import { Timestamp } from 'firebase/firestore';
@@ -31,29 +31,20 @@ export interface Agent {
 // ============================================================================
 
 export type TaskStatus = 'inbox' | 'assigned' | 'in_progress' | 'review' | 'done' | 'blocked';
-export type Priority = 'low' | 'medium' | 'high' | 'urgent';
+export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
 
 export interface Task {
   id: string;
   title: string;
   description: string;
   status: TaskStatus;
-  priority: Priority;
+  priority: TaskPriority;
   assigneeIds: string[];
   createdBy: string;
   dueDate: Timestamp | null;
   tags: string[];
   createdAt: Timestamp;
   updatedAt: Timestamp;
-}
-
-// Subcollection: tasks/{taskId}/comments
-export interface TaskComment {
-  id: string;
-  fromAgentId: string;
-  content: string;
-  mentions: string[];
-  createdAt: Timestamp;
 }
 
 // ============================================================================
@@ -74,12 +65,12 @@ export interface Message {
 // Activity Types
 // ============================================================================
 
-export type ActivityType = 
-  | 'task_created' 
-  | 'task_updated' 
-  | 'task_assigned' 
-  | 'message_sent' 
-  | 'document_created' 
+export type ActivityType =
+  | 'task_created'
+  | 'task_updated'
+  | 'task_assigned'
+  | 'message_sent'
+  | 'document_created'
   | 'agent_status_changed'
   | 'session_created'
   | 'session_state_changed'
@@ -89,13 +80,22 @@ export type ActivityType =
   | 'agent_run_started'
   | 'agent_run_completed';
 
+export interface ActivityMetadata {
+  agentName?: string;
+  taskName?: string;
+  duration?: number;
+  errorSummary?: string;
+  iterationCount?: number;
+  [key: string]: any;
+}
+
 export interface Activity {
   id: string;
   type: ActivityType;
   agentId: string;
   taskId: string | null;
   message: string;
-  metadata: Record<string, any>;
+  metadata: ActivityMetadata;
   createdAt: Timestamp;
 }
 
@@ -129,5 +129,59 @@ export interface Notification {
   content: string;
   delivered: boolean;
   deliveredAt: Timestamp | null;
+  claimedBy: string | null;
+  claimedAt: Timestamp | null;
   createdAt: Timestamp;
 }
+
+// ============================================================================
+// Session Types
+// ============================================================================
+
+export type SessionState = 'creating' | 'active' | 'completed' | 'failed';
+
+export interface SessionStateHistoryEntry {
+  state: SessionState;
+  timestamp: Timestamp;
+  reason: string;
+}
+
+export interface Session {
+  id: string;
+  agentId: string;
+  sessionKey: string;
+  state: SessionState;
+  stateHistory: SessionStateHistoryEntry[];
+  metadata: Record<string, any>;
+  heartbeat: Timestamp;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+// ============================================================================
+// Lock Types
+// ============================================================================
+
+export interface Lock {
+  id: string;
+  lockName: string;
+  ownerId: string;
+  acquiredAt: Timestamp;
+  expiresAt: Timestamp;
+  renewCount: number;
+}
+
+// ============================================================================
+// Collection Constants
+// ============================================================================
+
+export const COLLECTIONS = {
+  AGENTS: 'agents',
+  TASKS: 'tasks',
+  MESSAGES: 'messages',
+  ACTIVITIES: 'activities',
+  DOCUMENTS: 'documents',
+  NOTIFICATIONS: 'notifications',
+  SESSIONS: 'sessions',
+  LOCKS: 'locks'
+} as const;
