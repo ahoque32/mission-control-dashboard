@@ -1,7 +1,10 @@
 'use client';
 
-import { Agent } from '../types';
+import { useState, useEffect } from 'react';
+import { Agent, Activity } from '../types';
 import { Timestamp } from 'firebase/firestore';
+import { collection, query, where, orderBy, limit, onSnapshot } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 
 interface AgentCardProps {
   agent: Agent;
@@ -71,6 +74,39 @@ function getStatusDisplay(agent: Agent) {
 
 export default function AgentCard({ agent, currentTask }: AgentCardProps) {
   const statusDisplay = getStatusDisplay(agent);
+  const [recentActivity, setRecentActivity] = useState<Activity | null>(null);
+  const [isActive, setIsActive] = useState(false);
+
+  // Subscribe to recent activities for this agent
+  useEffect(() => {
+    // Query for agent's most recent activity in the last 5 minutes
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+    
+    const q = query(
+      collection(db, 'activities'),
+      where('agentId', '==', agent.id),
+      where('createdAt', '>=', Timestamp.fromDate(fiveMinutesAgo)),
+      orderBy('createdAt', 'desc'),
+      limit(1)
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      if (!snapshot.empty) {
+        const activity = snapshot.docs[0].data() as Activity;
+        activity.id = snapshot.docs[0].id;
+        setRecentActivity(activity);
+        setIsActive(true);
+      } else {
+        setRecentActivity(null);
+        setIsActive(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [agent.id]);
+
+  // Get task name from recent activity for tooltip
+  const activeTaskName = recentActivity?.metadata?.taskName as string | undefined;
 
   return (
     <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-5 hover:border-[#d4a574]/30 transition-all card-hover">
@@ -78,8 +114,20 @@ export default function AgentCard({ agent, currentTask }: AgentCardProps) {
       <div className="flex items-start justify-between mb-4">
         <div className="text-5xl leading-none">{agent.emoji}</div>
         <div className="flex items-center gap-2">
-          <div className={`w-2.5 h-2.5 rounded-full ${statusDisplay.color}`} />
-          <span className={`text-xs font-medium uppercase tracking-wide ${statusDisplay.textColor}`}>
+          <div className="relative">
+            <div className={`w-2.5 h-2.5 rounded-full ${statusDisplay.color}`} />
+            {/* Pulsing active indicator */}
+            {isActive && (
+              <div 
+                className="absolute inset-0 w-2.5 h-2.5 rounded-full bg-green-400 animate-ping opacity-75"
+                title={activeTaskName ? `Working on: ${activeTaskName}` : 'Active now'}
+              />
+            )}
+          </div>
+          <span 
+            className={`text-xs font-medium uppercase tracking-wide ${statusDisplay.textColor}`}
+            title={isActive && activeTaskName ? `Working on: ${activeTaskName}` : undefined}
+          >
             {statusDisplay.label}
           </span>
         </div>
