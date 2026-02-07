@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { useActivity, useAgents } from '../lib/firebase';
-import { Activity } from '../types';
+import { Activity, ActivityType } from '../types';
 import { Timestamp } from 'firebase/firestore';
 
 // Helper function to format relative time
@@ -21,6 +21,92 @@ function formatRelativeTime(timestamp: Timestamp): string {
   if (diffHours < 24) return `${diffHours} hours ago`;
   if (diffDays === 1) return '1 day ago';
   return `${diffDays} days ago`;
+}
+
+// Helper to format duration in milliseconds to human-readable
+function formatDuration(ms: number): string {
+  if (ms < 1000) return `${ms}ms`;
+  if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`;
+  if (ms < 3600000) return `${Math.floor(ms / 60000)}m ${Math.floor((ms % 60000) / 1000)}s`;
+  return `${Math.floor(ms / 3600000)}h ${Math.floor((ms % 3600000) / 60000)}m`;
+}
+
+// Activity type styling configuration
+interface ActivityStyle {
+  icon: string;
+  bgColor: string;
+  textColor: string;
+  borderColor: string;
+}
+
+function getActivityStyle(type: ActivityType): ActivityStyle {
+  switch (type) {
+    // Agent task lifecycle - success states
+    case 'agent_task_completed':
+      return {
+        icon: '✅',
+        bgColor: 'bg-green-500/10',
+        textColor: 'text-green-400',
+        borderColor: 'border-green-500/20',
+      };
+    case 'agent_run_completed':
+      return {
+        icon: '🏁',
+        bgColor: 'bg-green-500/10',
+        textColor: 'text-green-400',
+        borderColor: 'border-green-500/20',
+      };
+    
+    // Agent task lifecycle - in progress states
+    case 'agent_task_started':
+      return {
+        icon: '🚀',
+        bgColor: 'bg-blue-500/10',
+        textColor: 'text-blue-400',
+        borderColor: 'border-blue-500/20',
+      };
+    case 'agent_run_started':
+      return {
+        icon: '▶️',
+        bgColor: 'bg-blue-500/10',
+        textColor: 'text-blue-400',
+        borderColor: 'border-blue-500/20',
+      };
+    
+    // Agent task lifecycle - failure states
+    case 'agent_task_failed':
+      return {
+        icon: '❌',
+        bgColor: 'bg-red-500/10',
+        textColor: 'text-red-400',
+        borderColor: 'border-red-500/20',
+      };
+    
+    // Session events
+    case 'session_created':
+      return {
+        icon: '🔗',
+        bgColor: 'bg-purple-500/10',
+        textColor: 'text-purple-400',
+        borderColor: 'border-purple-500/20',
+      };
+    case 'session_state_changed':
+      return {
+        icon: '🔄',
+        bgColor: 'bg-purple-500/10',
+        textColor: 'text-purple-400',
+        borderColor: 'border-purple-500/20',
+      };
+    
+    // Default styling for other types
+    default:
+      return {
+        icon: '📝',
+        bgColor: 'bg-[#d4a574]/10',
+        textColor: 'text-[#d4a574]',
+        borderColor: 'border-[#d4a574]/20',
+      };
+  }
 }
 
 export default function ActivityFeed() {
@@ -102,6 +188,15 @@ export default function ActivityFeed() {
         const agent = agentMap[activity.agentId];
         const agentEmoji = agent?.emoji || '🤖';
         const agentName = agent?.name || 'Unknown Agent';
+        const style = getActivityStyle(activity.type);
+        
+        // Extract metadata for display
+        const metadata = activity.metadata || {};
+        const duration = metadata.duration as number | undefined;
+        const taskName = metadata.taskName as string | undefined;
+        const errorSummary = metadata.errorSummary as string | undefined;
+        const iterationCount = metadata.iterationCount as number | undefined;
+        const displayAgentName = metadata.agentName as string | undefined;
 
         return (
           <article
@@ -130,7 +225,7 @@ export default function ActivityFeed() {
               {/* Agent name and timestamp */}
               <div className="flex items-baseline justify-between gap-2 mb-2">
                 <span className="text-sm font-medium text-[#ededed]">
-                  {agentName}
+                  {displayAgentName || agentName}
                 </span>
                 <span className="text-xs text-[#666] font-mono whitespace-nowrap">
                   {formatRelativeTime(activity.createdAt)}
@@ -142,15 +237,50 @@ export default function ActivityFeed() {
                 {activity.message}
               </p>
 
-              {/* Activity type badge */}
-              <div className="mt-2">
-                <span className="
-                  inline-block text-xs px-2 py-0.5 rounded
-                  bg-[#d4a574]/10 text-[#d4a574]
-                  border border-[#d4a574]/20
-                ">
+              {/* Task name if present */}
+              {taskName && (
+                <p className="text-xs text-[#666] mt-1 italic">
+                  Task: {taskName}
+                </p>
+              )}
+
+              {/* Error summary for failed tasks */}
+              {errorSummary && (
+                <div className="mt-2 p-2 bg-red-500/5 border border-red-500/20 rounded text-xs text-red-400">
+                  {errorSummary}
+                </div>
+              )}
+
+              {/* Metadata badges row */}
+              <div className="mt-2 flex flex-wrap gap-2">
+                {/* Activity type badge with styling */}
+                <span className={`
+                  inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded
+                  ${style.bgColor} ${style.textColor} border ${style.borderColor}
+                `}>
+                  <span>{style.icon}</span>
                   {activity.type.replace(/_/g, ' ')}
                 </span>
+
+                {/* Duration badge */}
+                {duration !== undefined && duration > 0 && (
+                  <span className="
+                    inline-block text-xs px-2 py-0.5 rounded
+                    bg-[#333] text-[#888] border border-[#444]
+                  ">
+                    ⏱️ {formatDuration(duration)}
+                  </span>
+                )}
+
+                {/* Iteration count badge */}
+                {iterationCount !== undefined && (
+                  <span className="
+                    inline-block text-xs px-2 py-0.5 rounded
+                    bg-[#333] text-[#888] border border-[#444]
+                  ">
+                    #️⃣ Run {iterationCount}
+                  </span>
+                )}
               </div>
             </div>
           </article>
