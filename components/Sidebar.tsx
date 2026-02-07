@@ -1,5 +1,15 @@
 'use client';
 
+/**
+ * Sidebar Component
+ * Main navigation sidebar for desktop view
+ * Features:
+ * - Dark theme styling
+ * - Active route highlighting
+ * - Real-time agent status
+ * - Responsive design (hidden on mobile)
+ */
+
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAgents } from '../lib/firebase';
@@ -15,7 +25,6 @@ const navItems: NavItem[] = [
   { label: 'Dashboard', href: '/', icon: '📊' },
   { label: 'Tasks', href: '/tasks', icon: '✓' },
   { label: 'Agents', href: '/agents', icon: '🤖' },
-  { label: 'Documents', href: '/documents', icon: '📄' },
   { label: 'Activity', href: '/activity', icon: '📡' },
 ];
 
@@ -61,8 +70,9 @@ export default function Sidebar() {
                   : 'text-[#aaa] hover:bg-[#1a1a1a] hover:text-[#ededed]'
                 }
               `}
+              aria-current={isActive ? 'page' : undefined}
             >
-              <span className="text-lg">{item.icon}</span>
+              <span className="text-lg" aria-hidden="true">{item.icon}</span>
               <span>{item.label}</span>
               
               {/* Agent count indicator on Agents page */}
@@ -94,7 +104,10 @@ export default function Sidebar() {
           {!loading && (
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1.5">
-                <div className={`w-2 h-2 rounded-full ${activeCount > 0 ? 'bg-green-500' : 'bg-[#444]'}`} />
+                <div 
+                  className={`w-2 h-2 rounded-full ${activeCount > 0 ? 'bg-green-500' : 'bg-[#444]'}`}
+                  aria-label={`${activeCount} active agents`}
+                />
                 <span className="text-sm text-[#ededed]">{activeCount}</span>
               </div>
               <span className="text-xs text-[#666]">/</span>

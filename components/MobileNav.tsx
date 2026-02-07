@@ -1,5 +1,15 @@
 'use client';
 
+/**
+ * MobileNav Component
+ * Mobile-responsive navigation with hamburger menu
+ * Features:
+ * - Collapsible sidebar
+ * - Touch-friendly navigation
+ * - Agent status indicator
+ * - Overlay backdrop
+ */
+
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -15,7 +25,6 @@ const navItems: NavItem[] = [
   { label: 'Dashboard', href: '/', icon: '📊' },
   { label: 'Tasks', href: '/tasks', icon: '✓' },
   { label: 'Agents', href: '/agents', icon: '🤖' },
-  { label: 'Documents', href: '/documents', icon: '📄' },
   { label: 'Activity', href: '/activity', icon: '📡' },
 ];
 
@@ -32,7 +41,10 @@ export default function MobileNav() {
       {/* Mobile Header */}
       <header className="lg:hidden bg-[#0a0a0a] border-b border-[#2a2a2a] sticky top-0 z-50">
         <div className="flex items-center justify-between p-4">
-          <h1 className="text-xl font-bold text-[#ededed]">Mission Control</h1>
+          <div>
+            <h1 className="text-xl font-bold text-[#ededed]">Mission Control</h1>
+            <p className="text-xs text-[#888]">Real-time Operations</p>
+          </div>
           
           <button
             onClick={() => setIsOpen(!isOpen)}
@@ -58,13 +70,14 @@ export default function MobileNav() {
       {isOpen && (
         <>
           <div 
-            className="lg:hidden fixed inset-0 bg-black/50 z-40"
+            className="lg:hidden fixed inset-0 bg-black/50 z-40 modal-backdrop"
             onClick={() => setIsOpen(false)}
+            aria-hidden="true"
           />
           
           <div 
             id="mobile-nav-menu"
-            className="lg:hidden fixed top-[73px] left-0 right-0 bottom-0 bg-[#0a0a0a] z-40 overflow-y-auto"
+            className="lg:hidden fixed top-[89px] left-0 right-0 bottom-0 bg-[#0a0a0a] z-40 overflow-y-auto modal-content"
             role="dialog"
             aria-modal="true"
             aria-label="Navigation menu"
@@ -85,8 +98,9 @@ export default function MobileNav() {
                         : 'text-[#aaa] hover:bg-[#1a1a1a] hover:text-[#ededed]'
                       }
                     `}
+                    aria-current={isActive ? 'page' : undefined}
                   >
-                    <span className="text-lg">{item.icon}</span>
+                    <span className="text-lg" aria-hidden="true">{item.icon}</span>
                     <span>{item.label}</span>
                     
                     {item.href === '/agents' && !loading && (
@@ -114,7 +128,10 @@ export default function MobileNav() {
                 {!loading && (
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1.5">
-                      <div className={`w-2 h-2 rounded-full ${activeCount > 0 ? 'bg-green-500' : 'bg-[#444]'}`} />
+                      <div 
+                        className={`w-2 h-2 rounded-full ${activeCount > 0 ? 'bg-green-500' : 'bg-[#444]'}`}
+                        aria-label={`${activeCount} active agents`}
+                      />
                       <span className="text-sm text-[#ededed]">{activeCount}</span>
                     </div>
                     <span className="text-xs text-[#666]">/</span>
