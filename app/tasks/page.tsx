@@ -16,7 +16,7 @@ import {
   verticalListSortingStrategy
 } from '@dnd-kit/sortable';
 import { useTasks, useAgents, db } from '../../lib/firebase';
-import { Task, TaskStatus, Priority } from '../../types';
+import { Task, TaskStatus, TaskPriority } from '../../types';
 import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import KanbanColumn from '../../components/KanbanColumn';
 import DraggableTaskCard from '../../components/DraggableTaskCard';
@@ -32,7 +32,7 @@ const COLUMNS: { id: TaskStatus; label: string; color: string }[] = [
   { id: 'blocked', label: 'Blocked', color: '#ef4444' }
 ];
 
-const PRIORITIES: Priority[] = ['low', 'medium', 'high', 'urgent'];
+const PRIORITIES: TaskPriority[] = ['low', 'medium', 'high', 'urgent'];
 
 export default function TasksPage() {
   const { tasks, loading, error } = useTasks();
@@ -42,7 +42,7 @@ export default function TasksPage() {
 
   // Filter state
   const [selectedAssignees, setSelectedAssignees] = useState<string[]>([]);
-  const [selectedPriorities, setSelectedPriorities] = useState<Priority[]>([]);
+  const [selectedPriorities, setSelectedPriorities] = useState<TaskPriority[]>([]);
   const [selectedStatuses, setSelectedStatuses] = useState<TaskStatus[]>([]);
 
   // Configure drag sensors
@@ -128,7 +128,7 @@ export default function TasksPage() {
     );
   };
 
-  const togglePriority = (priority: Priority) => {
+  const togglePriority = (priority: TaskPriority) => {
     setSelectedPriorities(prev =>
       prev.includes(priority)
         ? prev.filter(p => p !== priority)
