@@ -43,9 +43,9 @@ function getStatusDisplay(agent: Agent) {
   
   if (offline) {
     return {
-      color: 'bg-[#333]',
+      color: 'bg-gray-500',
       label: 'offline',
-      textColor: 'text-[#666]'
+      textColor: 'text-gray-400'
     };
   }
 
@@ -59,15 +59,15 @@ function getStatusDisplay(agent: Agent) {
     case 'blocked':
       return {
         color: 'bg-red-500',
-        label: 'blocked',
+        label: 'error',
         textColor: 'text-red-400'
       };
     case 'idle':
     default:
       return {
-        color: 'bg-gray-500',
+        color: 'bg-yellow-500',
         label: 'idle',
-        textColor: 'text-gray-400'
+        textColor: 'text-yellow-400'
       };
   }
 }
