@@ -2,6 +2,18 @@
 
 import { Task, Agent, TaskStatus, TaskPriority } from '../types';
 
+/**
+ * TaskCard - Individual task card component for Mission Control Dashboard
+ * 
+ * Displays task summary with:
+ * - Title and description
+ * - Priority badge (high=red, medium=yellow, low=gray)
+ * - Assignee avatars (agent emojis)
+ * - Status indicator (colored dot)
+ * - Tags
+ * 
+ * Clicking the card triggers onClick handler (for opening detail modal in mc-008)
+ */
 interface TaskCardProps {
   task: Task;
   assigneeEmojis?: string[]; // Array of agent emojis for the assignees
