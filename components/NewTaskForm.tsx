@@ -3,7 +3,7 @@
 import { useState, FormEvent } from 'react';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db, useAgents } from '../lib/firebase';
-import { Priority } from '../types';
+import { TaskPriority } from '../types';
 
 interface NewTaskFormProps {
   isOpen: boolean;
@@ -12,7 +12,7 @@ interface NewTaskFormProps {
 }
 
 // Priority options
-const PRIORITY_OPTIONS: { value: Priority; label: string; color: string }[] = [
+const PRIORITY_OPTIONS: { value: TaskPriority; label: string; color: string }[] = [
   { value: 'low', label: 'Low', color: 'text-blue-400' },
   { value: 'medium', label: 'Medium', color: 'text-yellow-400' },
   { value: 'high', label: 'High', color: 'text-orange-400' },
@@ -25,7 +25,7 @@ export default function NewTaskForm({ isOpen, onClose, onSuccess }: NewTaskFormP
   // Form state
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [priority, setPriority] = useState<Priority>('medium');
+  const [priority, setPriority] = useState<TaskPriority>('medium');
   const [selectedAssignees, setSelectedAssignees] = useState<string[]>([]);
   const [tagsInput, setTagsInput] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);

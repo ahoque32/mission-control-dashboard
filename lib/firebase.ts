@@ -22,7 +22,7 @@ export type {
   AgentLevel,
   Task,
   TaskStatus,
-  Priority,
+  TaskPriority,
   Message,
   Activity,
   ActivityType,
