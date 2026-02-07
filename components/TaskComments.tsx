@@ -27,6 +27,7 @@ export default function TaskComments({
 }: TaskCommentsProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
   const [content, setContent] = useState('');
   const [showPreview, setShowPreview] = useState(false);
   const [showMentions, setShowMentions] = useState(false);
@@ -39,7 +40,19 @@ export default function TaskComments({
 
   // Subscribe to messages subcollection for this task
   useEffect(() => {
-    if (!taskId) return;
+    if (!taskId) {
+      setMessages([]);
+      setLoading(false);
+      setError(null);
+      return;
+    }
+
+    // Reset states when taskId changes
+    setLoading(true);
+    setError(null);
+    
+    // Flag to prevent state updates after unmount or taskId change
+    let isMounted = true;
 
     const messagesRef = collection(db, 'tasks', taskId, 'messages');
     const q = query(messagesRef, orderBy('createdAt', 'asc'));
@@ -47,20 +60,32 @@ export default function TaskComments({
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
+        // Only update state if component is still mounted and taskId hasn't changed
+        if (!isMounted) return;
+        
         const msgs: Message[] = snapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
         })) as Message[];
         setMessages(msgs);
         setLoading(false);
+        setError(null);
       },
       (err) => {
+        // Only update state if component is still mounted and taskId hasn't changed
+        if (!isMounted) return;
+        
         console.error('Error loading messages:', err);
+        setError(err as Error);
         setLoading(false);
+        setMessages([]);
       }
     );
 
-    return () => unsubscribe();
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
   }, [taskId]);
 
   // Auto-scroll to bottom when new messages arrive
@@ -228,6 +253,27 @@ export default function TaskComments({
       <div className="flex items-center justify-center py-8" role="status" aria-label="Loading comments">
         <div className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-solid border-[#d4a574] border-r-transparent" aria-hidden="true" />
         <span className="sr-only">Loading comments...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="py-8">
+        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-6 text-center">
+          <div className="text-3xl mb-3">⚠️</div>
+          <h3 className="text-lg font-semibold text-red-400 mb-2">Failed to Load Comments</h3>
+          <p className="text-sm text-[#888] mb-4">{error.message}</p>
+          <button
+            onClick={() => {
+              setError(null);
+              setLoading(true);
+            }}
+            className="px-4 py-2 bg-[#d4a574] text-[#0a0a0a] font-medium rounded-lg hover:bg-[#c9996a] transition-colors text-sm"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }

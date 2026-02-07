@@ -76,9 +76,15 @@ export default function AgentCard({ agent, currentTask }: AgentCardProps) {
   const statusDisplay = getStatusDisplay(agent);
   const [recentActivity, setRecentActivity] = useState<Activity | null>(null);
   const [isActive, setIsActive] = useState(false);
+  const [activityLoading, setActivityLoading] = useState(true);
+  const [activityError, setActivityError] = useState<Error | null>(null);
 
   // Subscribe to recent activities for this agent
   useEffect(() => {
+    // Reset states on agent change
+    setActivityLoading(true);
+    setActivityError(null);
+    
     // Query for agent's most recent activity in the last 5 minutes
     const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
     
@@ -90,17 +96,29 @@ export default function AgentCard({ agent, currentTask }: AgentCardProps) {
       limit(1)
     );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      if (!snapshot.empty) {
-        const activity = snapshot.docs[0].data() as Activity;
-        activity.id = snapshot.docs[0].id;
-        setRecentActivity(activity);
-        setIsActive(true);
-      } else {
+    const unsubscribe = onSnapshot(
+      q, 
+      (snapshot) => {
+        if (!snapshot.empty) {
+          const activity = snapshot.docs[0].data() as Activity;
+          activity.id = snapshot.docs[0].id;
+          setRecentActivity(activity);
+          setIsActive(true);
+        } else {
+          setRecentActivity(null);
+          setIsActive(false);
+        }
+        setActivityLoading(false);
+        setActivityError(null);
+      },
+      (error) => {
+        console.error(`Error subscribing to activities for agent ${agent.id}:`, error);
+        setActivityError(error as Error);
+        setActivityLoading(false);
         setRecentActivity(null);
         setIsActive(false);
       }
-    });
+    );
 
     return () => unsubscribe();
   }, [agent.id]);
