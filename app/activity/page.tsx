@@ -7,16 +7,32 @@ import { Activity } from '../../types';
 // For client components, we set document.title in useEffect if needed,
 // or move metadata to a parent layout.tsx
 
-// Activity type icons and colors
+// Activity type icons and colors - ALIGNED WITH schema.js ACTIVITY_TYPE
 const ACTIVITY_STYLES: Record<string, { icon: string; color: string; bg: string }> = {
-  task_complete: { icon: '✅', color: 'text-green-400', bg: 'bg-green-500/20' },
+  // Task lifecycle
   task_created: { icon: '📝', color: 'text-blue-400', bg: 'bg-blue-500/20' },
   task_updated: { icon: '✏️', color: 'text-yellow-400', bg: 'bg-yellow-500/20' },
-  agent_online: { icon: '🟢', color: 'text-green-400', bg: 'bg-green-500/20' },
-  agent_offline: { icon: '🔴', color: 'text-red-400', bg: 'bg-red-500/20' },
-  scout_run: { icon: '🔭', color: 'text-purple-400', bg: 'bg-purple-500/20' },
-  ralph_prime: { icon: '🤖', color: 'text-cyan-400', bg: 'bg-cyan-500/20' },
-  error: { icon: '⚠️', color: 'text-red-400', bg: 'bg-red-500/20' },
+  task_assigned: { icon: '👤', color: 'text-cyan-400', bg: 'bg-cyan-500/20' },
+  
+  // Communication
+  message_sent: { icon: '💬', color: 'text-purple-400', bg: 'bg-purple-500/20' },
+  document_created: { icon: '📄', color: 'text-blue-400', bg: 'bg-blue-500/20' },
+  
+  // Agent status
+  agent_status_changed: { icon: '🔄', color: 'text-cyan-400', bg: 'bg-cyan-500/20' },
+  
+  // Session lifecycle
+  session_created: { icon: '🔗', color: 'text-purple-400', bg: 'bg-purple-500/20' },
+  session_state_changed: { icon: '🔄', color: 'text-purple-400', bg: 'bg-purple-500/20' },
+  
+  // Agent work tracking (Ralph agents)
+  agent_task_started: { icon: '🚀', color: 'text-blue-400', bg: 'bg-blue-500/20' },
+  agent_task_completed: { icon: '✅', color: 'text-green-400', bg: 'bg-green-500/20' },
+  agent_task_failed: { icon: '❌', color: 'text-red-400', bg: 'bg-red-500/20' },
+  agent_run_started: { icon: '▶️', color: 'text-blue-400', bg: 'bg-blue-500/20' },
+  agent_run_completed: { icon: '🏁', color: 'text-green-400', bg: 'bg-green-500/20' },
+  
+  // Fallback for any unhandled types
   custom: { icon: '📌', color: 'text-gray-400', bg: 'bg-gray-500/20' },
 };
 
