@@ -11,12 +11,18 @@ export default function Home() {
   const { agents, loading: agentsLoading } = useAgents();
   const { tasks, loading: tasksLoading } = useTasks();
 
-  // Calculate task statistics
+  // Calculate task statistics by status
   const taskStats = useMemo(() => {
     const total = tasks.length;
+    
+    // Status-based counts
+    const pending = tasks.filter(t => t.status === 'inbox' || t.status === 'assigned').length;
     const inProgress = tasks.filter(t => t.status === 'in_progress').length;
     const done = tasks.filter(t => t.status === 'done').length;
     const blocked = tasks.filter(t => t.status === 'blocked').length;
+    const review = tasks.filter(t => t.status === 'review').length;
+    
+    // Additional useful stats
     const unassigned = tasks.filter(t => t.assigneeIds.length === 0).length;
     
     // Tasks completed today
@@ -36,16 +42,18 @@ export default function Home() {
 
     return {
       total,
+      pending,
       inProgress,
       done,
       blocked,
+      review,
       unassigned,
       completedToday,
       highPriority
     };
   }, [tasks]);
 
-  // Get recent tasks (5-10 most recent)
+  // Get recent tasks (most recent 10)
   const recentTasks = useMemo(() => {
     return tasks.slice(0, 10);
   }, [tasks]);
@@ -62,8 +70,9 @@ export default function Home() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-[#0a0a0a]">
-        <div className="text-[#ededed] text-lg animate-pulse">
-          Loading dashboard...
+        <div className="text-center">
+          <div className="inline-block w-8 h-8 border-4 border-[#d4a574] border-t-transparent rounded-full animate-spin mb-3" />
+          <p className="text-[#888]">Loading dashboard...</p>
         </div>
       </div>
     );
@@ -90,9 +99,9 @@ export default function Home() {
         <AgentGrid />
       </section>
 
-      {/* Middle Section: Activity Feed (40%) + Task Stats (60%) */}
+      {/* Middle Section: Activity Feed (40% left) + Task Summary Stats (60% right) */}
       <section className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-8">
-        {/* Activity Feed - Left 40% */}
+        {/* Activity Feed - Left 40% (2 of 5 columns) */}
         <div className="lg:col-span-2">
           <h2 className="text-xl font-semibold text-[#ededed] mb-4 flex items-center gap-2">
             <span className="text-2xl">📊</span>
@@ -101,47 +110,49 @@ export default function Home() {
           <ActivityFeed />
         </div>
 
-        {/* Task Statistics - Right 60% */}
+        {/* Task Summary Statistics - Right 60% (3 of 5 columns) */}
         <div className="lg:col-span-3">
           <h2 className="text-xl font-semibold text-[#ededed] mb-4 flex items-center gap-2">
             <span className="text-2xl">📈</span>
             Task Summary
           </h2>
+          
+          {/* Stats Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {/* Total Tasks */}
-            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-4">
+            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-4 hover:border-[#d4a574]/30 transition-all">
               <div className="text-3xl font-bold text-[#d4a574] mb-1">
                 {taskStats.total}
               </div>
               <div className="text-sm text-[#888]">Total Tasks</div>
             </div>
 
+            {/* Pending (inbox + assigned) */}
+            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-4 hover:border-blue-400/30 transition-all">
+              <div className="text-3xl font-bold text-blue-400 mb-1">
+                {taskStats.pending}
+              </div>
+              <div className="text-sm text-[#888]">Pending</div>
+            </div>
+
             {/* In Progress */}
-            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-4">
+            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-4 hover:border-purple-400/30 transition-all">
               <div className="text-3xl font-bold text-purple-400 mb-1">
                 {taskStats.inProgress}
               </div>
               <div className="text-sm text-[#888]">In Progress</div>
             </div>
 
-            {/* Completed Today */}
-            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-4">
-              <div className="text-3xl font-bold text-green-400 mb-1">
-                {taskStats.completedToday}
+            {/* In Review */}
+            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-4 hover:border-yellow-400/30 transition-all">
+              <div className="text-3xl font-bold text-yellow-400 mb-1">
+                {taskStats.review}
               </div>
-              <div className="text-sm text-[#888]">Done Today</div>
-            </div>
-
-            {/* High Priority */}
-            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-4">
-              <div className="text-3xl font-bold text-red-400 mb-1">
-                {taskStats.highPriority}
-              </div>
-              <div className="text-sm text-[#888]">High Priority</div>
+              <div className="text-sm text-[#888]">In Review</div>
             </div>
 
             {/* Done */}
-            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-4">
+            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-4 hover:border-green-400/30 transition-all">
               <div className="text-3xl font-bold text-green-400 mb-1">
                 {taskStats.done}
               </div>
@@ -149,29 +160,27 @@ export default function Home() {
             </div>
 
             {/* Blocked */}
-            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-4">
+            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-4 hover:border-red-400/30 transition-all">
               <div className="text-3xl font-bold text-red-400 mb-1">
                 {taskStats.blocked}
               </div>
               <div className="text-sm text-[#888]">Blocked</div>
             </div>
 
-            {/* Unassigned */}
-            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-4">
-              <div className="text-3xl font-bold text-gray-400 mb-1">
-                {taskStats.unassigned}
+            {/* Completed Today */}
+            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-4 hover:border-green-400/30 transition-all">
+              <div className="text-3xl font-bold text-green-400 mb-1">
+                {taskStats.completedToday}
               </div>
-              <div className="text-sm text-[#888]">Unassigned</div>
+              <div className="text-sm text-[#888]">Done Today</div>
             </div>
 
-            {/* Completion Rate */}
-            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-4">
-              <div className="text-3xl font-bold text-[#d4a574] mb-1">
-                {taskStats.total > 0 
-                  ? Math.round((taskStats.done / taskStats.total) * 100) 
-                  : 0}%
+            {/* High Priority */}
+            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-4 hover:border-red-400/30 transition-all">
+              <div className="text-3xl font-bold text-red-400 mb-1">
+                {taskStats.highPriority}
               </div>
-              <div className="text-sm text-[#888]">Complete</div>
+              <div className="text-sm text-[#888]">High Priority</div>
             </div>
           </div>
         </div>
@@ -185,6 +194,7 @@ export default function Home() {
         </h2>
         {recentTasks.length === 0 ? (
           <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-8 text-center">
+            <div className="text-4xl mb-3">📋</div>
             <p className="text-[#888]">No tasks yet. Create your first task to get started!</p>
           </div>
         ) : (
