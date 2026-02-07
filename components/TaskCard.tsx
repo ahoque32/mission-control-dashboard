@@ -1,6 +1,6 @@
 'use client';
 
-import { Task, Priority, TaskStatus } from '../types';
+import { Task, Agent, TaskStatus, TaskPriority } from '../types';
 
 interface TaskCardProps {
   task: Task;
@@ -8,12 +8,12 @@ interface TaskCardProps {
   onClick?: () => void;
 }
 
-// Priority badge colors (consistent with DraggableTaskCard)
-const PRIORITY_COLORS: Record<Priority, { bg: string; text: string; label: string }> = {
-  low: { bg: 'bg-blue-500/20', text: 'text-blue-400', label: 'Low' },
+// Priority badge colors (high=red, medium=yellow, low=gray)
+const PRIORITY_COLORS: Record<TaskPriority, { bg: string; text: string; label: string }> = {
+  low: { bg: 'bg-gray-500/20', text: 'text-gray-400', label: 'Low' },
   medium: { bg: 'bg-yellow-500/20', text: 'text-yellow-400', label: 'Med' },
-  high: { bg: 'bg-orange-500/20', text: 'text-orange-400', label: 'High' },
-  urgent: { bg: 'bg-red-500/20', text: 'text-red-400', label: 'Urgent' }
+  high: { bg: 'bg-red-500/20', text: 'text-red-400', label: 'High' },
+  urgent: { bg: 'bg-red-600/30', text: 'text-red-300', label: 'Urgent' }
 };
 
 // Status indicator colors
@@ -55,7 +55,10 @@ export default function TaskCard({ task, assigneeEmojis = [], onClick }: TaskCar
         </h4>
         
         {/* Status Dot */}
-        <div className={`w-2 h-2 rounded-full mt-1 ${statusStyle.bg} ${statusStyle.text}`} />
+        <div 
+          className={`w-2 h-2 rounded-full mt-1 ${statusStyle.bg} ${statusStyle.text}`}
+          title={task.status}
+        />
       </div>
 
       {/* Description */}
