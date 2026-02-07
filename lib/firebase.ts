@@ -95,6 +95,19 @@ function sanitizeTask(data: DocumentData & { id: string }): DocumentData & { id:
   };
 }
 
+// Ensure activity documents have all required fields with safe defaults
+function sanitizeActivity(data: DocumentData & { id: string }): DocumentData & { id: string } {
+  return {
+    ...data,
+    message: data.message || data.description || '',
+    createdAt: data.createdAt || data.timestamp || Timestamp.now(),
+    agentId: data.agentId || '',
+    taskId: data.taskId || null,
+    type: data.type || 'agent_task_completed',
+    metadata: data.metadata || {},
+  };
+}
+
 // Helper function to convert Firestore snapshot to typed array
 function snapshotToArray<T>(snapshot: QuerySnapshot<DocumentData>, sanitizer?: (data: DocumentData & { id: string }) => DocumentData & { id: string }): T[] {
   return snapshot.docs.map(doc => {
@@ -233,7 +246,7 @@ export function useActivity(): UseCollectionResult<Activity> & { activities: Act
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        const data = snapshotToArray<Activity>(snapshot);
+        const data = snapshotToArray<Activity>(snapshot, sanitizeActivity);
         setActivities(data);
         setLoading(false);
         setError(null);
