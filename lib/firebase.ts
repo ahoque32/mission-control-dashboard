@@ -11,7 +11,8 @@ import {
   limit,
   DocumentData,
   QuerySnapshot,
-  FirestoreError
+  FirestoreError,
+  Timestamp
 } from 'firebase/firestore';
 import { db } from './firebase-config';
 
