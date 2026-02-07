@@ -1,0 +1,24 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="512" height="512" fill="#0a0a0a"/>
+  
+  <!-- Outer circle (radar dish) -->
+  <circle cx="256" cy="256" r="180" fill="none" stroke="#00ff41" stroke-width="12"/>
+  
+  <!-- Radar sweep lines -->
+  <line x1="256" y1="256" x2="256" y2="76" stroke="#00ff41" stroke-width="8"/>
+  <line x1="256" y1="256" x2="436" y2="256" stroke="#00ff41" stroke-width="8"/>
+  <line x1="256" y1="256" x2="256" y2="436" stroke="#00ff41" stroke-width="8"/>
+  <line x1="256" y1="256" x2="76" y2="256" stroke="#00ff41" stroke-width="8"/>
+  
+  <!-- Inner rings -->
+  <circle cx="256" cy="256" r="27" fill="none" stroke="#00ff41" stroke-width="6" opacity="0.3"/>
+  <circle cx="256" cy="256" r="54" fill="none" stroke="#00ff41" stroke-width="6" opacity="0.3"/>
+  <circle cx="256" cy="256" r="108" fill="none" stroke="#00ff41" stroke-width="6" opacity="0.3"/>
+  
+  <!-- Center dot -->
+  <circle cx="256" cy="256" r="25" fill="#00ff41"/>
+  
+  <!-- Text "MC" -->
+  <text x="256" y="320" font-family="monospace" font-size="80" font-weight="bold" fill="#00ff41" text-anchor="middle" opacity="0.6">MC</text>
+</svg>

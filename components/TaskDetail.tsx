@@ -1,6 +1,7 @@
 'use client';
 
-import { Task, Agent, Message, Priority, TaskStatus } from '../types';
+import { Task, Agent, Message, TaskPriority, TaskStatus } from '../types';
+type Priority = TaskPriority;
 import { Timestamp } from 'firebase/firestore';
 import ReactMarkdown from 'react-markdown';
 import { useState } from 'react';
