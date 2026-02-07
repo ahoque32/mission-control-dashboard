@@ -82,12 +82,25 @@ function getErrorMessage(error: FirestoreError, context: string): string {
   }
 }
 
+// Ensure task documents have all required fields with safe defaults
+function sanitizeTask(data: DocumentData & { id: string }): DocumentData & { id: string } {
+  return {
+    ...data,
+    assigneeIds: Array.isArray(data.assigneeIds) ? data.assigneeIds : (data.assignedTo ? [data.assignedTo] : []),
+    tags: Array.isArray(data.tags) ? data.tags : [],
+    status: data.status || 'inbox',
+    priority: data.priority || 'medium',
+    title: data.title || 'Untitled',
+    description: data.description || '',
+  };
+}
+
 // Helper function to convert Firestore snapshot to typed array
-function snapshotToArray<T>(snapshot: QuerySnapshot<DocumentData>): T[] {
-  return snapshot.docs.map(doc => ({
-    id: doc.id,
-    ...doc.data()
-  })) as T[];
+function snapshotToArray<T>(snapshot: QuerySnapshot<DocumentData>, sanitizer?: (data: DocumentData & { id: string }) => DocumentData & { id: string }): T[] {
+  return snapshot.docs.map(doc => {
+    const raw = { id: doc.id, ...doc.data() };
+    return sanitizer ? sanitizer(raw) : raw;
+  }) as T[];
 }
 
 // Hook result type for consistency
@@ -175,7 +188,7 @@ export function useTasks(): UseCollectionResult<Task> & { tasks: Task[] } {
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        const data = snapshotToArray<Task>(snapshot);
+        const data = snapshotToArray<Task>(snapshot, sanitizeTask);
         setTasks(data);
         setLoading(false);
         setError(null);
@@ -412,7 +425,7 @@ export function useTask(taskId: string | null): UseDocumentResult<Task> & { task
       doc(db, 'tasks', taskId),
       (snapshot) => {
         if (snapshot.exists()) {
-          setTask({ id: snapshot.id, ...snapshot.data() } as Task);
+          setTask(sanitizeTask({ id: snapshot.id, ...snapshot.data() }) as Task);
         } else {
           setTask(null);
         }

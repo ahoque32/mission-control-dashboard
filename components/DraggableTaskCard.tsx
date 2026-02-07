@@ -3,14 +3,14 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import Link from 'next/link';
-import { Task, Priority } from '../types';
+import { Task, TaskPriority } from '../types';
 
 interface DraggableTaskCardProps {
   task: Task;
 }
 
 // Priority badge colors (consistent with TaskCard)
-const PRIORITY_COLORS: Record<Priority, { bg: string; text: string; label: string }> = {
+const PRIORITY_COLORS: Record<TaskPriority, { bg: string; text: string; label: string }> = {
   low: { bg: 'bg-blue-500/20', text: 'text-blue-400', label: 'Low' },
   medium: { bg: 'bg-yellow-500/20', text: 'text-yellow-400', label: 'Med' },
   high: { bg: 'bg-orange-500/20', text: 'text-orange-400', label: 'High' },
