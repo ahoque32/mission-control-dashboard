@@ -29,13 +29,15 @@ export const create = mutation({
     createdBy: v.string(),
     dueDate: v.union(v.number(), v.null()),
     tags: v.array(v.string()),
+    createdAt: v.optional(v.number()),
+    updatedAt: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const now = Date.now();
     return await ctx.db.insert("tasks", {
       ...args,
-      createdAt: now,
-      updatedAt: now,
+      createdAt: args.createdAt ?? now,
+      updatedAt: args.updatedAt ?? now,
     });
   },
 });

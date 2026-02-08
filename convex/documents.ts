@@ -65,13 +65,15 @@ export const create = mutation({
     type: v.string(),
     taskId: v.union(v.string(), v.null()),
     createdBy: v.string(),
+    createdAt: v.optional(v.number()),
+    updatedAt: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const now = Date.now();
     return await ctx.db.insert("documents", {
       ...args,
-      createdAt: now,
-      updatedAt: now,
+      createdAt: args.createdAt ?? now,
+      updatedAt: args.updatedAt ?? now,
     });
   },
 });

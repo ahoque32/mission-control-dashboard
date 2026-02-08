@@ -19,11 +19,12 @@ export const create = mutation({
     taskId: v.union(v.string(), v.null()),
     message: v.string(),
     metadata: v.any(),
+    createdAt: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     return await ctx.db.insert("activities", {
       ...args,
-      createdAt: Date.now(),
+      createdAt: args.createdAt ?? Date.now(),
     });
   },
 });

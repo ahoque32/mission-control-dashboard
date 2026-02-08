@@ -120,6 +120,8 @@ async function migrateTasks(docs) {
         createdBy: doc.createdBy || '',
         dueDate: doc.dueDate ? toMillis(doc.dueDate) : null,
         tags: Array.isArray(doc.tags) ? doc.tags : [],
+        createdAt: toMillis(doc.createdAt),
+        updatedAt: toMillis(doc.updatedAt),
       });
       count++;
     } catch (err) {
@@ -143,6 +145,7 @@ async function migrateActivities(docs) {
         taskId: doc.taskId || null,
         message: doc.message || doc.description || '',
         metadata: doc.metadata || {},
+        createdAt: toMillis(doc.createdAt),
       });
       count++;
     } catch (err) {
@@ -166,6 +169,7 @@ async function migrateMessages(docs) {
         content: doc.content || '',
         attachments: Array.isArray(doc.attachments) ? doc.attachments : [],
         mentions: Array.isArray(doc.mentions) ? doc.mentions : [],
+        createdAt: toMillis(doc.createdAt),
       });
       count++;
     } catch (err) {
@@ -189,6 +193,8 @@ async function migrateDocuments(docs) {
         type: doc.type || 'note',
         taskId: doc.taskId || null,
         createdBy: doc.createdBy || '',
+        createdAt: toMillis(doc.createdAt),
+        updatedAt: toMillis(doc.updatedAt),
       });
       count++;
     } catch (err) {

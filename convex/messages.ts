@@ -29,11 +29,12 @@ export const create = mutation({
     content: v.string(),
     attachments: v.array(v.string()),
     mentions: v.array(v.string()),
+    createdAt: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     return await ctx.db.insert("messages", {
       ...args,
-      createdAt: Date.now(),
+      createdAt: args.createdAt ?? Date.now(),
     });
   },
 });
