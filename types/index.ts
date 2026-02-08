@@ -1,9 +1,14 @@
 /**
  * Mission Control TypeScript Type Definitions
- * Generated from schema.js
+ * Migrated from Firebase to Convex — timestamps are numbers with shim compatibility
  */
 
-import { Timestamp } from 'firebase/firestore';
+// Convex stores timestamps as Unix ms (number).
+// The convex.ts hooks wrap them with a shim providing .toMillis() / .toDate()
+// for backward compatibility. Using `any` to avoid narrowing issues with
+// intersection types in components that do runtime type checks.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Timestamp = any;
 
 // ============================================================================
 // Agent Types
