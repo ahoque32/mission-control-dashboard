@@ -2,14 +2,13 @@
 
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { useTask, useTaskMessages, useAgents } from '../../../lib/firebase';
-import { Timestamp } from 'firebase/firestore';
+import { useTask, useTaskMessages, useAgents } from '../../../lib/convex';
 
 // Format relative time
-function formatRelativeTime(timestamp: Timestamp | null): string {
+function formatRelativeTime(timestamp: any | null): string {
   if (!timestamp) return 'unknown';
   const now = Date.now();
-  const then = timestamp.toMillis();
+  const then = typeof timestamp === 'number' ? timestamp : (timestamp.toMillis ? timestamp.toMillis() : 0);
   const diffMs = now - then;
   const diffMinutes = Math.floor(diffMs / 60000);
   const diffHours = Math.floor(diffMs / 3600000);

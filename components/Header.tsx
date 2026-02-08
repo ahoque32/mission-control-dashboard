@@ -6,7 +6,7 @@
  * Displays branding and real-time agent status
  */
 
-import { useAgents } from '../lib/firebase';
+import { useAgents } from '../lib/convex';
 
 export default function Header() {
   const { agents, loading } = useAgents();

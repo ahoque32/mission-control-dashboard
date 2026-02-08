@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { useCronJobs } from '../lib/firebase';
+import { useCronJobs } from '../lib/convex';
 import { CronJob, CronJobCategory } from '../types';
 
 // ============================================================================

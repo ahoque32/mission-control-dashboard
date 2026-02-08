@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { useDocuments, useTasks, useAgents } from '../../lib/firebase';
+import { useDocuments, useTasks, useAgents } from '../../lib/convex';
 import { Document, DocumentType, Task, Agent } from '../../types';
 import ReactMarkdown from 'react-markdown';
 import Link from 'next/link';

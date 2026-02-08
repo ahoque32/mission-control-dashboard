@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db, useAgents } from '../lib/firebase';
+import { useAgents, useCreateTask } from '../lib/convex';
 import { TaskPriority } from '../types';
 
 interface NewTaskFormProps {
@@ -20,6 +19,7 @@ const PRIORITY_OPTIONS: { value: TaskPriority; label: string; color: string; hex
 
 export default function NewTaskForm({ isOpen, onClose, onSuccess }: NewTaskFormProps) {
   const { agents } = useAgents();
+  const createTask = useCreateTask();
   
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -58,20 +58,16 @@ export default function NewTaskForm({ isOpen, onClose, onSuccess }: NewTaskFormP
     try {
       const tags = tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
 
-      const newTask = {
+      await createTask({
         title: title.trim(),
         description: description.trim(),
-        status: 'inbox' as const,
+        status: 'inbox',
         priority,
         assigneeIds: selectedAssignees,
         tags,
         createdBy: 'system',
         dueDate: null,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      };
-
-      await addDoc(collection(db, 'tasks'), newTask);
+      });
 
       setTitle('');
       setDescription('');

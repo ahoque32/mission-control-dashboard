@@ -2,7 +2,6 @@
 
 import { Task, Agent, Message, TaskPriority, TaskStatus } from '../types';
 type Priority = TaskPriority;
-import { Timestamp } from 'firebase/firestore';
 import ReactMarkdown from 'react-markdown';
 import { useState } from 'react';
 import TaskComments from './TaskComments';
@@ -57,8 +56,9 @@ export default function TaskDetail({
   const creator = agents.find(agent => agent.id === task.createdBy);
 
   // Sort messages by creation time
+  const getMs = (ts: any) => typeof ts === 'number' ? ts : (ts?.toMillis ? ts.toMillis() : 0);
   const sortedMessages = [...messages].sort((a, b) => 
-    a.createdAt.toMillis() - b.createdAt.toMillis()
+    getMs(a.createdAt) - getMs(b.createdAt)
   );
 
   const priorityStyle = PRIORITY_COLORS[task.priority] || PRIORITY_COLORS.medium;
@@ -71,8 +71,9 @@ export default function TaskDetail({
     setShowStatusMenu(false);
   };
 
-  const formatTimestamp = (timestamp: Timestamp) => {
-    const date = timestamp.toDate();
+  const formatTimestamp = (timestamp: any) => {
+    if (!timestamp) return 'unknown';
+    const date = timestamp.toDate ? timestamp.toDate() : new Date(typeof timestamp === 'number' ? timestamp : 0);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / 60000);
@@ -169,7 +170,7 @@ export default function TaskDetail({
                   {/* Due Date */}
                   {task.dueDate && (
                     <span className="text-sm text-[#888] px-3 py-1.5">
-                      Due: {task.dueDate.toDate().toLocaleDateString()}
+                      Due: {(task.dueDate as any).toDate ? (task.dueDate as any).toDate().toLocaleDateString() : new Date(task.dueDate as any).toLocaleDateString()}
                     </span>
                   )}
                 </div>

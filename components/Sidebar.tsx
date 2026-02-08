@@ -12,7 +12,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useAgents } from '../lib/firebase';
+import { useAgents } from '../lib/convex';
 import { AgentStatus } from '../types';
 
 interface NavItem {

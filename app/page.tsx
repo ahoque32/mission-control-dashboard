@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useAgents, useTasks } from '../lib/firebase';
+import { useAgents, useTasks } from '../lib/convex';
 import AgentGrid from '../components/AgentGrid';
 import ActivityFeed from '../components/ActivityFeed';
 import TaskCard from '../components/TaskCard';

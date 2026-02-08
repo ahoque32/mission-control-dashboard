@@ -15,9 +15,8 @@ import {
   SortableContext,
   verticalListSortingStrategy
 } from '@dnd-kit/sortable';
-import { useTasks, useAgents, db } from '../../lib/firebase';
+import { useTasks, useAgents, useUpdateTaskStatus } from '../../lib/convex';
 import { Task, TaskStatus, TaskPriority } from '../../types';
-import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import KanbanColumn from '../../components/KanbanColumn';
 import DraggableTaskCard from '../../components/DraggableTaskCard';
 import NewTaskForm from '../../components/NewTaskForm';
@@ -44,6 +43,7 @@ const PRIORITY_CHIP_COLORS: Record<TaskPriority, string> = {
 export default function TasksPage() {
   const { tasks, loading, error } = useTasks();
   const { agents } = useAgents();
+  const updateTaskStatus = useUpdateTaskStatus();
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [isNewTaskFormOpen, setIsNewTaskFormOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -106,11 +106,7 @@ export default function TasksPage() {
     if (!task || task.status === newStatus) return;
 
     try {
-      const taskRef = doc(db, 'tasks', taskId);
-      await updateDoc(taskRef, {
-        status: newStatus,
-        updatedAt: serverTimestamp()
-      });
+      await updateTaskStatus({ id: taskId as any, status: newStatus });
     } catch (err) {
       console.error('Error updating task status:', err);
     }

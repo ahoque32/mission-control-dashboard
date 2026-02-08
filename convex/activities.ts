@@ -2,13 +2,32 @@ import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 
 export const list = query({
-  args: {},
-  handler: async (ctx) => {
+  args: {
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const lim = args.limit ?? 50;
     return await ctx.db
       .query("activities")
       .withIndex("by_createdAt")
       .order("desc")
-      .take(50);
+      .take(lim);
+  },
+});
+
+export const listByAgent = query({
+  args: {
+    agentId: v.string(),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const lim = args.limit ?? 10;
+    const all = await ctx.db
+      .query("activities")
+      .withIndex("by_createdAt")
+      .order("desc")
+      .take(500);
+    return all.filter((a) => a.agentId === args.agentId).slice(0, lim);
   },
 });
 

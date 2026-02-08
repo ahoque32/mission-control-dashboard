@@ -15,9 +15,8 @@ import {
   SortableContext,
   verticalListSortingStrategy
 } from '@dnd-kit/sortable';
-import { useTasks, db } from '../lib/firebase';
+import { useTasks, useUpdateTaskStatus } from '../lib/convex';
 import { Task, TaskStatus } from '../types';
-import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import KanbanColumn from './KanbanColumn';
 import DraggableTaskCard from './DraggableTaskCard';
 
@@ -33,6 +32,7 @@ const COLUMNS: { id: TaskStatus; label: string; color: string }[] = [
 
 export default function KanbanBoard() {
   const { tasks, loading, error } = useTasks();
+  const updateTaskStatus = useUpdateTaskStatus();
   const [activeTask, setActiveTask] = useState<Task | null>(null);
 
   // Configure drag sensors
@@ -74,17 +74,10 @@ export default function KanbanBoard() {
     if (!task || task.status === newStatus) return;
 
     try {
-      // Update task status in Firestore
-      const taskRef = doc(db, 'tasks', taskId);
-      await updateDoc(taskRef, {
-        status: newStatus,
-        updatedAt: serverTimestamp()
-      });
-
+      await updateTaskStatus({ id: taskId as any, status: newStatus });
       console.log(`Task ${taskId} moved to ${newStatus}`);
     } catch (err) {
       console.error('Error updating task status:', err);
-      // TODO: Add toast notification for error
     }
   };
 

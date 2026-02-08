@@ -1,20 +1,25 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { Agent, Activity } from '../types';
-import { Timestamp } from 'firebase/firestore';
-import { collection, query, where, orderBy, limit, onSnapshot } from 'firebase/firestore';
-import { db } from '../lib/firebase';
+import { useAgentRecentActivity } from '../lib/convex';
 
 interface AgentCardProps {
   agent: Agent;
   currentTask?: string | null;
 }
 
+// Helper to get ms from a timestamp (number or Timestamp-like)
+function getMs(ts: any): number {
+  if (typeof ts === 'number') return ts;
+  if (ts?.toMillis) return ts.toMillis();
+  return 0;
+}
+
 // Helper function to format relative time
-function formatRelativeTime(timestamp: Timestamp): string {
+function formatRelativeTime(timestamp: any): string {
   const now = Date.now();
-  const then = timestamp.toMillis();
+  const then = getMs(timestamp);
   const diffMs = now - then;
   const diffMinutes = Math.floor(diffMs / 60000);
   const diffHours = Math.floor(diffMs / 3600000);
@@ -30,11 +35,11 @@ function formatRelativeTime(timestamp: Timestamp): string {
 }
 
 // Determine if agent is offline based on last heartbeat
-function isOffline(lastHeartbeat: Timestamp): boolean {
+function isOffline(lastHeartbeat: any): boolean {
   const now = Date.now();
-  const then = lastHeartbeat.toMillis();
+  const then = getMs(lastHeartbeat);
   const diffMinutes = Math.floor((now - then) / 60000);
-  return diffMinutes > 5; // Consider offline if no heartbeat in 5+ minutes
+  return diffMinutes > 5;
 }
 
 // Get status color and label
@@ -74,56 +79,16 @@ function getStatusDisplay(agent: Agent) {
 
 export default function AgentCard({ agent, currentTask }: AgentCardProps) {
   const statusDisplay = getStatusDisplay(agent);
-  const [recentActivity, setRecentActivity] = useState<Activity | null>(null);
-  const [isActive, setIsActive] = useState(false);
-  const [activityLoading, setActivityLoading] = useState(true);
-  const [activityError, setActivityError] = useState<Error | null>(null);
+  const { activities, loading: activityLoading } = useAgentRecentActivity(agent.id);
 
-  // Subscribe to recent activities for this agent
-  useEffect(() => {
-    // Reset states on agent change
-    setActivityLoading(true);
-    setActivityError(null);
-    
-    // Query for agent's most recent activity in the last 5 minutes
-    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-    
-    const q = query(
-      collection(db, 'activities'),
-      where('agentId', '==', agent.id),
-      where('createdAt', '>=', Timestamp.fromDate(fiveMinutesAgo)),
-      orderBy('createdAt', 'desc'),
-      limit(1)
-    );
+  // Check if agent has recent activity (last 5 min)
+  const isActive = useMemo(() => {
+    if (!activities.length) return false;
+    const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
+    return activities.some(a => getMs(a.createdAt) > fiveMinutesAgo);
+  }, [activities]);
 
-    const unsubscribe = onSnapshot(
-      q, 
-      (snapshot) => {
-        if (!snapshot.empty) {
-          const activity = snapshot.docs[0].data() as Activity;
-          activity.id = snapshot.docs[0].id;
-          setRecentActivity(activity);
-          setIsActive(true);
-        } else {
-          setRecentActivity(null);
-          setIsActive(false);
-        }
-        setActivityLoading(false);
-        setActivityError(null);
-      },
-      (error) => {
-        console.error(`Error subscribing to activities for agent ${agent.id}:`, error);
-        setActivityError(error as Error);
-        setActivityLoading(false);
-        setRecentActivity(null);
-        setIsActive(false);
-      }
-    );
-
-    return () => unsubscribe();
-  }, [agent.id]);
-
-  // Get task name from recent activity for tooltip
+  const recentActivity = activities.length > 0 ? activities[0] : null;
   const activeTaskName = recentActivity?.metadata?.taskName as string | undefined;
 
   return (
@@ -134,7 +99,6 @@ export default function AgentCard({ agent, currentTask }: AgentCardProps) {
         <div className="flex items-center gap-2">
           <div className="relative">
             <div className={`w-2.5 h-2.5 rounded-full ${statusDisplay.color}`} />
-            {/* Pulsing active indicator */}
             {isActive && (
               <div 
                 className="absolute inset-0 w-2.5 h-2.5 rounded-full bg-green-400 animate-ping opacity-75"

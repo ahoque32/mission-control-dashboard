@@ -1,18 +1,17 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useActivity, useTasks, useDocuments } from '../lib/firebase';
+import { useActivity, useTasks, useDocuments } from '../lib/convex';
 import { Activity, Task, Document, SearchResult } from '../types';
-import { Timestamp } from 'firebase/firestore';
 import Link from 'next/link';
 
 // ============================================================================
 // Helpers
 // ============================================================================
 
-function formatTimestamp(timestamp: Timestamp): string {
-  if (!timestamp?.toDate) return 'Unknown';
-  const date = timestamp.toDate();
+function formatTimestamp(timestamp: any): string {
+  if (!timestamp) return 'Unknown';
+  const date = timestamp.toDate ? timestamp.toDate() : new Date(typeof timestamp === 'number' ? timestamp : 0);
   const now = new Date();
   const diff = now.getTime() - date.getTime();
 
@@ -183,8 +182,9 @@ export default function GlobalSearch({ autoFocus = false, onSearch }: GlobalSear
 
     // Sort by timestamp (most recent first)
     matches.sort((a, b) => {
-      const aTime = a.timestamp?.toMillis?.() || 0;
-      const bTime = b.timestamp?.toMillis?.() || 0;
+      const getMs = (ts: any) => ts?.toMillis ? ts.toMillis() : (typeof ts === 'number' ? ts : 0);
+      const aTime = getMs(a.timestamp);
+      const bTime = getMs(b.timestamp);
       return bTime - aTime;
     });
 

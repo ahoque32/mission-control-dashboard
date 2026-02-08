@@ -1,0 +1,345 @@
+'use client';
+
+import { useState, useMemo, useCallback } from 'react';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../convex/_generated/api';
+
+// Re-export all types from types file
+export type {
+  Agent,
+  AgentStatus,
+  AgentLevel,
+  Task,
+  TaskStatus,
+  TaskPriority,
+  Message,
+  Activity,
+  ActivityType,
+  Document,
+  DocumentType,
+  Notification,
+  CronJob,
+  CronJobCategory,
+  SearchResult,
+  SearchResultType,
+} from '../types';
+
+import type { Agent, Task, Activity, Message, Document as MCDocument, CronJob } from '../types';
+
+// ============================================================================
+// Convex document → app type converters
+// ============================================================================
+// Convex returns documents with `_id` (Id<"table">) and `_creationTime` (number).
+// Our app types expect `id` (string) and Timestamp objects for date fields.
+// We bridge the gap by creating lightweight shim objects that satisfy both
+// `number` access (when code uses the raw value) and `.toMillis()` / `.toDate()`
+// calls (legacy Timestamp-like usage in components).
+// ============================================================================
+
+/**
+ * Creates a value that works as both a number AND a Timestamp-like object.
+ * This lets existing component code call `.toMillis()` and `.toDate()`
+ * while new code can use it as a plain number.
+ */
+function tsShim(ms: number | null | undefined): any {
+  if (ms == null) return null;
+  const val = Object.assign(Object(ms), {
+    toMillis: () => ms,
+    toDate: () => new Date(ms),
+    valueOf: () => ms,
+    [Symbol.toPrimitive]: () => ms,
+  });
+  return val;
+}
+
+function mapAgent(doc: any): Agent {
+  return {
+    id: doc._id,
+    name: doc.name,
+    role: doc.role,
+    status: doc.status,
+    currentTaskId: doc.currentTaskId,
+    sessionKey: doc.sessionKey,
+    emoji: doc.emoji,
+    level: doc.level,
+    lastHeartbeat: tsShim(doc.lastHeartbeat),
+    createdAt: tsShim(doc.createdAt),
+    updatedAt: tsShim(doc.updatedAt),
+  } as Agent;
+}
+
+function mapTask(doc: any): Task {
+  return {
+    id: doc._id,
+    title: doc.title || 'Untitled',
+    description: doc.description || '',
+    status: doc.status || 'inbox',
+    priority: doc.priority || 'medium',
+    assigneeIds: Array.isArray(doc.assigneeIds) ? doc.assigneeIds : [],
+    createdBy: doc.createdBy,
+    dueDate: tsShim(doc.dueDate),
+    tags: Array.isArray(doc.tags) ? doc.tags : [],
+    createdAt: tsShim(doc.createdAt),
+    updatedAt: tsShim(doc.updatedAt),
+  } as Task;
+}
+
+function mapActivity(doc: any): Activity {
+  return {
+    id: doc._id,
+    type: doc.type || 'general',
+    agentId: doc.agentId || '',
+    taskId: doc.taskId || null,
+    message: doc.message || '',
+    metadata: doc.metadata || {},
+    createdAt: tsShim(doc.createdAt),
+  } as Activity;
+}
+
+function mapMessage(doc: any): Message {
+  return {
+    id: doc._id,
+    taskId: doc.taskId,
+    fromAgentId: doc.fromAgentId,
+    content: doc.content,
+    attachments: doc.attachments || [],
+    mentions: doc.mentions || [],
+    createdAt: tsShim(doc.createdAt),
+  } as Message;
+}
+
+function mapDocument(doc: any): MCDocument {
+  return {
+    id: doc._id,
+    title: doc.title,
+    content: doc.content,
+    type: doc.type,
+    taskId: doc.taskId,
+    createdBy: doc.createdBy,
+    createdAt: tsShim(doc.createdAt),
+    updatedAt: tsShim(doc.updatedAt),
+  } as MCDocument;
+}
+
+function mapCronJob(doc: any): CronJob {
+  return {
+    id: doc._id,
+    name: doc.name,
+    schedule: doc.schedule,
+    cronExpression: doc.cronExpression,
+    category: doc.category,
+    enabled: doc.enabled,
+    description: doc.description,
+    lastRun: tsShim(doc.lastRun),
+    nextRun: tsShim(doc.nextRun),
+    createdAt: tsShim(doc.createdAt),
+    updatedAt: tsShim(doc.updatedAt),
+  } as CronJob;
+}
+
+// ============================================================================
+// Hook result types (kept identical to firebase.ts)
+// ============================================================================
+
+interface UseCollectionResult<T> {
+  data: T[];
+  loading: boolean;
+  error: Error | null;
+  errorType: 'permission' | 'network' | 'not-found' | 'other' | null;
+}
+
+interface UseDocumentResult<T> {
+  data: T | null;
+  loading: boolean;
+  error: Error | null;
+  errorType: 'permission' | 'network' | 'not-found' | 'other' | null;
+}
+
+// ============================================================================
+// Hooks
+// ============================================================================
+
+/**
+ * Subscribe to agents collection
+ */
+export function useAgents(): UseCollectionResult<Agent> & { agents: Agent[] } {
+  const raw = useQuery(api.agents.list);
+  const agents = useMemo(() => (raw ?? []).map(mapAgent), [raw]);
+  const loading = raw === undefined;
+  return { agents, data: agents, loading, error: null, errorType: null };
+}
+
+/**
+ * Subscribe to tasks collection (sorted by updatedAt desc)
+ */
+export function useTasks(): UseCollectionResult<Task> & { tasks: Task[] } {
+  const raw = useQuery(api.tasks.list);
+  const tasks = useMemo(() => (raw ?? []).map(mapTask), [raw]);
+  const loading = raw === undefined;
+  return { tasks, data: tasks, loading, error: null, errorType: null };
+}
+
+/**
+ * Subscribe to activity collection (recent 50)
+ */
+export function useActivity(): UseCollectionResult<Activity> & { activities: Activity[] } {
+  const raw = useQuery(api.activities.list, {});
+  const activities = useMemo(() => (raw ?? []).map(mapActivity), [raw]);
+  const loading = raw === undefined;
+  return { activities, data: activities, loading, error: null, errorType: null };
+}
+
+/**
+ * Subscribe to messages collection
+ */
+export function useMessages(): UseCollectionResult<Message> & { messages: Message[] } {
+  const raw = useQuery(api.messages.list);
+  const messages = useMemo(() => (raw ?? []).map(mapMessage), [raw]);
+  const loading = raw === undefined;
+  return { messages, data: messages, loading, error: null, errorType: null };
+}
+
+/**
+ * Subscribe to documents collection
+ */
+export function useDocuments(): UseCollectionResult<MCDocument> & { documents: MCDocument[] } {
+  const raw = useQuery(api.documents.list);
+  const documents = useMemo(() => (raw ?? []).map(mapDocument), [raw]);
+  const loading = raw === undefined;
+  return { documents, data: documents, loading, error: null, errorType: null };
+}
+
+/**
+ * Subscribe to messages for a specific task
+ */
+export function useTaskMessages(taskId: string | null): UseCollectionResult<Message> & { messages: Message[] } {
+  const raw = useQuery(
+    api.messages.listByTask,
+    taskId ? { taskId } : 'skip'
+  );
+  const messages = useMemo(() => (raw ?? []).map(mapMessage), [raw]);
+  const loading = raw === undefined;
+  return { messages, data: messages, loading, error: null, errorType: null };
+}
+
+/**
+ * Get a single task by ID
+ */
+export function useTask(taskId: string | null): UseDocumentResult<Task> & { task: Task | null } {
+  const raw = useQuery(
+    api.tasks.getById,
+    taskId ? { id: taskId as any } : 'skip'
+  );
+  const task = useMemo(() => (raw ? mapTask(raw) : null), [raw]);
+  const loading = raw === undefined;
+  return { task, data: task, loading, error: null, errorType: null };
+}
+
+/**
+ * Subscribe to cron_jobs collection
+ */
+export function useCronJobs(): UseCollectionResult<CronJob> & { cronJobs: CronJob[] } {
+  const raw = useQuery(api.cronJobs.list);
+  const cronJobs = useMemo(() => (raw ?? []).map(mapCronJob), [raw]);
+  const loading = raw === undefined;
+  return { cronJobs, data: cronJobs, loading, error: null, errorType: null };
+}
+
+/**
+ * Subscribe to activities with client-side pagination, agent filter, and type filter
+ */
+export function useActivityPaginated(
+  pageSize: number = 25,
+  agentFilter?: string,
+  typeFilter?: string,
+): UseCollectionResult<Activity> & {
+  activities: Activity[];
+  hasMore: boolean;
+  loadMore: () => Promise<void>;
+  loadingMore: boolean;
+} {
+  const raw = useQuery(api.activities.list, { limit: 500 });
+  const allActivities = useMemo(() => (raw ?? []).map(mapActivity), [raw]);
+  const loading = raw === undefined;
+
+  // Client-side filtering
+  const filtered = useMemo(() => {
+    let result = allActivities;
+    if (agentFilter) {
+      result = result.filter(
+        (a) =>
+          a.agentId === agentFilter ||
+          a.metadata?.agentName === agentFilter,
+      );
+    }
+    if (typeFilter) {
+      result = result.filter((a) => a.type === typeFilter);
+    }
+    return result;
+  }, [allActivities, agentFilter, typeFilter]);
+
+  // Client-side pagination
+  const [displayCount, setDisplayCount] = useState(pageSize);
+
+  // Reset display count when filters change
+  useMemo(() => {
+    setDisplayCount(pageSize);
+  }, [agentFilter, typeFilter, pageSize]);
+
+  const activities = useMemo(
+    () => filtered.slice(0, displayCount),
+    [filtered, displayCount],
+  );
+
+  const hasMore = displayCount < filtered.length;
+
+  const loadMore = useCallback(async () => {
+    setDisplayCount((prev) => prev + pageSize);
+  }, [pageSize]);
+
+  return {
+    activities,
+    data: activities,
+    loading,
+    error: null,
+    errorType: null,
+    hasMore,
+    loadMore,
+    loadingMore: false,
+  };
+}
+
+/**
+ * Subscribe to recent activities for a specific agent (used by AgentCard)
+ */
+export function useAgentRecentActivity(agentId: string) {
+  const raw = useQuery(api.activities.listByAgent, { agentId, limit: 10 });
+  const activities = useMemo(() => (raw ?? []).map(mapActivity), [raw]);
+  const loading = raw === undefined;
+  return { activities, loading, error: null };
+}
+
+// ============================================================================
+// Mutation helpers (used by components for direct writes)
+// ============================================================================
+
+/**
+ * Returns a mutation function to update a task's status (for KanbanBoard drag-drop)
+ */
+export function useUpdateTaskStatus() {
+  return useMutation(api.tasks.updateStatus);
+}
+
+/**
+ * Returns a mutation function to create a new task (for NewTaskForm)
+ */
+export function useCreateTask() {
+  return useMutation(api.tasks.create);
+}
+
+/**
+ * Returns a mutation function to create a message (for TaskComments)
+ */
+export function useCreateMessage() {
+  return useMutation(api.messages.create);
+}

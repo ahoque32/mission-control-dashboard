@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, KeyboardEvent, ChangeEvent } from 'react';
-import { useAgents } from '../lib/firebase';
+import { useAgents } from '../lib/convex';
 import ReactMarkdown from 'react-markdown';
 
 interface CommentInputProps {
