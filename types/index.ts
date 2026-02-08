@@ -69,6 +69,8 @@ export type ActivityType =
   | 'task_created'
   | 'task_updated'
   | 'task_assigned'
+  | 'task_completed'
+  | 'task_started'
   | 'message_sent'
   | 'document_created'
   | 'agent_status_changed'
@@ -78,7 +80,16 @@ export type ActivityType =
   | 'agent_task_completed'
   | 'agent_task_failed'
   | 'agent_run_started'
-  | 'agent_run_completed';
+  | 'agent_run_completed'
+  | 'research'
+  | 'deployment'
+  | 'code_review'
+  | 'system_maintenance'
+  | 'communication'
+  | 'monitoring'
+  | 'spawn_completed'
+  | 'spawn_failed'
+  | 'general';
 
 export interface ActivityMetadata {
   agentName?: string;
@@ -172,6 +183,42 @@ export interface Lock {
 }
 
 // ============================================================================
+// Cron Job Types (Calendar View)
+// ============================================================================
+
+export type CronJobCategory = 'maintenance' | 'monitoring' | 'reports' | 'builds' | 'security' | 'communication';
+
+export interface CronJob {
+  id: string;
+  name: string;
+  schedule: string;          // Human-readable schedule description
+  cronExpression: string;    // Cron expression for computing next runs
+  category: CronJobCategory;
+  enabled: boolean;
+  description?: string;
+  lastRun?: Timestamp;
+  nextRun?: Timestamp;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+// ============================================================================
+// Search Result Types
+// ============================================================================
+
+export type SearchResultType = 'task' | 'activity' | 'document';
+
+export interface SearchResult {
+  id: string;
+  type: SearchResultType;
+  title: string;
+  snippet: string;
+  timestamp: Timestamp;
+  url: string;
+  metadata?: Record<string, any>;
+}
+
+// ============================================================================
 // Collection Constants
 // ============================================================================
 
@@ -183,5 +230,6 @@ export const COLLECTIONS = {
   DOCUMENTS: 'documents',
   NOTIFICATIONS: 'notifications',
   SESSIONS: 'sessions',
-  LOCKS: 'locks'
+  LOCKS: 'locks',
+  CRON_JOBS: 'cron_jobs'
 } as const;

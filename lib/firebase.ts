@@ -9,8 +9,11 @@ import {
   where,
   doc,
   limit,
+  getDocs,
+  startAfter,
   DocumentData,
   QuerySnapshot,
+  QueryDocumentSnapshot,
   FirestoreError,
   Timestamp
 } from 'firebase/firestore';
@@ -29,11 +32,15 @@ export type {
   ActivityType,
   Document,
   DocumentType,
-  Notification
+  Notification,
+  CronJob,
+  CronJobCategory,
+  SearchResult,
+  SearchResultType
 } from '../types';
 
 // Re-import for local use
-import type { Agent, Task, Activity, Message, Document } from '../types';
+import type { Agent, Task, Activity, Message, Document, CronJob } from '../types';
 
 // Export db instance for direct use
 export { db };
@@ -461,4 +468,139 @@ export function useTask(taskId: string | null): UseDocumentResult<Task> & { task
   }, [taskId]);
 
   return { task, data: task, loading, error, errorType };
+}
+
+/**
+ * Subscribe to cron_jobs collection
+ * Returns all cron jobs sorted by name
+ */
+export function useCronJobs(): UseCollectionResult<CronJob> & { cronJobs: CronJob[] } {
+  const [cronJobs, setCronJobs] = useState<CronJob[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+  const [errorType, setErrorType] = useState<'permission' | 'network' | 'not-found' | 'other' | null>(null);
+
+  useEffect(() => {
+    const q = query(
+      collection(db, 'cron_jobs'),
+      orderBy('name')
+    );
+
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const data = snapshotToArray<CronJob>(snapshot);
+        setCronJobs(data);
+        setLoading(false);
+        setError(null);
+        setErrorType(null);
+      },
+      (err) => {
+        const firestoreError = err as FirestoreError;
+        console.error('Error subscribing to cron_jobs:', firestoreError);
+        const errType = categorizeFirestoreError(firestoreError);
+        setError(new Error(getErrorMessage(firestoreError, 'cron jobs')));
+        setErrorType(errType);
+        setLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
+
+  return { cronJobs, data: cronJobs, loading, error, errorType };
+}
+
+/**
+ * Subscribe to activities with pagination support
+ * Returns activities in pages with load more capability
+ */
+export function useActivityPaginated(
+  pageSize: number = 25,
+  agentFilter?: string,
+  typeFilter?: string
+): UseCollectionResult<Activity> & { 
+  activities: Activity[];
+  hasMore: boolean;
+  loadMore: () => Promise<void>;
+  loadingMore: boolean;
+} {
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+  const [errorType, setErrorType] = useState<'permission' | 'network' | 'not-found' | 'other' | null>(null);
+  const [lastDoc, setLastDoc] = useState<QueryDocumentSnapshot<DocumentData> | null>(null);
+  const [hasMore, setHasMore] = useState(true);
+
+  // Reset when filters change
+  useEffect(() => {
+    setActivities([]);
+    setLastDoc(null);
+    setHasMore(true);
+    setLoading(true);
+
+    const constraints: any[] = [
+      orderBy('createdAt', 'desc'),
+      limit(pageSize)
+    ];
+
+    // Note: Firestore doesn't support multiple inequality filters easily.
+    // We filter client-side for simplicity since the dataset is small.
+    const q = query(collection(db, 'activities'), ...constraints);
+
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const data = snapshotToArray<Activity>(snapshot, sanitizeActivity);
+        setActivities(data);
+        setLoading(false);
+        setError(null);
+        setErrorType(null);
+        if (snapshot.docs.length > 0) {
+          setLastDoc(snapshot.docs[snapshot.docs.length - 1]);
+        }
+        setHasMore(snapshot.docs.length >= pageSize);
+      },
+      (err) => {
+        const firestoreError = err as FirestoreError;
+        console.error('Error subscribing to activities:', firestoreError);
+        const errType = categorizeFirestoreError(firestoreError);
+        setError(new Error(getErrorMessage(firestoreError, 'activities')));
+        setErrorType(errType);
+        setLoading(false);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [pageSize, agentFilter, typeFilter]);
+
+  const loadMore = async () => {
+    if (!lastDoc || loadingMore || !hasMore) return;
+
+    setLoadingMore(true);
+    try {
+      const q = query(
+        collection(db, 'activities'),
+        orderBy('createdAt', 'desc'),
+        startAfter(lastDoc),
+        limit(pageSize)
+      );
+
+      const snapshot = await getDocs(q);
+      const newData = snapshotToArray<Activity>(snapshot, sanitizeActivity);
+      
+      setActivities(prev => [...prev, ...newData]);
+      if (snapshot.docs.length > 0) {
+        setLastDoc(snapshot.docs[snapshot.docs.length - 1]);
+      }
+      setHasMore(snapshot.docs.length >= pageSize);
+    } catch (err) {
+      console.error('Error loading more activities:', err);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  return { activities, data: activities, loading, error, errorType, hasMore, loadMore, loadingMore };
 }
