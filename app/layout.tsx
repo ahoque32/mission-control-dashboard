@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Sidebar from "../components/Sidebar";
 import MobileNav from "../components/MobileNav";
+import SearchShortcut from "../components/SearchShortcut";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -45,6 +46,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <SearchShortcut />
         <div className="flex h-screen overflow-hidden">
           {/* Desktop Sidebar - Hidden on mobile */}
           <div className="hidden lg:block">

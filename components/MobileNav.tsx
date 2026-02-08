@@ -26,6 +26,8 @@ const navItems: NavItem[] = [
   { label: 'Tasks', href: '/tasks', icon: '✓' },
   { label: 'Agents', href: '/agents', icon: '🤖' },
   { label: 'Activity', href: '/activity', icon: '📡' },
+  { label: 'Calendar', href: '/calendar', icon: '📅' },
+  { label: 'Search', href: '/search', icon: '🔍' },
 ];
 
 export default function MobileNav() {
