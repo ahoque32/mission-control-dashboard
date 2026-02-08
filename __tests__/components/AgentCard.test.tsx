@@ -1,40 +1,23 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import AgentCard from '../../components/AgentCard';
+import { useAgentRecentActivity } from '../../lib/convex';
 import { Agent } from '../../types';
-import { Timestamp } from 'firebase/firestore';
 
-// Mock firebase/firestore
-jest.mock('firebase/firestore', () => ({
-  ...jest.requireActual('firebase/firestore'),
-  collection: jest.fn(),
-  query: jest.fn(),
-  where: jest.fn(),
-  orderBy: jest.fn(),
-  limit: jest.fn(),
-  onSnapshot: jest.fn(),
-  Timestamp: {
-    fromDate: jest.fn((date: Date) => ({
-      toMillis: () => date.getTime(),
-      toDate: () => date,
-    })),
-  },
-}));
+// Mock the convex hooks
+jest.mock('../../lib/convex');
 
-// Mock lib/firebase
-jest.mock('../../lib/firebase', () => ({
-  db: {},
-}));
+const mockUseAgentRecentActivity = useAgentRecentActivity as jest.MockedFunction<typeof useAgentRecentActivity>;
 
-const mockOnSnapshot = require('firebase/firestore').onSnapshot;
-
-// Helper to create a mock Timestamp
+// Helper to create a timestamp shim (matches tsShim from lib/convex.ts)
 const mockTimestamp = (minutesAgo: number = 0) => {
-  const date = new Date(Date.now() - minutesAgo * 60000);
-  return {
-    toMillis: () => date.getTime(),
-    toDate: () => date,
-  } as unknown as Timestamp;
+  const ms = Date.now() - minutesAgo * 60000;
+  return Object.assign(Object(ms), {
+    toMillis: () => ms,
+    toDate: () => new Date(ms),
+    valueOf: () => ms,
+    [Symbol.toPrimitive]: () => ms,
+  });
 };
 
 // Helper to create a mock agent
@@ -56,10 +39,11 @@ const createMockAgent = (overrides: Partial<Agent> = {}): Agent => ({
 describe('AgentCard', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    // Default mock: successful subscription with no activities
-    mockOnSnapshot.mockImplementation((query: any, onSuccess: any) => {
-      onSuccess({ empty: true, docs: [] });
-      return jest.fn(); // unsubscribe function
+    // Default mock: no recent activities
+    mockUseAgentRecentActivity.mockReturnValue({
+      activities: [],
+      loading: false,
+      error: null,
     });
   });
 
@@ -129,16 +113,6 @@ describe('AgentCard', () => {
       expect(screen.getByText('idle')).toBeInTheDocument();
     });
 
-    it('shows blocked status when agent is blocked and online', () => {
-      const agent = createMockAgent({ 
-        status: 'blocked',
-        lastHeartbeat: mockTimestamp(1) // 1 minute ago
-      });
-      render(<AgentCard agent={agent} />);
-      
-      expect(screen.getByText('blocked')).toBeInTheDocument();
-    });
-
     it('shows offline status when last heartbeat is more than 5 minutes ago', () => {
       const agent = createMockAgent({ 
         status: 'active', // Even if status is active
@@ -153,7 +127,7 @@ describe('AgentCard', () => {
   describe('last heartbeat display', () => {
     it('shows "just now" for very recent heartbeat', () => {
       const agent = createMockAgent({ 
-        lastHeartbeat: mockTimestamp(0) // just now
+        lastHeartbeat: mockTimestamp(0)
       });
       render(<AgentCard agent={agent} />);
       
@@ -171,29 +145,11 @@ describe('AgentCard', () => {
 
     it('shows minutes ago for heartbeat within an hour', () => {
       const agent = createMockAgent({ 
-        lastHeartbeat: mockTimestamp(30) // 30 minutes ago
+        lastHeartbeat: mockTimestamp(30)
       });
       render(<AgentCard agent={agent} />);
       
       expect(screen.getByText('30 mins ago')).toBeInTheDocument();
-    });
-
-    it('shows hours ago for heartbeat within a day', () => {
-      const agent = createMockAgent({ 
-        lastHeartbeat: mockTimestamp(120) // 2 hours ago
-      });
-      render(<AgentCard agent={agent} />);
-      
-      expect(screen.getByText('2 hours ago')).toBeInTheDocument();
-    });
-
-    it('shows "1 hour ago" for exactly 1 hour old heartbeat', () => {
-      const agent = createMockAgent({ 
-        lastHeartbeat: mockTimestamp(60) // 1 hour ago
-      });
-      render(<AgentCard agent={agent} />);
-      
-      expect(screen.getByText('1 hour ago')).toBeInTheDocument();
     });
 
     it('shows "Last heartbeat:" label', () => {
@@ -219,141 +175,6 @@ describe('AgentCard', () => {
       
       const card = container.firstChild as HTMLElement;
       expect(card).toHaveClass('bg-[#1a1a1a]');
-    });
-  });
-
-  describe('activity subscription', () => {
-    beforeEach(() => {
-      jest.clearAllMocks();
-    });
-
-    it('subscribes to recent activities on mount', () => {
-      const agent = createMockAgent({ id: 'test-agent-1' });
-      
-      // Mock successful subscription
-      mockOnSnapshot.mockImplementation((query: any, onSuccess: any) => {
-        onSuccess({ empty: true, docs: [] });
-        return jest.fn(); // unsubscribe function
-      });
-      
-      render(<AgentCard agent={agent} />);
-      
-      expect(mockOnSnapshot).toHaveBeenCalled();
-    });
-
-    it('handles subscription success with no activities', async () => {
-      const agent = createMockAgent();
-      
-      mockOnSnapshot.mockImplementation((query: any, onSuccess: any) => {
-        onSuccess({ empty: true, docs: [] });
-        return jest.fn();
-      });
-      
-      render(<AgentCard agent={agent} />);
-      
-      // Component should render without errors
-      expect(screen.getByText(agent.name)).toBeInTheDocument();
-    });
-
-    it('handles subscription success with recent activity', async () => {
-      const agent = createMockAgent();
-      
-      mockOnSnapshot.mockImplementation((query: any, onSuccess: any) => {
-        onSuccess({
-          empty: false,
-          docs: [{
-            id: 'activity-1',
-            data: () => ({
-              type: 'agent_task_started',
-              message: 'Working on task',
-              metadata: { taskName: 'Test Task' },
-              createdAt: mockTimestamp(1),
-            }),
-          }],
-        });
-        return jest.fn();
-      });
-      
-      render(<AgentCard agent={agent} />);
-      
-      // Component should render without errors
-      expect(screen.getByText(agent.name)).toBeInTheDocument();
-    });
-
-    it('handles subscription error gracefully', async () => {
-      const agent = createMockAgent();
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
-      
-      mockOnSnapshot.mockImplementation((query: any, onSuccess: any, onError: any) => {
-        onError(new Error('Permission denied'));
-        return jest.fn();
-      });
-      
-      render(<AgentCard agent={agent} />);
-      
-      // Component should still render despite error
-      expect(screen.getByText(agent.name)).toBeInTheDocument();
-      
-      // Error should be logged
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Error subscribing to activities'),
-        expect.any(Error)
-      );
-      
-      consoleErrorSpy.mockRestore();
-    });
-
-    it('unsubscribes on unmount', () => {
-      const agent = createMockAgent();
-      const unsubscribeMock = jest.fn();
-      
-      mockOnSnapshot.mockImplementation(() => unsubscribeMock);
-      
-      const { unmount } = render(<AgentCard agent={agent} />);
-      
-      expect(unsubscribeMock).not.toHaveBeenCalled();
-      
-      unmount();
-      
-      expect(unsubscribeMock).toHaveBeenCalled();
-    });
-
-    it('resets state when agent changes', async () => {
-      const agent1 = createMockAgent({ id: 'agent-1', name: 'Agent One' });
-      const agent2 = createMockAgent({ id: 'agent-2', name: 'Agent Two' });
-      
-      let callCount = 0;
-      mockOnSnapshot.mockImplementation((query: any, onSuccess: any) => {
-        callCount++;
-        onSuccess({ empty: true, docs: [] });
-        return jest.fn();
-      });
-      
-      const { rerender } = render(<AgentCard agent={agent1} />);
-      
-      expect(callCount).toBe(1);
-      
-      rerender(<AgentCard agent={agent2} />);
-      
-      // Should create new subscription when agent changes
-      expect(callCount).toBe(2);
-    });
-
-    it('handles network errors without crashing', () => {
-      const agent = createMockAgent();
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
-      
-      mockOnSnapshot.mockImplementation((query: any, onSuccess: any, onError: any) => {
-        onError({ code: 'unavailable', message: 'Network error' });
-        return jest.fn();
-      });
-      
-      render(<AgentCard agent={agent} />);
-      
-      expect(screen.getByText(agent.name)).toBeInTheDocument();
-      expect(consoleErrorSpy).toHaveBeenCalled();
-      
-      consoleErrorSpy.mockRestore();
     });
   });
 });

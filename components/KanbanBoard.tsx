@@ -7,6 +7,7 @@ import {
   DragOverlay,
   DragStartEvent,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   closestCorners
@@ -35,11 +36,17 @@ export default function KanbanBoard() {
   const updateTaskStatus = useUpdateTaskStatus();
   const [activeTask, setActiveTask] = useState<Task | null>(null);
 
-  // Configure drag sensors
+  // Configure drag sensors — PointerSensor for desktop, TouchSensor for mobile
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8, // 8px movement before drag starts
+        distance: 8,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 200,
+        tolerance: 8,
       },
     })
   );
@@ -59,7 +66,7 @@ export default function KanbanBoard() {
     }
   };
 
-  // Handle drag end - update Firestore
+  // Handle drag end - update task status
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveTask(null);

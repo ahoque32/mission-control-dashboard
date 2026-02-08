@@ -233,7 +233,7 @@ export default function GlobalSearch({ autoFocus = false, onSearch }: GlobalSear
         {query && (
           <button
             onClick={clearSearch}
-            className="absolute inset-y-0 right-0 pr-4 flex items-center text-[#888] hover:text-[#ededed]"
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#888] hover:text-[#ededed] min-w-[44px] justify-center"
             aria-label="Clear search"
           >
             ✕
@@ -241,10 +241,15 @@ export default function GlobalSearch({ autoFocus = false, onSearch }: GlobalSear
         )}
       </div>
 
-      {/* Keyboard shortcut hint */}
+      {/* Keyboard shortcut hint — hidden on mobile since ⌘K requires a keyboard */}
       {!query && (
         <div className="text-xs text-[#666] mb-6 text-center">
-          Press <kbd className="px-1.5 py-0.5 bg-[#2a2a2a] border border-[#3a3a3a] rounded text-[#888] font-mono">⌘K</kbd> from anywhere to search
+          <span className="hidden sm:inline">
+            Press <kbd className="px-1.5 py-0.5 bg-[#2a2a2a] border border-[#3a3a3a] rounded text-[#888] font-mono">⌘K</kbd> from anywhere to search
+          </span>
+          <span className="sm:hidden">
+            Use the menu to navigate to Search, or tap the search field above
+          </span>
         </div>
       )}
 

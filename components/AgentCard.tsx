@@ -64,7 +64,7 @@ function getStatusDisplay(agent: Agent) {
     case 'blocked':
       return {
         color: 'bg-red-500',
-        label: 'error',
+        label: 'blocked',
         textColor: 'text-red-400'
       };
     case 'idle':

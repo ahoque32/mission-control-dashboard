@@ -26,6 +26,7 @@ const navItems: NavItem[] = [
   { label: 'Tasks', href: '/tasks', icon: '✓' },
   { label: 'Agents', href: '/agents', icon: '🤖' },
   { label: 'Activity', href: '/activity', icon: '📡' },
+  { label: 'Documents', href: '/documents', icon: '📄' },
   { label: 'Calendar', href: '/calendar', icon: '📅' },
   { label: 'Search', href: '/search', icon: '🔍' },
 ];

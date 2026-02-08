@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useRef } from 'react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../convex/_generated/api';
 
@@ -17,7 +17,6 @@ export type {
   ActivityType,
   Document,
   DocumentType,
-  Notification,
   CronJob,
   CronJobCategory,
   SearchResult,
@@ -138,7 +137,7 @@ function mapCronJob(doc: any): CronJob {
 }
 
 // ============================================================================
-// Hook result types (kept identical to firebase.ts)
+// Hook result types
 // ============================================================================
 
 interface UseCollectionResult<T> {
@@ -187,16 +186,6 @@ export function useActivity(): UseCollectionResult<Activity> & { activities: Act
   const activities = useMemo(() => (raw ?? []).map(mapActivity), [raw]);
   const loading = raw === undefined;
   return { activities, data: activities, loading, error: null, errorType: null };
-}
-
-/**
- * Subscribe to messages collection
- */
-export function useMessages(): UseCollectionResult<Message> & { messages: Message[] } {
-  const raw = useQuery(api.messages.list);
-  const messages = useMemo(() => (raw ?? []).map(mapMessage), [raw]);
-  const loading = raw === undefined;
-  return { messages, data: messages, loading, error: null, errorType: null };
 }
 
 /**
@@ -281,10 +270,15 @@ export function useActivityPaginated(
   // Client-side pagination
   const [displayCount, setDisplayCount] = useState(pageSize);
 
-  // Reset display count when filters change
-  useMemo(() => {
+  // Build a stable filter key so we can reset pagination when filters change.
+  // Using a ref to track the previous key avoids calling setState inside useMemo.
+  const filterKey = `${agentFilter ?? ''}|${typeFilter ?? ''}|${pageSize}`;
+  const prevFilterKey = useRef(filterKey);
+  if (prevFilterKey.current !== filterKey) {
+    prevFilterKey.current = filterKey;
+    // Safe: this runs during render before commit, equivalent to getDerivedStateFromProps
     setDisplayCount(pageSize);
-  }, [agentFilter, typeFilter, pageSize]);
+  }
 
   const activities = useMemo(
     () => filtered.slice(0, displayCount),

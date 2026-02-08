@@ -226,30 +226,30 @@ export default function CalendarView() {
   return (
     <div className="space-y-6">
       {/* ── Navigation Header ── */}
-      <div className="flex items-center justify-between rounded-xl bg-[#1a1a1a]/70 backdrop-blur-md border border-[#2a2a2a]/60 px-5 py-3">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 rounded-xl bg-[#1a1a1a]/70 backdrop-blur-md border border-[#2a2a2a]/60 px-4 sm:px-5 py-3">
         <div className="flex items-center gap-2">
           <button
             onClick={() => setWeekOffset(w => w - 1)}
-            className="p-2 rounded-lg bg-[#0a0a0a]/60 border border-[#2a2a2a] hover:border-[#d4a574]/60 hover:bg-[#d4a574]/10 text-[#ccc] hover:text-[#d4a574] text-sm transition-all duration-200"
+            className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg bg-[#0a0a0a]/60 border border-[#2a2a2a] hover:border-[#d4a574]/60 hover:bg-[#d4a574]/10 text-[#ccc] hover:text-[#d4a574] text-sm transition-all duration-200"
             aria-label="Previous week"
           >
             ← Prev
           </button>
           <button
             onClick={() => setWeekOffset(0)}
-            className="px-4 py-2 rounded-lg bg-[#d4a574]/10 border border-[#d4a574]/30 hover:bg-[#d4a574]/20 text-[#d4a574] text-sm font-semibold transition-all duration-200"
+            className="px-4 py-2 min-h-[44px] rounded-lg bg-[#d4a574]/10 border border-[#d4a574]/30 hover:bg-[#d4a574]/20 text-[#d4a574] text-sm font-semibold transition-all duration-200"
           >
             Today
           </button>
           <button
             onClick={() => setWeekOffset(w => w + 1)}
-            className="p-2 rounded-lg bg-[#0a0a0a]/60 border border-[#2a2a2a] hover:border-[#d4a574]/60 hover:bg-[#d4a574]/10 text-[#ccc] hover:text-[#d4a574] text-sm transition-all duration-200"
+            className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg bg-[#0a0a0a]/60 border border-[#2a2a2a] hover:border-[#d4a574]/60 hover:bg-[#d4a574]/10 text-[#ccc] hover:text-[#d4a574] text-sm transition-all duration-200"
             aria-label="Next week"
           >
             Next →
           </button>
         </div>
-        <h2 className="text-lg font-bold tracking-tight text-[#ededed]">
+        <h2 className="text-base sm:text-lg font-bold tracking-tight text-[#ededed]">
           {formatWeekRange(weekStart)}
         </h2>
       </div>
@@ -261,13 +261,13 @@ export default function CalendarView() {
           <div className="flex items-center gap-2">
             <button
               onClick={enableAll}
-              className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-md bg-[#d4a574]/10 text-[#d4a574] hover:bg-[#d4a574]/20 border border-[#d4a574]/20 transition-all duration-200"
+              className="text-[11px] font-semibold uppercase tracking-wider px-3 py-1.5 min-h-[36px] rounded-md bg-[#d4a574]/10 text-[#d4a574] hover:bg-[#d4a574]/20 border border-[#d4a574]/20 transition-all duration-200"
             >
               All
             </button>
             <button
               onClick={disableAll}
-              className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-md bg-[#2a2a2a]/60 text-[#888] hover:bg-[#2a2a2a] hover:text-[#ccc] border border-[#2a2a2a] transition-all duration-200"
+              className="text-[11px] font-semibold uppercase tracking-wider px-3 py-1.5 min-h-[36px] rounded-md bg-[#2a2a2a]/60 text-[#888] hover:bg-[#2a2a2a] hover:text-[#ccc] border border-[#2a2a2a] transition-all duration-200"
             >
               None
             </button>
@@ -316,9 +316,15 @@ export default function CalendarView() {
 
       {/* ── Calendar Grid ── */}
       {!allFiltered && (
+        <>
+        {/* Mobile scroll hint */}
+        <p className="sm:hidden text-xs text-[#555] text-center mb-2">← Swipe to view full calendar →</p>
         <div className="border border-[#2a2a2a]/70 rounded-xl overflow-hidden shadow-lg">
+          {/* Horizontal scroll wrapper for mobile */}
+          <div className="overflow-x-auto -mx-0">
+          <div className="min-w-[640px]">
           {/* Day headers */}
-          <div className="grid grid-cols-[64px_repeat(7,1fr)] bg-[#111]/80 backdrop-blur-sm">
+          <div className="grid grid-cols-[48px_repeat(7,1fr)] sm:grid-cols-[64px_repeat(7,1fr)] bg-[#111]/80 backdrop-blur-sm">
             <div className="p-3 border-b border-r border-[#2a2a2a]/50" />
             {DAYS.map((day, i) => {
               const date = new Date(weekStart);
@@ -352,9 +358,9 @@ export default function CalendarView() {
               if (!hasEvents && (hour < 4 || hour > 22)) return null;
 
               return (
-                <div key={hour} className="grid grid-cols-[64px_repeat(7,1fr)] group/row">
+                <div key={hour} className="grid grid-cols-[48px_repeat(7,1fr)] sm:grid-cols-[64px_repeat(7,1fr)] group/row">
                   {/* Hour label */}
-                  <div className="p-1.5 px-2 text-[11px] text-[#555] font-mono border-r border-b border-[#2a2a2a]/40 flex items-start justify-end group-hover/row:text-[#888] transition-colors duration-150">
+                  <div className="p-1 px-1.5 sm:p-1.5 sm:px-2 text-[11px] text-[#555] font-mono border-r border-b border-[#2a2a2a]/40 flex items-start justify-end group-hover/row:text-[#888] transition-colors duration-150">
                     {formatHour(hour)}
                   </div>
 
@@ -379,7 +385,7 @@ export default function CalendarView() {
                             <div
                               key={`${occ.job.id}-${i}`}
                               className={`
-                                text-[10px] leading-tight px-2 py-1 rounded-full mb-1 truncate
+                                text-[11px] leading-tight px-2 py-1 rounded-full mb-1 truncate
                                 ${colors.bg} ${colors.border} border ${colors.text}
                                 hover:shadow-md hover:shadow-current/10 hover:scale-[1.02]
                                 transition-all duration-200 cursor-default
@@ -397,7 +403,10 @@ export default function CalendarView() {
               );
             })}
           </div>
+          </div>{/* end min-w-[640px] */}
+          </div>{/* end overflow-x-auto */}
         </div>
+        </>
       )}
 
       {/* ── Disabled Jobs Accordion ── */}

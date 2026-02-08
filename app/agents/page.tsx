@@ -193,15 +193,15 @@ function AgentDetailCard({ agent, tasks, activities }: AgentDetailCardProps) {
   return (
     <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-6 hover:border-[#d4a574]/40 transition-all card-hover group">
       {/* Header: Emoji, Name, Status */}
-      <div className="flex items-start gap-4 mb-5">
-        <div className="text-5xl leading-none group-hover:scale-110 transition-transform duration-300">
+      <div className="flex items-start gap-3 sm:gap-4 mb-5">
+        <div className="text-4xl sm:text-5xl leading-none group-hover:scale-110 transition-transform duration-300">
           {agent.emoji}
         </div>
         
         <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-3 mb-2">
+          <div className="flex items-start justify-between gap-2 sm:gap-3 mb-2">
             <div className="flex-1 min-w-0">
-              <h3 className="text-xl font-semibold text-[#ededed] mb-1 truncate">
+              <h3 className="text-lg sm:text-xl font-semibold text-[#ededed] mb-1 truncate">
                 {agent.name}
               </h3>
             </div>

@@ -7,6 +7,7 @@ import {
   DragOverlay,
   DragStartEvent,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   closestCorners
@@ -53,11 +54,17 @@ export default function TasksPage() {
   const [selectedPriorities, setSelectedPriorities] = useState<TaskPriority[]>([]);
   const [selectedStatuses, setSelectedStatuses] = useState<TaskStatus[]>([]);
 
-  // Configure drag sensors
+  // Configure drag sensors — PointerSensor for desktop, TouchSensor for mobile
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
         distance: 8,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 200,
+        tolerance: 8,
       },
     })
   );
@@ -380,6 +387,10 @@ export default function TasksPage() {
         )}
 
         {/* ── Kanban Board ── */}
+        {/* Mobile hint for horizontal scrolling */}
+        {filteredTasks.length > 0 && (
+          <p className="sm:hidden text-xs text-[#555] text-center mb-2">← Swipe columns · Long-press to drag tasks →</p>
+        )}
         {filteredTasks.length > 0 && (
           <DndContext
             sensors={sensors}

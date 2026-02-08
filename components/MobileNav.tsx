@@ -26,6 +26,7 @@ const navItems: NavItem[] = [
   { label: 'Tasks', href: '/tasks', icon: '✓' },
   { label: 'Agents', href: '/agents', icon: '🤖' },
   { label: 'Activity', href: '/activity', icon: '📡' },
+  { label: 'Documents', href: '/documents', icon: '📄' },
   { label: 'Calendar', href: '/calendar', icon: '📅' },
   { label: 'Search', href: '/search', icon: '🔍' },
 ];
@@ -50,7 +51,7 @@ export default function MobileNav() {
           
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="text-[#ededed] p-2 hover:bg-[#1a1a1a] rounded-lg transition-colors"
+            className="text-[#ededed] p-3 hover:bg-[#1a1a1a] rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
             aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"}
             aria-expanded={isOpen}
             aria-controls="mobile-nav-menu"
