@@ -29,6 +29,7 @@ const navItems: NavItem[] = [
   { label: 'Documents', href: '/documents', icon: '📄' },
   { label: 'Calendar', href: '/calendar', icon: '📅' },
   { label: 'Search', href: '/search', icon: '🔍' },
+  { label: 'Finance', href: '/finance', icon: '💰' },
 ];
 
 export default function MobileNav() {
