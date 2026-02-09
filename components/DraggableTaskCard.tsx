@@ -4,7 +4,6 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import Link from 'next/link';
 import { Task, TaskPriority } from '../types';
-import { Timestamp } from 'firebase/firestore';
 
 interface DraggableTaskCardProps {
   task: Task;
@@ -33,10 +32,10 @@ const TAG_COLORS = [
   { bg: 'bg-cyan-500/15', text: 'text-cyan-300' },
 ];
 
-function getRelativeTime(timestamp: Timestamp | undefined | null): string {
+function getRelativeTime(timestamp: any | undefined | null): string {
   if (!timestamp) return '';
   try {
-    const date = timestamp.toDate();
+    const date = timestamp.toDate ? timestamp.toDate() : new Date(typeof timestamp === 'number' ? timestamp : 0);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / 60000);

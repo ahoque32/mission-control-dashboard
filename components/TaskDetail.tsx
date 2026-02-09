@@ -2,7 +2,6 @@
 
 import { Task, Agent, Message, TaskPriority, TaskStatus } from '../types';
 type Priority = TaskPriority;
-import { Timestamp } from 'firebase/firestore';
 import ReactMarkdown from 'react-markdown';
 import { useState } from 'react';
 import TaskComments from './TaskComments';
@@ -57,8 +56,9 @@ export default function TaskDetail({
   const creator = agents.find(agent => agent.id === task.createdBy);
 
   // Sort messages by creation time
+  const getMs = (ts: any) => typeof ts === 'number' ? ts : (ts?.toMillis ? ts.toMillis() : 0);
   const sortedMessages = [...messages].sort((a, b) => 
-    a.createdAt.toMillis() - b.createdAt.toMillis()
+    getMs(a.createdAt) - getMs(b.createdAt)
   );
 
   const priorityStyle = PRIORITY_COLORS[task.priority] || PRIORITY_COLORS.medium;
@@ -71,8 +71,9 @@ export default function TaskDetail({
     setShowStatusMenu(false);
   };
 
-  const formatTimestamp = (timestamp: Timestamp) => {
-    const date = timestamp.toDate();
+  const formatTimestamp = (timestamp: any) => {
+    if (!timestamp) return 'unknown';
+    const date = timestamp.toDate ? timestamp.toDate() : new Date(typeof timestamp === 'number' ? timestamp : 0);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / 60000);
@@ -95,11 +96,11 @@ export default function TaskDetail({
       />
 
       {/* Modal */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4">
         <div 
           className="
-            bg-[#0a0a0a] border border-[#2a2a2a] rounded-xl
-            w-full max-w-4xl max-h-[90vh]
+            bg-[#0a0a0a] border border-[#2a2a2a] rounded-t-xl sm:rounded-xl
+            w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh]
             flex flex-col
             shadow-2xl shadow-[#d4a574]/20
             modal-content
@@ -107,11 +108,11 @@ export default function TaskDetail({
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="border-b border-[#2a2a2a] p-6">
+          <div className="border-b border-[#2a2a2a] p-4 sm:p-6">
             <div className="flex items-start justify-between gap-4">
               {/* Title & Badges */}
               <div className="flex-1">
-                <h2 className="text-2xl font-bold text-[#ededed] mb-3">
+                <h2 className="text-xl sm:text-2xl font-bold text-[#ededed] mb-3">
                   {task.title}
                 </h2>
                 
@@ -169,7 +170,7 @@ export default function TaskDetail({
                   {/* Due Date */}
                   {task.dueDate && (
                     <span className="text-sm text-[#888] px-3 py-1.5">
-                      Due: {task.dueDate.toDate().toLocaleDateString()}
+                      Due: {(task.dueDate as any).toDate ? (task.dueDate as any).toDate().toLocaleDateString() : new Date(task.dueDate as any).toLocaleDateString()}
                     </span>
                   )}
                 </div>
@@ -182,8 +183,8 @@ export default function TaskDetail({
                 className="
                   text-[#888] hover:text-[#ededed]
                   text-2xl leading-none
-                  w-8 h-8 flex items-center justify-center
-                  hover:bg-[#2a2a2a] rounded
+                  w-11 h-11 flex items-center justify-center
+                  hover:bg-[#2a2a2a] rounded-lg
                   transition-colors
                 "
               >
@@ -193,7 +194,7 @@ export default function TaskDetail({
           </div>
 
           {/* Scrollable Content */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-6">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
             {/* Assignees Section */}
             {assignees.length > 0 && (
               <div>

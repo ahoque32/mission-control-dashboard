@@ -1,6 +1,6 @@
 'use client';
 
-import { useAgents, useTasks } from '../lib/firebase';
+import { useAgents, useTasks } from '../lib/convex';
 import AgentCard from './AgentCard';
 
 export default function AgentGrid() {

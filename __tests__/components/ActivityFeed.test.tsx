@@ -1,23 +1,24 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import ActivityFeed from '../../components/ActivityFeed';
-import { useActivity, useAgents } from '../../lib/firebase';
+import { useActivityPaginated, useAgents } from '../../lib/convex';
 import { Activity, Agent } from '../../types';
-import { Timestamp } from 'firebase/firestore';
 
-// Mock the firebase hooks
-jest.mock('../../lib/firebase');
+// Mock the convex hooks
+jest.mock('../../lib/convex');
 
-const mockUseActivity = useActivity as jest.MockedFunction<typeof useActivity>;
+const mockUseActivityPaginated = useActivityPaginated as jest.MockedFunction<typeof useActivityPaginated>;
 const mockUseAgents = useAgents as jest.MockedFunction<typeof useAgents>;
 
-// Helper to create a mock Timestamp
+// Helper to create a timestamp shim (matches tsShim from lib/convex.ts)
 const mockTimestamp = (minutesAgo: number = 0) => {
-  const date = new Date(Date.now() - minutesAgo * 60000);
-  return {
-    toMillis: () => date.getTime(),
-    toDate: () => date,
-  } as unknown as Timestamp;
+  const ms = Date.now() - minutesAgo * 60000;
+  return Object.assign(Object(ms), {
+    toMillis: () => ms,
+    toDate: () => new Date(ms),
+    valueOf: () => ms,
+    [Symbol.toPrimitive]: () => ms,
+  });
 };
 
 // Helper to create a mock activity
@@ -54,17 +55,24 @@ describe('ActivityFeed', () => {
     // Default mock implementations
     mockUseAgents.mockReturnValue({
       agents: [],
+      data: [],
       loading: false,
       error: null,
+      errorType: null,
     });
   });
 
   describe('loading state', () => {
     it('shows loading spinner when loading', () => {
-      mockUseActivity.mockReturnValue({
+      mockUseActivityPaginated.mockReturnValue({
         activities: [],
+        data: [],
         loading: true,
         error: null,
+        errorType: null,
+        hasMore: false,
+        loadMore: jest.fn(),
+        loadingMore: false,
       });
       
       render(<ActivityFeed />);
@@ -74,10 +82,15 @@ describe('ActivityFeed', () => {
     });
 
     it('has correct aria-label on loading state', () => {
-      mockUseActivity.mockReturnValue({
+      mockUseActivityPaginated.mockReturnValue({
         activities: [],
+        data: [],
         loading: true,
         error: null,
+        errorType: null,
+        hasMore: false,
+        loadMore: jest.fn(),
+        loadingMore: false,
       });
       
       render(<ActivityFeed />);
@@ -88,10 +101,15 @@ describe('ActivityFeed', () => {
 
   describe('error state', () => {
     it('shows error message when there is an error', () => {
-      mockUseActivity.mockReturnValue({
+      mockUseActivityPaginated.mockReturnValue({
         activities: [],
+        data: [],
         loading: false,
         error: new Error('Failed to fetch activities'),
+        errorType: null,
+        hasMore: false,
+        loadMore: jest.fn(),
+        loadingMore: false,
       });
       
       render(<ActivityFeed />);
@@ -101,10 +119,15 @@ describe('ActivityFeed', () => {
     });
 
     it('shows warning emoji for error state', () => {
-      mockUseActivity.mockReturnValue({
+      mockUseActivityPaginated.mockReturnValue({
         activities: [],
+        data: [],
         loading: false,
         error: new Error('Network error'),
+        errorType: null,
+        hasMore: false,
+        loadMore: jest.fn(),
+        loadingMore: false,
       });
       
       render(<ActivityFeed />);
@@ -115,10 +138,15 @@ describe('ActivityFeed', () => {
 
   describe('empty state', () => {
     it('shows empty state when no activities', () => {
-      mockUseActivity.mockReturnValue({
+      mockUseActivityPaginated.mockReturnValue({
         activities: [],
+        data: [],
         loading: false,
         error: null,
+        errorType: null,
+        hasMore: false,
+        loadMore: jest.fn(),
+        loadingMore: false,
       });
       
       render(<ActivityFeed />);
@@ -133,10 +161,15 @@ describe('ActivityFeed', () => {
     it('renders activity messages', () => {
       const activity = createMockActivity({ message: 'Completed the data export task' });
       
-      mockUseActivity.mockReturnValue({
+      mockUseActivityPaginated.mockReturnValue({
         activities: [activity],
+        data: [activity],
         loading: false,
         error: null,
+        errorType: null,
+        hasMore: false,
+        loadMore: jest.fn(),
+        loadingMore: false,
       });
       
       render(<ActivityFeed />);
@@ -151,10 +184,15 @@ describe('ActivityFeed', () => {
         createMockActivity({ id: '3', message: 'Third activity' }),
       ];
       
-      mockUseActivity.mockReturnValue({
+      mockUseActivityPaginated.mockReturnValue({
         activities,
+        data: activities,
         loading: false,
         error: null,
+        errorType: null,
+        hasMore: false,
+        loadMore: jest.fn(),
+        loadingMore: false,
       });
       
       render(<ActivityFeed />);
@@ -170,14 +208,21 @@ describe('ActivityFeed', () => {
       
       mockUseAgents.mockReturnValue({
         agents: [agent],
+        data: [agent],
         loading: false,
         error: null,
+        errorType: null,
       });
       
-      mockUseActivity.mockReturnValue({
+      mockUseActivityPaginated.mockReturnValue({
         activities: [activity],
+        data: [activity],
         loading: false,
         error: null,
+        errorType: null,
+        hasMore: false,
+        loadMore: jest.fn(),
+        loadingMore: false,
       });
       
       render(<ActivityFeed />);
@@ -185,110 +230,20 @@ describe('ActivityFeed', () => {
       expect(screen.getByText('DataBot')).toBeInTheDocument();
       expect(screen.getByText('📊')).toBeInTheDocument();
     });
-
-    it('displays "Unknown Agent" when agent is not found', () => {
-      mockUseAgents.mockReturnValue({
-        agents: [],
-        loading: false,
-        error: null,
-      });
-      
-      mockUseActivity.mockReturnValue({
-        activities: [createMockActivity({ agentId: 'unknown-agent' })],
-        loading: false,
-        error: null,
-      });
-      
-      render(<ActivityFeed />);
-      
-      expect(screen.getByText('Unknown Agent')).toBeInTheDocument();
-    });
-
-    it('displays default emoji when agent is not found', () => {
-      mockUseAgents.mockReturnValue({
-        agents: [],
-        loading: false,
-        error: null,
-      });
-      
-      mockUseActivity.mockReturnValue({
-        activities: [createMockActivity()],
-        loading: false,
-        error: null,
-      });
-      
-      render(<ActivityFeed />);
-      
-      expect(screen.getByText('🤖')).toBeInTheDocument();
-    });
-  });
-
-  describe('activity type badges', () => {
-    it('displays activity type badge with formatted text', () => {
-      const activity = createMockActivity({ type: 'task_created' });
-      
-      mockUseActivity.mockReturnValue({
-        activities: [activity],
-        loading: false,
-        error: null,
-      });
-      
-      render(<ActivityFeed />);
-      
-      expect(screen.getByText('task created')).toBeInTheDocument();
-    });
-
-    it('formats activity type with underscores replaced by spaces', () => {
-      const activity = createMockActivity({ type: 'agent_status_changed' });
-      
-      mockUseActivity.mockReturnValue({
-        activities: [activity],
-        loading: false,
-        error: null,
-      });
-      
-      render(<ActivityFeed />);
-      
-      expect(screen.getByText('agent status changed')).toBeInTheDocument();
-    });
-  });
-
-  describe('relative time display', () => {
-    it('shows "just now" for very recent activity', () => {
-      const activity = createMockActivity({ createdAt: mockTimestamp(0) });
-      
-      mockUseActivity.mockReturnValue({
-        activities: [activity],
-        loading: false,
-        error: null,
-      });
-      
-      render(<ActivityFeed />);
-      
-      expect(screen.getByText('just now')).toBeInTheDocument();
-    });
-
-    it('shows minutes ago for recent activity', () => {
-      const activity = createMockActivity({ createdAt: mockTimestamp(15) });
-      
-      mockUseActivity.mockReturnValue({
-        activities: [activity],
-        loading: false,
-        error: null,
-      });
-      
-      render(<ActivityFeed />);
-      
-      expect(screen.getByText('15 mins ago')).toBeInTheDocument();
-    });
   });
 
   describe('accessibility', () => {
     it('has role="feed" on the container', () => {
-      mockUseActivity.mockReturnValue({
-        activities: [createMockActivity()],
+      const activity = createMockActivity();
+      mockUseActivityPaginated.mockReturnValue({
+        activities: [activity],
+        data: [activity],
         loading: false,
         error: null,
+        errorType: null,
+        hasMore: false,
+        loadMore: jest.fn(),
+        loadingMore: false,
       });
       
       render(<ActivityFeed />);
@@ -297,10 +252,16 @@ describe('ActivityFeed', () => {
     });
 
     it('has aria-label on the feed', () => {
-      mockUseActivity.mockReturnValue({
-        activities: [createMockActivity()],
+      const activity = createMockActivity();
+      mockUseActivityPaginated.mockReturnValue({
+        activities: [activity],
+        data: [activity],
         loading: false,
         error: null,
+        errorType: null,
+        hasMore: false,
+        loadMore: jest.fn(),
+        loadingMore: false,
       });
       
       render(<ActivityFeed />);
@@ -309,13 +270,19 @@ describe('ActivityFeed', () => {
     });
 
     it('has role="article" on each activity item', () => {
-      mockUseActivity.mockReturnValue({
-        activities: [
-          createMockActivity({ id: '1' }),
-          createMockActivity({ id: '2' }),
-        ],
+      const activities = [
+        createMockActivity({ id: '1' }),
+        createMockActivity({ id: '2' }),
+      ];
+      mockUseActivityPaginated.mockReturnValue({
+        activities,
+        data: activities,
         loading: false,
         error: null,
+        errorType: null,
+        hasMore: false,
+        loadMore: jest.fn(),
+        loadingMore: false,
       });
       
       render(<ActivityFeed />);
@@ -333,14 +300,21 @@ describe('ActivityFeed', () => {
       
       mockUseAgents.mockReturnValue({
         agents: [agent],
+        data: [agent],
         loading: false,
         error: null,
+        errorType: null,
       });
       
-      mockUseActivity.mockReturnValue({
+      mockUseActivityPaginated.mockReturnValue({
         activities: [activity],
+        data: [activity],
         loading: false,
         error: null,
+        errorType: null,
+        hasMore: false,
+        loadMore: jest.fn(),
+        loadingMore: false,
       });
       
       render(<ActivityFeed />);

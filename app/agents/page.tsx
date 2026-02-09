@@ -1,14 +1,13 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useAgents, useTasks, useActivity } from '../../lib/firebase';
+import { useAgents, useTasks, useActivity } from '../../lib/convex';
 import { Agent, Task, Activity, AgentLevel } from '../../types';
-import { Timestamp } from 'firebase/firestore';
 
 // Helper function to format relative time
-function formatRelativeTime(timestamp: Timestamp): string {
+function formatRelativeTime(timestamp: any): string {
   const now = Date.now();
-  const then = timestamp.toMillis();
+  const then = typeof timestamp === 'number' ? timestamp : (timestamp?.toMillis ? timestamp.toMillis() : 0);
   const diffMs = now - then;
   const diffMinutes = Math.floor(diffMs / 60000);
   const diffHours = Math.floor(diffMs / 3600000);
@@ -24,9 +23,9 @@ function formatRelativeTime(timestamp: Timestamp): string {
 }
 
 // Determine if agent is offline based on last heartbeat
-function isOffline(lastHeartbeat: Timestamp): boolean {
+function isOffline(lastHeartbeat: any): boolean {
   const now = Date.now();
-  const then = lastHeartbeat.toMillis();
+  const then = typeof lastHeartbeat === 'number' ? lastHeartbeat : (lastHeartbeat?.toMillis ? lastHeartbeat.toMillis() : 0);
   const diffMinutes = Math.floor((now - then) / 60000);
   return diffMinutes > 5; // Consider offline if no heartbeat in 5+ minutes
 }
@@ -140,12 +139,13 @@ function getHeartbeatTimeline(agent: Agent, activities: Activity[]) {
   const oneDayAgo = now - 24 * 60 * 60 * 1000;
   
   // Get all agent activities in last 24h as heartbeat indicators
+  const getMs = (ts: any) => typeof ts === 'number' ? ts : (ts?.toMillis ? ts.toMillis() : 0);
   const recentActivities = activities
     .filter(a => 
       a.agentId === agent.id && 
-      a.createdAt.toMillis() > oneDayAgo
+      getMs(a.createdAt) > oneDayAgo
     )
-    .sort((a, b) => a.createdAt.toMillis() - b.createdAt.toMillis());
+    .sort((a, b) => getMs(a.createdAt) - getMs(b.createdAt));
   
   // Divide 24h into 24 hourly segments
   const segments: Array<{ active: boolean; count: number }> = [];
@@ -154,7 +154,7 @@ function getHeartbeatTimeline(agent: Agent, activities: Activity[]) {
     const segmentEnd = segmentStart + 60 * 60 * 1000;
     
     const activitiesInSegment = recentActivities.filter(a => {
-      const time = a.createdAt.toMillis();
+      const time = getMs(a.createdAt);
       return time >= segmentStart && time < segmentEnd;
     });
     
@@ -193,15 +193,15 @@ function AgentDetailCard({ agent, tasks, activities }: AgentDetailCardProps) {
   return (
     <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-6 hover:border-[#d4a574]/40 transition-all card-hover group">
       {/* Header: Emoji, Name, Status */}
-      <div className="flex items-start gap-4 mb-5">
-        <div className="text-5xl leading-none group-hover:scale-110 transition-transform duration-300">
+      <div className="flex items-start gap-3 sm:gap-4 mb-5">
+        <div className="text-4xl sm:text-5xl leading-none group-hover:scale-110 transition-transform duration-300">
           {agent.emoji}
         </div>
         
         <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-3 mb-2">
+          <div className="flex items-start justify-between gap-2 sm:gap-3 mb-2">
             <div className="flex-1 min-w-0">
-              <h3 className="text-xl font-semibold text-[#ededed] mb-1 truncate">
+              <h3 className="text-lg sm:text-xl font-semibold text-[#ededed] mb-1 truncate">
                 {agent.name}
               </h3>
             </div>
@@ -293,7 +293,7 @@ function AgentDetailCard({ agent, tasks, activities }: AgentDetailCardProps) {
         <div className="flex items-center justify-between">
           <span className="text-sm text-[#888] font-mono">{formatRelativeTime(agent.lastHeartbeat)}</span>
           <span className="text-[10px] text-[#555]">
-            {new Date(agent.lastHeartbeat.toMillis()).toLocaleTimeString()}
+            {new Date(typeof agent.lastHeartbeat === 'number' ? agent.lastHeartbeat : (agent.lastHeartbeat?.toMillis ? agent.lastHeartbeat.toMillis() : 0)).toLocaleTimeString()}
           </span>
         </div>
       </div>

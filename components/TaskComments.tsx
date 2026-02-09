@@ -1,16 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, KeyboardEvent, ChangeEvent } from 'react';
-import { 
-  collection, 
-  query, 
-  orderBy, 
-  onSnapshot, 
-  addDoc, 
-  serverTimestamp,
-  Timestamp
-} from 'firebase/firestore';
-import { db } from '../lib/firebase-config';
+import { useTaskMessages, useCreateMessage } from '../lib/convex';
 import { Message, Agent } from '../types';
 import ReactMarkdown from 'react-markdown';
 
@@ -25,9 +16,9 @@ export default function TaskComments({
   agents, 
   currentAgentId = 'user' 
 }: TaskCommentsProps) {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
+  const { messages, loading, error } = useTaskMessages(taskId);
+  const createMessage = useCreateMessage();
+  
   const [content, setContent] = useState('');
   const [showPreview, setShowPreview] = useState(false);
   const [showMentions, setShowMentions] = useState(false);
@@ -37,56 +28,6 @@ export default function TaskComments({
   const [sending, setSending] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  // Subscribe to messages subcollection for this task
-  useEffect(() => {
-    if (!taskId) {
-      setMessages([]);
-      setLoading(false);
-      setError(null);
-      return;
-    }
-
-    // Reset states when taskId changes
-    setLoading(true);
-    setError(null);
-    
-    // Flag to prevent state updates after unmount or taskId change
-    let isMounted = true;
-
-    const messagesRef = collection(db, 'tasks', taskId, 'messages');
-    const q = query(messagesRef, orderBy('createdAt', 'asc'));
-
-    const unsubscribe = onSnapshot(
-      q,
-      (snapshot) => {
-        // Only update state if component is still mounted and taskId hasn't changed
-        if (!isMounted) return;
-        
-        const msgs: Message[] = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        })) as Message[];
-        setMessages(msgs);
-        setLoading(false);
-        setError(null);
-      },
-      (err) => {
-        // Only update state if component is still mounted and taskId hasn't changed
-        if (!isMounted) return;
-        
-        console.error('Error loading messages:', err);
-        setError(err as Error);
-        setLoading(false);
-        setMessages([]);
-      }
-    );
-
-    return () => {
-      isMounted = false;
-      unsubscribe();
-    };
-  }, [taskId]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -112,7 +53,6 @@ export default function TaskComments({
 
     if (lastAtIndex !== -1) {
       const textAfterAt = textBeforeCursor.slice(lastAtIndex + 1);
-      // Check if there's a space after @ (which would close the mention)
       if (!textAfterAt.includes(' ') && textAfterAt.length < 50) {
         setMentionQuery(textAfterAt);
         setMentionPosition(lastAtIndex);
@@ -144,7 +84,6 @@ export default function TaskComments({
         setShowMentions(false);
       }
     } else if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-      // Cmd/Ctrl+Enter to submit
       e.preventDefault();
       handleSubmit();
     }
@@ -160,7 +99,6 @@ export default function TaskComments({
     setShowMentions(false);
     setMentionQuery('');
     
-    // Focus back on textarea
     setTimeout(() => {
       textareaRef.current?.focus();
       const newCursorPos = mentionPosition + agent.name.length + 2;
@@ -185,14 +123,12 @@ export default function TaskComments({
     const mentions = extractMentions(content);
     
     try {
-      const messagesRef = collection(db, 'tasks', taskId, 'messages');
-      await addDoc(messagesRef, {
+      await createMessage({
         taskId,
         fromAgentId: currentAgentId,
         content: content.trim(),
         mentions,
         attachments: [],
-        createdAt: serverTimestamp()
       });
       
       setContent('');
@@ -209,9 +145,9 @@ export default function TaskComments({
     setContent(e.target.value);
   };
 
-  const formatTimestamp = (timestamp: Timestamp | null | undefined) => {
+  const formatTimestamp = (timestamp: any) => {
     if (!timestamp) return 'just now';
-    const date = timestamp.toDate();
+    const date = timestamp.toDate ? timestamp.toDate() : new Date(typeof timestamp === 'number' ? timestamp : 0);
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / 60000);
@@ -227,7 +163,6 @@ export default function TaskComments({
 
   // Render message content with highlighted mentions
   const renderMessageContent = (text: string) => {
-    // Replace @mentions with styled spans
     const parts = text.split(/(@\w+)/g);
     return parts.map((part, index) => {
       if (part.startsWith('@')) {
@@ -264,15 +199,6 @@ export default function TaskComments({
           <div className="text-3xl mb-3">⚠️</div>
           <h3 className="text-lg font-semibold text-red-400 mb-2">Failed to Load Comments</h3>
           <p className="text-sm text-[#888] mb-4">{error.message}</p>
-          <button
-            onClick={() => {
-              setError(null);
-              setLoading(true);
-            }}
-            className="px-4 py-2 bg-[#d4a574] text-[#0a0a0a] font-medium rounded-lg hover:bg-[#c9996a] transition-colors text-sm"
-          >
-            Retry
-          </button>
         </div>
       </div>
     );
@@ -460,7 +386,7 @@ export default function TaskComments({
                     <div className={`text-xs px-1.5 py-0.5 rounded ${
                       index === selectedMentionIndex
                         ? 'bg-[#0a0a0a]/20 text-[#0a0a0a]'
-                        : 'bg-[#2a2a2a] text-[#666]'
+                        : 'bg-[#2a2a2a] text-[#888]'
                     }`}>
                       {agent.status}
                     </div>

@@ -1,8 +1,7 @@
 'use client';
 
 import { useState, FormEvent } from 'react';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db, useAgents } from '../lib/firebase';
+import { useAgents, useCreateTask } from '../lib/convex';
 import { TaskPriority } from '../types';
 
 interface NewTaskFormProps {
@@ -20,6 +19,7 @@ const PRIORITY_OPTIONS: { value: TaskPriority; label: string; color: string; hex
 
 export default function NewTaskForm({ isOpen, onClose, onSuccess }: NewTaskFormProps) {
   const { agents } = useAgents();
+  const createTask = useCreateTask();
   
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -58,20 +58,16 @@ export default function NewTaskForm({ isOpen, onClose, onSuccess }: NewTaskFormP
     try {
       const tags = tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
 
-      const newTask = {
+      await createTask({
         title: title.trim(),
         description: description.trim(),
-        status: 'inbox' as const,
+        status: 'inbox',
         priority,
         assigneeIds: selectedAssignees,
         tags,
         createdBy: 'system',
         dueDate: null,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      };
-
-      await addDoc(collection(db, 'tasks'), newTask);
+      });
 
       setTitle('');
       setDescription('');
@@ -111,11 +107,11 @@ export default function NewTaskForm({ isOpen, onClose, onSuccess }: NewTaskFormP
       />
 
       {/* Modal */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4">
         <div 
           className="
-            bg-[#0a0a0a]/95 backdrop-blur-xl border border-white/[0.08] rounded-2xl
-            w-full max-w-2xl max-h-[90vh]
+            bg-[#0a0a0a]/95 backdrop-blur-xl border border-white/[0.08] rounded-t-2xl sm:rounded-2xl
+            w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh]
             flex flex-col
             shadow-2xl shadow-black/50
           "
@@ -137,7 +133,7 @@ export default function NewTaskForm({ isOpen, onClose, onSuccess }: NewTaskFormP
                 aria-label="Close form"
                 className="
                   text-[#666] hover:text-[#ededed]
-                  w-8 h-8 flex items-center justify-center
+                  w-11 h-11 flex items-center justify-center
                   hover:bg-white/[0.06] rounded-lg
                   transition-all duration-200
                 "

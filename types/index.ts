@@ -1,9 +1,14 @@
 /**
  * Mission Control TypeScript Type Definitions
- * Generated from schema.js
+ * Convex backend — timestamps are numbers with shim compatibility
  */
 
-import { Timestamp } from 'firebase/firestore';
+// Convex stores timestamps as Unix ms (number).
+// The convex.ts hooks wrap them with a shim providing .toMillis() / .toDate()
+// for backward compatibility. Using `any` to avoid narrowing issues with
+// intersection types in components that do runtime type checks.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Timestamp = any;
 
 // ============================================================================
 // Agent Types
@@ -128,61 +133,6 @@ export interface Document {
 }
 
 // ============================================================================
-// Notification Types
-// ============================================================================
-
-export interface Notification {
-  id: string;
-  mentionedAgentId: string;
-  fromAgentId: string;
-  taskId: string | null;
-  messageId: string | null;
-  content: string;
-  delivered: boolean;
-  deliveredAt: Timestamp | null;
-  claimedBy: string | null;
-  claimedAt: Timestamp | null;
-  createdAt: Timestamp;
-}
-
-// ============================================================================
-// Session Types
-// ============================================================================
-
-export type SessionState = 'creating' | 'active' | 'completed' | 'failed';
-
-export interface SessionStateHistoryEntry {
-  state: SessionState;
-  timestamp: Timestamp;
-  reason: string;
-}
-
-export interface Session {
-  id: string;
-  agentId: string;
-  sessionKey: string;
-  state: SessionState;
-  stateHistory: SessionStateHistoryEntry[];
-  metadata: Record<string, any>;
-  heartbeat: Timestamp;
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
-}
-
-// ============================================================================
-// Lock Types
-// ============================================================================
-
-export interface Lock {
-  id: string;
-  lockName: string;
-  ownerId: string;
-  acquiredAt: Timestamp;
-  expiresAt: Timestamp;
-  renewCount: number;
-}
-
-// ============================================================================
 // Cron Job Types (Calendar View)
 // ============================================================================
 
@@ -217,19 +167,3 @@ export interface SearchResult {
   url: string;
   metadata?: Record<string, any>;
 }
-
-// ============================================================================
-// Collection Constants
-// ============================================================================
-
-export const COLLECTIONS = {
-  AGENTS: 'agents',
-  TASKS: 'tasks',
-  MESSAGES: 'messages',
-  ACTIVITIES: 'activities',
-  DOCUMENTS: 'documents',
-  NOTIFICATIONS: 'notifications',
-  SESSIONS: 'sessions',
-  LOCKS: 'locks',
-  CRON_JOBS: 'cron_jobs'
-} as const;

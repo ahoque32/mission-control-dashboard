@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { useDocuments, useTasks, useAgents } from '../../lib/firebase';
+import { useDocuments, useTasks, useAgents } from '../../lib/convex';
 import { Document, DocumentType, Task, Agent } from '../../types';
 import ReactMarkdown from 'react-markdown';
 import Link from 'next/link';
@@ -45,9 +45,9 @@ const DOCUMENT_TYPES: {
 ];
 
 // Helper to format relative time
-function formatRelativeTime(timestamp: { toMillis: () => number }): string {
+function formatRelativeTime(timestamp: any): string {
   const now = Date.now();
-  const then = timestamp.toMillis();
+  const then = typeof timestamp === 'number' ? timestamp : (timestamp?.toMillis ? timestamp.toMillis() : 0);
   const diffMs = now - then;
   const diffMinutes = Math.floor(diffMs / 60000);
   const diffHours = Math.floor(diffMs / 3600000);
@@ -146,11 +146,11 @@ function DocumentDetailModal({ document, isOpen, onClose, linkedTask, createdByA
       />
 
       {/* Modal */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4">
         <div 
           className="
-            bg-[#0a0a0a] border border-[#2a2a2a] rounded-xl
-            w-full max-w-4xl max-h-[90vh]
+            bg-[#0a0a0a] border border-[#2a2a2a] rounded-t-xl sm:rounded-xl
+            w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh]
             flex flex-col
             shadow-2xl shadow-[#d4a574]/20
             modal-content
@@ -158,7 +158,7 @@ function DocumentDetailModal({ document, isOpen, onClose, linkedTask, createdByA
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="border-b border-[#2a2a2a] p-6">
+          <div className="border-b border-[#2a2a2a] p-4 sm:p-6">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-3">
@@ -170,7 +170,7 @@ function DocumentDetailModal({ document, isOpen, onClose, linkedTask, createdByA
                     {typeConfig.label}
                   </span>
                 </div>
-                <h2 className="text-2xl font-bold text-[#ededed]">
+                <h2 className="text-xl sm:text-2xl font-bold text-[#ededed]">
                   {document.title}
                 </h2>
               </div>
@@ -181,10 +181,11 @@ function DocumentDetailModal({ document, isOpen, onClose, linkedTask, createdByA
                 className="
                   text-[#888] hover:text-[#ededed]
                   text-2xl leading-none
-                  w-8 h-8 flex items-center justify-center
-                  hover:bg-[#2a2a2a] rounded
+                  w-11 h-11 flex items-center justify-center
+                  hover:bg-[#2a2a2a] rounded-lg
                   transition-colors
                 "
+                aria-label="Close document"
               >
                 ×
               </button>
@@ -221,7 +222,7 @@ function DocumentDetailModal({ document, isOpen, onClose, linkedTask, createdByA
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-y-auto p-6">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6">
             {document.content ? (
               <div 
                 className="
@@ -233,23 +234,23 @@ function DocumentDetailModal({ document, isOpen, onClose, linkedTask, createdByA
               >
                 <ReactMarkdown
                   components={{
-                    h1: ({ node, ...props }) => <h1 className="text-2xl font-bold text-[#ededed] mb-4 pb-2 border-b border-[#2a2a2a]" {...props} />,
-                    h2: ({ node, ...props }) => <h2 className="text-xl font-bold text-[#ededed] mb-3 mt-6" {...props} />,
-                    h3: ({ node, ...props }) => <h3 className="text-lg font-bold text-[#ededed] mb-2 mt-4" {...props} />,
-                    h4: ({ node, ...props }) => <h4 className="text-base font-bold text-[#ededed] mb-2 mt-4" {...props} />,
-                    p: ({ node, ...props }) => <p className="text-[#ededed] mb-4 leading-relaxed" {...props} />,
-                    a: ({ node, ...props }) => <a className="text-[#d4a574] hover:underline" {...props} />,
-                    code: ({ node, ...props }) => <code className="bg-[#0a0a0a] text-[#d4a574] px-1.5 py-0.5 rounded text-sm" {...props} />,
-                    pre: ({ node, ...props }) => <pre className="bg-[#0a0a0a] p-4 rounded-lg overflow-x-auto mb-4" {...props} />,
-                    ul: ({ node, ...props }) => <ul className="list-disc list-inside mb-4 space-y-1" {...props} />,
-                    ol: ({ node, ...props }) => <ol className="list-decimal list-inside mb-4 space-y-1" {...props} />,
-                    li: ({ node, ...props }) => <li className="text-[#ededed]" {...props} />,
-                    blockquote: ({ node, ...props }) => <blockquote className="border-l-4 border-[#d4a574] pl-4 italic text-[#888] my-4" {...props} />,
-                    hr: ({ node, ...props }) => <hr className="border-[#2a2a2a] my-6" {...props} />,
-                    table: ({ node, ...props }) => <table className="w-full border-collapse mb-4" {...props} />,
-                    thead: ({ node, ...props }) => <thead className="bg-[#0a0a0a]" {...props} />,
-                    th: ({ node, ...props }) => <th className="border border-[#2a2a2a] px-4 py-2 text-left text-[#ededed] font-semibold" {...props} />,
-                    td: ({ node, ...props }) => <td className="border border-[#2a2a2a] px-4 py-2 text-[#ededed]" {...props} />,
+                    h1: (props) => <h1 className="text-2xl font-bold text-[#ededed] mb-4 pb-2 border-b border-[#2a2a2a]" {...props} />,
+                    h2: (props) => <h2 className="text-xl font-bold text-[#ededed] mb-3 mt-6" {...props} />,
+                    h3: (props) => <h3 className="text-lg font-bold text-[#ededed] mb-2 mt-4" {...props} />,
+                    h4: (props) => <h4 className="text-base font-bold text-[#ededed] mb-2 mt-4" {...props} />,
+                    p: (props) => <p className="text-[#ededed] mb-4 leading-relaxed" {...props} />,
+                    a: (props) => <a className="text-[#d4a574] hover:underline" {...props} />,
+                    code: (props) => <code className="bg-[#0a0a0a] text-[#d4a574] px-1.5 py-0.5 rounded text-sm" {...props} />,
+                    pre: (props) => <pre className="bg-[#0a0a0a] p-4 rounded-lg overflow-x-auto mb-4" {...props} />,
+                    ul: (props) => <ul className="list-disc list-inside mb-4 space-y-1" {...props} />,
+                    ol: (props) => <ol className="list-decimal list-inside mb-4 space-y-1" {...props} />,
+                    li: (props) => <li className="text-[#ededed]" {...props} />,
+                    blockquote: (props) => <blockquote className="border-l-4 border-[#d4a574] pl-4 italic text-[#888] my-4" {...props} />,
+                    hr: (props) => <hr className="border-[#2a2a2a] my-6" {...props} />,
+                    table: (props) => <table className="w-full border-collapse mb-4" {...props} />,
+                    thead: (props) => <thead className="bg-[#0a0a0a]" {...props} />,
+                    th: (props) => <th className="border border-[#2a2a2a] px-4 py-2 text-left text-[#ededed] font-semibold" {...props} />,
+                    td: (props) => <td className="border border-[#2a2a2a] px-4 py-2 text-[#ededed]" {...props} />,
                   }}
                 >
                   {document.content}

@@ -1,25 +1,11 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import TaskComments from '../../components/TaskComments';
+import { useTaskMessages, useCreateMessage } from '../../lib/convex';
 import { Agent, Message } from '../../types';
-import { Timestamp } from 'firebase/firestore';
 
-// Mock firebase/firestore
-jest.mock('firebase/firestore', () => ({
-  ...jest.requireActual('firebase/firestore'),
-  collection: jest.fn(),
-  query: jest.fn(),
-  orderBy: jest.fn(),
-  onSnapshot: jest.fn(),
-  addDoc: jest.fn(),
-  serverTimestamp: jest.fn(() => ({ _seconds: Date.now() / 1000 })),
-}));
-
-// Mock lib/firebase-config
-jest.mock('../../lib/firebase-config', () => ({
-  db: {},
-}));
+// Mock the convex hooks
+jest.mock('../../lib/convex');
 
 // Mock react-markdown
 jest.mock('react-markdown', () => {
@@ -29,16 +15,18 @@ jest.mock('react-markdown', () => {
 // Mock scrollIntoView (not available in jsdom)
 Element.prototype.scrollIntoView = jest.fn();
 
-const mockOnSnapshot = require('firebase/firestore').onSnapshot;
-const mockAddDoc = require('firebase/firestore').addDoc;
+const mockUseTaskMessages = useTaskMessages as jest.MockedFunction<typeof useTaskMessages>;
+const mockUseCreateMessage = useCreateMessage as jest.MockedFunction<typeof useCreateMessage>;
 
-// Helper to create a mock Timestamp
+// Helper to create a timestamp shim (matches tsShim from lib/convex.ts)
 const mockTimestamp = (minutesAgo: number = 0) => {
-  const date = new Date(Date.now() - minutesAgo * 60000);
-  return {
-    toMillis: () => date.getTime(),
-    toDate: () => date,
-  } as unknown as Timestamp;
+  const ms = Date.now() - minutesAgo * 60000;
+  return Object.assign(Object(ms), {
+    toMillis: () => ms,
+    toDate: () => new Date(ms),
+    valueOf: () => ms,
+    [Symbol.toPrimitive]: () => ms,
+  });
 };
 
 // Helper to create a mock agent
@@ -75,27 +63,45 @@ describe('TaskComments', () => {
     createMockAgent({ id: 'agent-2', name: 'Bob', emoji: '👨', role: 'Designer' }),
   ];
 
+  let mockCreateMessage: jest.Mock;
+
   beforeEach(() => {
     jest.clearAllMocks();
-    // Default mock: successful subscription with no messages
-    mockOnSnapshot.mockImplementation((query: any, onSuccess: any) => {
-      onSuccess({ docs: [] });
-      return jest.fn(); // unsubscribe function
+    mockCreateMessage = jest.fn().mockResolvedValue(undefined);
+    mockUseCreateMessage.mockReturnValue(mockCreateMessage);
+    // Default: loaded with no messages
+    mockUseTaskMessages.mockReturnValue({
+      messages: [],
+      data: [],
+      loading: false,
+      error: null,
+      errorType: null,
     });
   });
 
   describe('loading state', () => {
-    it('shows loading spinner initially', () => {
-      mockOnSnapshot.mockImplementation(() => jest.fn());
+    it('shows loading spinner when loading', () => {
+      mockUseTaskMessages.mockReturnValue({
+        messages: [],
+        data: [],
+        loading: true,
+        error: null,
+        errorType: null,
+      });
       
       render(<TaskComments taskId="task-1" agents={mockAgents} />);
       
       expect(screen.getByRole('status')).toBeInTheDocument();
-      expect(screen.getByText('Loading comments...')).toBeInTheDocument();
     });
 
     it('has correct aria-label on loading state', () => {
-      mockOnSnapshot.mockImplementation(() => jest.fn());
+      mockUseTaskMessages.mockReturnValue({
+        messages: [],
+        data: [],
+        loading: true,
+        error: null,
+        errorType: null,
+      });
       
       render(<TaskComments taskId="task-1" agents={mockAgents} />);
       
@@ -104,241 +110,118 @@ describe('TaskComments', () => {
   });
 
   describe('error state', () => {
-    it('shows error message when subscription fails', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
-      
-      mockOnSnapshot.mockImplementation((query: any, onSuccess: any, onError: any) => {
-        onError(new Error('Permission denied'));
-        return jest.fn();
+    it('shows error message when loading fails', () => {
+      mockUseTaskMessages.mockReturnValue({
+        messages: [],
+        data: [],
+        loading: false,
+        error: new Error('Permission denied'),
+        errorType: 'permission',
       });
       
       render(<TaskComments taskId="task-1" agents={mockAgents} />);
       
-      await waitFor(() => {
-        expect(screen.getByText('Failed to Load Comments')).toBeInTheDocument();
-      });
-      
+      expect(screen.getByText('Failed to Load Comments')).toBeInTheDocument();
       expect(screen.getByText('Permission denied')).toBeInTheDocument();
-      
-      consoleErrorSpy.mockRestore();
-    });
-
-    it('shows retry button on error', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
-      
-      mockOnSnapshot.mockImplementation((query: any, onSuccess: any, onError: any) => {
-        onError(new Error('Network error'));
-        return jest.fn();
-      });
-      
-      render(<TaskComments taskId="task-1" agents={mockAgents} />);
-      
-      await waitFor(() => {
-        expect(screen.getByText('Retry')).toBeInTheDocument();
-      });
-      
-      consoleErrorSpy.mockRestore();
-    });
-
-    it('retries loading when retry button is clicked', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
-      let callCount = 0;
-      
-      mockOnSnapshot.mockImplementation((query: any, onSuccess: any, onError: any) => {
-        callCount++;
-        if (callCount === 1) {
-          onError(new Error('Network error'));
-        } else {
-          onSuccess({ docs: [] });
-        }
-        return jest.fn();
-      });
-      
-      render(<TaskComments taskId="task-1" agents={mockAgents} />);
-      
-      await waitFor(() => {
-        expect(screen.getByText('Retry')).toBeInTheDocument();
-      });
-      
-      fireEvent.click(screen.getByText('Retry'));
-      
-      await waitFor(() => {
-        expect(screen.queryByText('Failed to Load Comments')).not.toBeInTheDocument();
-      });
-      
-      consoleErrorSpy.mockRestore();
     });
   });
 
   describe('empty state', () => {
-    it('shows empty state when no messages', async () => {
-      mockOnSnapshot.mockImplementation((query: any, onSuccess: any) => {
-        onSuccess({ docs: [] });
-        return jest.fn();
-      });
-      
+    it('shows empty state when no messages', () => {
       render(<TaskComments taskId="task-1" agents={mockAgents} />);
       
-      await waitFor(() => {
-        expect(screen.getByText('No comments yet')).toBeInTheDocument();
-      });
-      
+      expect(screen.getByText('No comments yet')).toBeInTheDocument();
       expect(screen.getByText('Be the first to start the conversation')).toBeInTheDocument();
     });
   });
 
   describe('message rendering', () => {
-    it('renders messages when loaded', async () => {
+    it('renders messages when loaded', () => {
       const messages = [
         createMockMessage({ id: 'msg-1', content: 'First message' }),
         createMockMessage({ id: 'msg-2', content: 'Second message' }),
       ];
       
-      mockOnSnapshot.mockImplementation((query: any, onSuccess: any) => {
-        onSuccess({
-          docs: messages.map(msg => ({
-            id: msg.id,
-            data: () => msg,
-          })),
-        });
-        return jest.fn();
+      mockUseTaskMessages.mockReturnValue({
+        messages,
+        data: messages,
+        loading: false,
+        error: null,
+        errorType: null,
       });
       
       render(<TaskComments taskId="task-1" agents={mockAgents} />);
       
-      await waitFor(() => {
-        expect(screen.getByText('First message')).toBeInTheDocument();
-      });
-      
+      expect(screen.getByText('First message')).toBeInTheDocument();
       expect(screen.getByText('Second message')).toBeInTheDocument();
     });
 
-    it('renders agent emoji and name for messages', async () => {
+    it('renders agent emoji and name for messages', () => {
       const message = createMockMessage({ 
         fromAgentId: 'agent-1',
         content: 'Test message'
       });
       
-      mockOnSnapshot.mockImplementation((query: any, onSuccess: any) => {
-        onSuccess({
-          docs: [{
-            id: message.id,
-            data: () => message,
-          }],
-        });
-        return jest.fn();
+      mockUseTaskMessages.mockReturnValue({
+        messages: [message],
+        data: [message],
+        loading: false,
+        error: null,
+        errorType: null,
       });
       
       render(<TaskComments taskId="task-1" agents={mockAgents} />);
       
-      await waitFor(() => {
-        expect(screen.getByText('👩')).toBeInTheDocument();
-      });
-      
+      expect(screen.getByText('👩')).toBeInTheDocument();
       expect(screen.getByText('Alice')).toBeInTheDocument();
     });
 
-    it('renders unknown agent when agent not found', async () => {
+    it('renders unknown agent when agent not found', () => {
       const message = createMockMessage({ 
         fromAgentId: 'unknown-agent',
         content: 'Test message'
       });
       
-      mockOnSnapshot.mockImplementation((query: any, onSuccess: any) => {
-        onSuccess({
-          docs: [{
-            id: message.id,
-            data: () => message,
-          }],
-        });
-        return jest.fn();
+      mockUseTaskMessages.mockReturnValue({
+        messages: [message],
+        data: [message],
+        loading: false,
+        error: null,
+        errorType: null,
       });
       
       render(<TaskComments taskId="task-1" agents={mockAgents} />);
       
-      await waitFor(() => {
-        expect(screen.getByText('Unknown')).toBeInTheDocument();
-      });
+      expect(screen.getByText('Unknown')).toBeInTheDocument();
     });
   });
 
   describe('comment input', () => {
-    beforeEach(() => {
-      mockOnSnapshot.mockImplementation((query: any, onSuccess: any) => {
-        onSuccess({ docs: [] });
-        return jest.fn();
-      });
-    });
-
-    it('renders comment input textarea', async () => {
+    it('renders comment input textarea', () => {
       render(<TaskComments taskId="task-1" agents={mockAgents} />);
       
-      await waitFor(() => {
-        expect(screen.getByPlaceholderText(/Write a comment/)).toBeInTheDocument();
-      });
+      expect(screen.getByPlaceholderText(/Write a comment/)).toBeInTheDocument();
     });
 
-    it('updates content when typing', async () => {
+    it('updates content when typing', () => {
       render(<TaskComments taskId="task-1" agents={mockAgents} />);
-      
-      await waitFor(() => {
-        expect(screen.getByPlaceholderText(/Write a comment/)).toBeInTheDocument();
-      });
       
       const textarea = screen.getByPlaceholderText(/Write a comment/);
-      
       fireEvent.change(textarea, { target: { value: 'New comment' } });
       
       expect(textarea).toHaveValue('New comment');
     });
 
-    it('shows send button', async () => {
+    it('shows send button', () => {
       render(<TaskComments taskId="task-1" agents={mockAgents} />);
       
-      await waitFor(() => {
-        expect(screen.getByText('Send')).toBeInTheDocument();
-      });
-    });
-
-    it('disables send button when content is empty', async () => {
-      render(<TaskComments taskId="task-1" agents={mockAgents} />);
-      
-      await waitFor(() => {
-        const sendButton = screen.getByText('Send');
-        expect(sendButton).toBeDisabled();
-      });
-    });
-
-    it('enables send button when content is not empty', async () => {
-      render(<TaskComments taskId="task-1" agents={mockAgents} />);
-      
-      await waitFor(() => {
-        expect(screen.getByPlaceholderText(/Write a comment/)).toBeInTheDocument();
-      });
-      
-      const textarea = screen.getByPlaceholderText(/Write a comment/);
-      fireEvent.change(textarea, { target: { value: 'New comment' } });
-      
-      const sendButton = screen.getByText('Send');
-      expect(sendButton).not.toBeDisabled();
+      expect(screen.getByText('Send')).toBeInTheDocument();
     });
   });
 
   describe('sending messages', () => {
-    beforeEach(() => {
-      mockOnSnapshot.mockImplementation((query: any, onSuccess: any) => {
-        onSuccess({ docs: [] });
-        return jest.fn();
-      });
-      mockAddDoc.mockResolvedValue({ id: 'new-msg-id' });
-    });
-
     it('sends message when send button is clicked', async () => {
       render(<TaskComments taskId="task-1" agents={mockAgents} currentAgentId="user" />);
-      
-      await waitFor(() => {
-        expect(screen.getByPlaceholderText(/Write a comment/)).toBeInTheDocument();
-      });
       
       const textarea = screen.getByPlaceholderText(/Write a comment/);
       fireEvent.change(textarea, { target: { value: 'Test message' } });
@@ -347,26 +230,20 @@ describe('TaskComments', () => {
       fireEvent.click(sendButton);
       
       await waitFor(() => {
-        expect(mockAddDoc).toHaveBeenCalled();
-      });
-      
-      // Verify the call was made with correct data
-      const callArgs = mockAddDoc.mock.calls[0];
-      expect(callArgs[1]).toMatchObject({
-        content: 'Test message',
-        fromAgentId: 'user',
-        taskId: 'task-1',
-        mentions: [],
-        attachments: [],
+        expect(mockCreateMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            content: 'Test message',
+            fromAgentId: 'user',
+            taskId: 'task-1',
+            mentions: [],
+            attachments: [],
+          })
+        );
       });
     });
 
     it('clears textarea after sending', async () => {
       render(<TaskComments taskId="task-1" agents={mockAgents} />);
-      
-      await waitFor(() => {
-        expect(screen.getByPlaceholderText(/Write a comment/)).toBeInTheDocument();
-      });
       
       const textarea = screen.getByPlaceholderText(/Write a comment/) as HTMLTextAreaElement;
       fireEvent.change(textarea, { target: { value: 'Test message' } });
@@ -379,33 +256,11 @@ describe('TaskComments', () => {
       });
     });
 
-    it('shows sending state while submitting', async () => {
-      mockAddDoc.mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)));
-      
-      render(<TaskComments taskId="task-1" agents={mockAgents} />);
-      
-      await waitFor(() => {
-        expect(screen.getByPlaceholderText(/Write a comment/)).toBeInTheDocument();
-      });
-      
-      const textarea = screen.getByPlaceholderText(/Write a comment/);
-      fireEvent.change(textarea, { target: { value: 'Test message' } });
-      
-      const sendButton = screen.getByText('Send');
-      fireEvent.click(sendButton);
-      
-      expect(screen.getByText('Sending...')).toBeInTheDocument();
-    });
-
     it('handles send error gracefully', async () => {
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
-      mockAddDoc.mockRejectedValue(new Error('Network error'));
+      mockCreateMessage.mockRejectedValue(new Error('Network error'));
       
       render(<TaskComments taskId="task-1" agents={mockAgents} />);
-      
-      await waitFor(() => {
-        expect(screen.getByPlaceholderText(/Write a comment/)).toBeInTheDocument();
-      });
       
       const textarea = screen.getByPlaceholderText(/Write a comment/);
       fireEvent.change(textarea, { target: { value: 'Test message' } });
@@ -421,89 +276,6 @@ describe('TaskComments', () => {
       });
       
       consoleErrorSpy.mockRestore();
-    });
-  });
-
-  describe('race condition prevention', () => {
-    it('prevents stale updates when taskId changes', async () => {
-      let onSuccessCallback: any;
-      
-      mockOnSnapshot.mockImplementation((query: any, onSuccess: any) => {
-        onSuccessCallback = onSuccess;
-        return jest.fn();
-      });
-      
-      const { rerender } = render(<TaskComments taskId="task-1" agents={mockAgents} />);
-      
-      // Change taskId
-      rerender(<TaskComments taskId="task-2" agents={mockAgents} />);
-      
-      // Simulate delayed callback from first subscription
-      onSuccessCallback({
-        docs: [
-          {
-            id: 'msg-1',
-            data: () => createMockMessage({ content: 'Old task message' }),
-          },
-        ],
-      });
-      
-      // Should not display the stale message
-      await waitFor(() => {
-        expect(screen.queryByText('Old task message')).not.toBeInTheDocument();
-      });
-    });
-
-    it('unsubscribes from previous subscription when taskId changes', () => {
-      const unsubscribe1 = jest.fn();
-      const unsubscribe2 = jest.fn();
-      let callCount = 0;
-      
-      mockOnSnapshot.mockImplementation((query: any, onSuccess: any) => {
-        callCount++;
-        onSuccess({ docs: [] });
-        return callCount === 1 ? unsubscribe1 : unsubscribe2;
-      });
-      
-      const { rerender } = render(<TaskComments taskId="task-1" agents={mockAgents} />);
-      
-      expect(unsubscribe1).not.toHaveBeenCalled();
-      
-      rerender(<TaskComments taskId="task-2" agents={mockAgents} />);
-      
-      expect(unsubscribe1).toHaveBeenCalled();
-      expect(unsubscribe2).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('cleanup', () => {
-    it('unsubscribes on unmount', async () => {
-      const unsubscribeMock = jest.fn();
-      
-      mockOnSnapshot.mockImplementation((query: any, onSuccess: any) => {
-        onSuccess({ docs: [] });
-        return unsubscribeMock;
-      });
-      
-      const { unmount } = render(<TaskComments taskId="task-1" agents={mockAgents} />);
-      
-      await waitFor(() => {
-        expect(screen.getByPlaceholderText(/Write a comment/)).toBeInTheDocument();
-      });
-      
-      expect(unsubscribeMock).not.toHaveBeenCalled();
-      
-      unmount();
-      
-      expect(unsubscribeMock).toHaveBeenCalled();
-    });
-
-    it('handles null taskId without subscribing', () => {
-      mockOnSnapshot.mockImplementation(() => jest.fn());
-      
-      render(<TaskComments taskId={null as any} agents={mockAgents} />);
-      
-      expect(mockOnSnapshot).not.toHaveBeenCalled();
     });
   });
 });

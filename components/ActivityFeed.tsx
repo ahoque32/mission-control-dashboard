@@ -1,17 +1,16 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { useActivityPaginated, useAgents } from '../lib/firebase';
+import { useActivityPaginated, useAgents } from '../lib/convex';
 import { Activity, ActivityType } from '../types';
-import { Timestamp } from 'firebase/firestore';
 
 // ============================================================================
 // Helpers
 // ============================================================================
 
-function formatRelativeTime(timestamp: Timestamp): string {
+function formatRelativeTime(timestamp: any): string {
   const now = Date.now();
-  const then = timestamp.toMillis();
+  const then = typeof timestamp === 'number' ? timestamp : (timestamp?.toMillis ? timestamp.toMillis() : 0);
   const diffMs = now - then;
   const diffMinutes = Math.floor(diffMs / 60000);
   const diffHours = Math.floor(diffMs / 3600000);
@@ -33,8 +32,8 @@ function formatDuration(ms: number): string {
   return `${Math.floor(ms / 3600000)}h ${Math.floor((ms % 3600000) / 60000)}m`;
 }
 
-function formatFullDate(timestamp: Timestamp): string {
-  const date = timestamp.toDate();
+function formatFullDate(timestamp: any): string {
+  const date = timestamp?.toDate ? timestamp.toDate() : new Date(typeof timestamp === 'number' ? timestamp : 0);
   return date.toLocaleString('en-US', {
     hour: 'numeric',
     minute: '2-digit',
@@ -185,7 +184,7 @@ export default function ActivityFeed({ fullPage = false, maxItems }: ActivityFee
     return Array.from(names).sort();
   }, [activities, agents, agentMap]);
 
-  // Client-side filtering (since Firestore compound queries are limited)
+  // Client-side filtering
   const filteredActivities = useMemo(() => {
     let result = activities;
     if (agentFilter) {
@@ -208,7 +207,7 @@ export default function ActivityFeed({ fullPage = false, maxItems }: ActivityFee
     let currentGroup: Activity[] = [];
 
     filteredActivities.forEach(activity => {
-      const date = activity.createdAt?.toDate?.() || new Date();
+      const date = activity.createdAt?.toDate ? activity.createdAt.toDate() : (typeof activity.createdAt === 'number' ? new Date(activity.createdAt) : new Date());
       const label = getDateGroupLabel(date);
       if (label !== currentLabel) {
         if (currentGroup.length > 0) {
@@ -339,7 +338,7 @@ export default function ActivityFeed({ fullPage = false, maxItems }: ActivityFee
                     key={activity.id}
                     role="article"
                     aria-label={`Activity by ${agentName}: ${activity.message}`}
-                    className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-4 hover:border-[#d4a574]/30 transition-all flex items-start gap-3"
+                    className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-3 sm:p-4 hover:border-[#d4a574]/30 transition-all flex items-start gap-2.5 sm:gap-3"
                   >
                     {/* Agent Avatar */}
                     <div className="w-10 h-10 rounded-full bg-[#0a0a0a] border border-[#2a2a2a] flex items-center justify-center flex-shrink-0 text-xl">

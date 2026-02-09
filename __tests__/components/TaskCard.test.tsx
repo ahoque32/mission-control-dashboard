@@ -2,13 +2,17 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import TaskCard from '../../components/TaskCard';
 import { Task } from '../../types';
-import { Timestamp } from 'firebase/firestore';
 
-// Helper to create a mock Timestamp
-const mockTimestamp = (date: Date = new Date()) => ({
-  toMillis: () => date.getTime(),
-  toDate: () => date,
-} as unknown as Timestamp);
+// Helper to create a timestamp shim (matches tsShim from lib/convex.ts)
+const mockTimestamp = (date: Date = new Date()) => {
+  const ms = date.getTime();
+  return Object.assign(Object(ms), {
+    toMillis: () => ms,
+    toDate: () => date,
+    valueOf: () => ms,
+    [Symbol.toPrimitive]: () => ms,
+  });
+};
 
 // Helper to create a mock task
 const createMockTask = (overrides: Partial<Task> = {}): Task => ({
