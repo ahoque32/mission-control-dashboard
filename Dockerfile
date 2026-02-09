@@ -2,7 +2,6 @@ FROM node:22-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
-RUN apk add --no-cache python3 make g++ pkgconfig pixman-dev cairo-dev pango-dev libjpeg-turbo-dev giflib-dev
 WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm ci
@@ -15,6 +14,14 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NEXT_PUBLIC_CONVEX_URL=https://courteous-quail-705.convex.cloud
 RUN npm run build
+# Flatten standalone output if nested under monorepo path
+RUN if [ -f .next/standalone/server.js ]; then \
+      echo "Standalone at root"; \
+    elif [ -d .next/standalone/mission-control ]; then \
+      cp -r .next/standalone/mission-control/dashboard/. /tmp/standalone/ && \
+      rm -rf .next/standalone/* && \
+      cp -r /tmp/standalone/. .next/standalone/; \
+    fi
 
 # Production image
 FROM base AS runner
