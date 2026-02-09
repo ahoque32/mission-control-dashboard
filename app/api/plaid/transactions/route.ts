@@ -86,10 +86,20 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 const DEFAULT_COLOR = '#64748b';
 
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const days = parseInt(searchParams.get('days') || '30', 10);
+  return handleRequest(days);
+}
+
 export async function POST(request: Request) {
+  const body: PlaidRequestBody = await request.json().catch(() => ({}));
+  const days = body.days ?? 30;
+  return handleRequest(days);
+}
+
+async function handleRequest(days: number) {
   try {
-    const body: PlaidRequestBody = await request.json().catch(() => ({}));
-    const days = body.days ?? 30;
 
     const now = new Date();
     const startDate = new Date(now);
