@@ -161,9 +161,26 @@ Total Income (credits): $${totalIncome.toFixed(2)}
 Net: $${(totalIncome - totalSpent).toFixed(2)}
 Date Range: ${dates[0]} to ${dates[dates.length - 1]}`);
 
-  // Account balances
+  // Account balances + per-account spending
   if (accounts.length > 0) {
-    parts.push(`\n=== ACCOUNT BALANCES ===`);
+    parts.push(`\n=== ACCOUNTS WITH BALANCES AND SPENDING ===`);
+    
+    // Build account ID to info map
+    const accountMap = new Map<string, PlaidAccount>();
+    for (const acct of accounts) {
+      accountMap.set(acct.account_id, acct);
+    }
+    
+    // Calculate per-account spending and income
+    const accountSpending = new Map<string, { spent: number; income: number; count: number }>();
+    for (const tx of transactions) {
+      const existing = accountSpending.get(tx.account_id) || { spent: 0, income: 0, count: 0 };
+      if (tx.amount > 0) existing.spent += tx.amount;
+      else existing.income += Math.abs(tx.amount);
+      existing.count += 1;
+      accountSpending.set(tx.account_id, existing);
+    }
+    
     for (const acct of accounts) {
       const avail =
         acct.balances.available !== null
@@ -173,9 +190,14 @@ Date Range: ${dates[0]} to ${dates[dates.length - 1]}`);
         acct.balances.current !== null
           ? `Current: $${acct.balances.current.toFixed(2)}`
           : '';
+      const spending = accountSpending.get(acct.account_id) || { spent: 0, income: 0, count: 0 };
       parts.push(
-        `${acct.name} (••••${acct.mask || '????'}, ${acct.subtype || acct.type}): ${[avail, curr].filter(Boolean).join(' | ')}`
+        `${acct.name} (••••${acct.mask || '????'}, ${acct.subtype || acct.type}):`
       );
+      parts.push(`  Balances: ${[avail, curr].filter(Boolean).join(' | ')}`);
+      parts.push(`  Spending from this account: $${spending.spent.toFixed(2)} (${spending.count} transactions)`);
+      parts.push(`  Income to this account: $${spending.income.toFixed(2)}`);
+      parts.push(`  Net: $${(spending.income - spending.spent).toFixed(2)}`);
     }
   }
 
