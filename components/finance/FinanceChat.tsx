@@ -23,6 +23,11 @@ const STARTER_CHIPS = [
   'Monthly spending trend',
 ];
 
+const DEFAULT_HEIGHT = 500;
+const MIN_HEIGHT = 250;
+const MAX_HEIGHT = 900;
+const STORAGE_KEY = 'finance-chat-height';
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function FinanceChat({ days = 30 }: FinanceChatProps) {
@@ -32,6 +37,69 @@ export default function FinanceChat({ days = 30 }: FinanceChatProps) {
   const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Resize state
+  const [height, setHeight] = useState(DEFAULT_HEIGHT);
+  const [isResizing, setIsResizing] = useState(false);
+  const startY = useRef(0);
+  const startHeight = useRef(0);
+
+  // Load persisted height on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const parsed = parseInt(saved, 10);
+        if (!isNaN(parsed) && parsed >= MIN_HEIGHT && parsed <= MAX_HEIGHT) {
+          setHeight(parsed);
+        }
+      }
+    }
+  }, []);
+
+  // Save height to session storage when it changes
+  useEffect(() => {
+    if (typeof window !== 'undefined' && height !== DEFAULT_HEIGHT) {
+      sessionStorage.setItem(STORAGE_KEY, String(height));
+    }
+  }, [height]);
+
+  // Resize handlers
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+    startY.current = e.clientY;
+    startHeight.current = height;
+  }, [height]);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isResizing) return;
+      // Dragging UP increases height, dragging DOWN decreases
+      const delta = startY.current - e.clientY;
+      const newHeight = Math.min(MAX_HEIGHT, Math.max(MIN_HEIGHT, startHeight.current + delta));
+      setHeight(newHeight);
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    if (isResizing) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = 'ns-resize';
+      document.body.style.userSelect = 'none';
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+  }, [isResizing]);
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
@@ -110,7 +178,24 @@ export default function FinanceChat({ days = 30 }: FinanceChatProps) {
   };
 
   return (
-    <div className="bg-white/5 border border-white/10 rounded-xl backdrop-blur overflow-hidden flex flex-col">
+    <div 
+      ref={containerRef}
+      className="bg-white/5 border border-white/10 rounded-xl backdrop-blur overflow-hidden flex flex-col relative"
+      style={{ height: `${height}px` }}
+    >
+      {/* Resize Handle - Top Edge */}
+      <div
+        onMouseDown={handleMouseDown}
+        className={`absolute top-0 left-0 right-0 h-2 cursor-ns-resize z-10 group ${
+          isResizing ? 'bg-blue-500/30' : 'hover:bg-blue-500/20'
+        } transition-colors`}
+      >
+        {/* Visual indicator */}
+        <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-1 rounded-full transition-all ${
+          isResizing ? 'bg-blue-400 w-16' : 'bg-white/20 group-hover:bg-white/40'
+        }`} />
+      </div>
+
       {/* Header */}
       <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -127,7 +212,7 @@ export default function FinanceChat({ days = 30 }: FinanceChatProps) {
       {/* Messages area */}
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto px-4 py-4 space-y-4 min-h-[200px] max-h-[400px] md:max-h-[500px]"
+        className="flex-1 overflow-y-auto px-4 py-4 space-y-4"
       >
         {/* Empty state with starter chips */}
         {messages.length === 0 && !isLoading && (
