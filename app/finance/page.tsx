@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import FinanceChat from '../../components/finance/FinanceChat';
+import FinanceChatErrorBoundary from '../../components/finance/FinanceChatErrorBoundary';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -346,7 +347,9 @@ export default function FinancePage() {
       </div>
 
       {/* AI Finance Chat */}
-      <FinanceChat days={days} />
+      <FinanceChatErrorBoundary>
+        <FinanceChat days={days} />
+      </FinanceChatErrorBoundary>
     </div>
   );
 }
