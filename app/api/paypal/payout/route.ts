@@ -6,6 +6,7 @@ const RECIPIENTS: Record<string, string> = {
   luke: 'lukeianestesalona@gmail.com',
   richard: 'rjosephporter@gmail.com',
   jerome: 'jeromeabamjr@icloud.com',
+  zoren: 'zorenmangubat693@gmail.com',
 };
 
 async function getAccessToken(): Promise<string> {

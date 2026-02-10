@@ -74,6 +74,7 @@ const PAYOUT_RECIPIENTS = [
   { key: 'luke', label: 'Luke', email: 'lukeianestesalona@gmail.com' },
   { key: 'richard', label: 'Richard', email: 'rjosephporter@gmail.com' },
   { key: 'jerome', label: 'Jerome', email: 'jeromeabamjr@icloud.com' },
+  { key: 'zoren', label: 'Zoren', email: 'zorenmangubat693@gmail.com' },
 ];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
