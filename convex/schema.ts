@@ -58,6 +58,15 @@ export default defineSchema({
     updatedAt: v.number(),
   }).index("by_updatedAt", ["updatedAt"]),
 
+  payouts: defineTable({
+    recipient: v.string(),
+    email: v.string(),
+    amount: v.number(),
+    status: v.string(),
+    paypalBatchId: v.string(),
+    createdAt: v.number(),
+  }).index("by_createdAt", ["createdAt"]),
+
   cron_jobs: defineTable({
     name: v.string(),
     schedule: v.string(),

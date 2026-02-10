@@ -13,6 +13,7 @@ import type * as agents from "../agents.js";
 import type * as cronJobs from "../cronJobs.js";
 import type * as documents from "../documents.js";
 import type * as messages from "../messages.js";
+import type * as payouts from "../payouts.js";
 import type * as tasks from "../tasks.js";
 
 import type {
@@ -27,6 +28,7 @@ declare const fullApi: ApiFromModules<{
   cronJobs: typeof cronJobs;
   documents: typeof documents;
   messages: typeof messages;
+  payouts: typeof payouts;
   tasks: typeof tasks;
 }>;
 
