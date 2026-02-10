@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import FinanceChat from '../../components/finance/FinanceChat';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -343,6 +344,9 @@ export default function FinancePage() {
           )}
         </div>
       </div>
+
+      {/* AI Finance Chat */}
+      <FinanceChat days={days} />
     </div>
   );
 }
