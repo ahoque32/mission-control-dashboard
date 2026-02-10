@@ -5,6 +5,8 @@ import Sidebar from "../components/Sidebar";
 import MobileNav from "../components/MobileNav";
 import SearchShortcut from "../components/SearchShortcut";
 import ConvexClientProvider from "../components/ConvexClientProvider";
+import { AuthProvider } from "../lib/auth-context";
+import AuthGate from "../components/AuthGate";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -50,26 +52,30 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ConvexClientProvider>
-          <SearchShortcut />
-          <div className="flex h-screen overflow-hidden">
-            {/* Desktop Sidebar - Hidden on mobile */}
-            <div className="hidden lg:block">
-              <Sidebar />
-            </div>
+        <AuthProvider>
+          <AuthGate>
+            <ConvexClientProvider>
+              <SearchShortcut />
+              <div className="flex h-screen overflow-hidden">
+                {/* Desktop Sidebar - Hidden on mobile */}
+                <div className="hidden lg:block">
+                  <Sidebar />
+                </div>
 
-            {/* Main Content Area */}
-            <div className="flex-1 flex flex-col overflow-hidden">
-              {/* Mobile Navigation - Hidden on desktop */}
-              <MobileNav />
+                {/* Main Content Area */}
+                <div className="flex-1 flex flex-col overflow-hidden">
+                  {/* Mobile Navigation - Hidden on desktop */}
+                  <MobileNav />
 
-              {/* Page Content */}
-              <main className="flex-1 overflow-auto bg-[#0a0a0a]">
-                {children}
-              </main>
-            </div>
-          </div>
-        </ConvexClientProvider>
+                  {/* Page Content */}
+                  <main className="flex-1 overflow-auto bg-[#0a0a0a]">
+                    {children}
+                  </main>
+                </div>
+              </div>
+            </ConvexClientProvider>
+          </AuthGate>
+        </AuthProvider>
       </body>
     </html>
   );
