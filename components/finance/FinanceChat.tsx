@@ -189,11 +189,24 @@ export default function FinanceChat({ days = 30 }: FinanceChatProps) {
           </div>
         )}
 
-        {/* Error message */}
+        {/* Error message with retry */}
         {error && (
           <div className="flex justify-center">
-            <div className="bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
+            <div className="bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2 flex items-center gap-2">
               <p className="text-red-400 text-xs">{error}</p>
+              <button
+                onClick={() => {
+                  const lastUserMsg = [...messages].reverse().find((m) => m.role === 'user');
+                  if (lastUserMsg) {
+                    // Remove the last user message so sendMessage re-adds it
+                    setMessages((prev) => prev.slice(0, -1));
+                    sendMessage(lastUserMsg.content);
+                  }
+                }}
+                className="text-[10px] px-2 py-1 rounded bg-red-500/20 text-red-300 hover:bg-red-500/30 transition-colors shrink-0"
+              >
+                Retry
+              </button>
             </div>
           </div>
         )}
