@@ -8,9 +8,9 @@ const GEMINI_URL =
 const REQUIRED_MODEL = 'gemini-2.5-flash';
 
 const PLAID_BASE = 'https://production.plaid.com';
-const PLAID_CLIENT_ID = '6984d54ee158bd002131da1c';
-const PLAID_SECRET = 'a15662002092fe14d858a9cb3367df';
-const ACCESS_TOKEN = 'access-production-3b313398-4b80-4303-974e-a2fc0d30d446';
+const PLAID_CLIENT_ID = process.env.PLAID_CLIENT_ID!;
+const PLAID_SECRET = process.env.PLAID_SECRET!;
+const ACCESS_TOKEN = process.env.PLAID_ACCESS_TOKEN!;
 
 const SYSTEM_PROMPT = `You are a financial-dashboard-only advisor. You ONLY answer questions about the user's personal finances, transaction history, financial summaries, trends, and insights. You must ground all responses in the provided transaction data. Refuse any questions unrelated to personal finance.
 

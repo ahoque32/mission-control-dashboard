@@ -1,5 +1,5 @@
-const PAYPAL_CLIENT_ID = 'AbRcG86L6wOjY2mEanYbcFfcBZ_-b2QYrKq3o_b33nuPhkobvXQ_s8ZNR0UQp2cg3Bs4KPJk-bT3hLG4';
-const PAYPAL_CLIENT_SECRET = 'EC3gKCmK0KLCkLVC1-0-1wvXpo_A1SzEsezVURWSYeQ8CZ_65cwzk3eLbxMu9Bg8IXvZ6VRPOJb_mw0f';
+const PAYPAL_CLIENT_ID = process.env.PAYPAL_CLIENT_ID!;
+const PAYPAL_CLIENT_SECRET = process.env.PAYPAL_CLIENT_SECRET!;
 const PAYPAL_BASE_URL = 'https://api-m.paypal.com';
 
 const RECIPIENTS: Record<string, string> = {
