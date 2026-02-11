@@ -3,6 +3,20 @@
 import { useMemo } from 'react';
 import { Agent, Activity } from '../types';
 import { useAgentRecentActivity } from '../lib/convex';
+import Icon, { IconName } from './ui/Icon';
+
+// Map agent emojis to Bootstrap Icons
+const emojiToIcon: Record<string, IconName> = {
+  '📚': 'archive',
+  '🦞': 'cpu',        // JHawk - lobster → cpu (system)
+  '🦅': 'cpu',        // JHawk alt
+  '🔍': 'search',     // LEO, Scout
+  '🔨': 'tools',      // Ralph - hammer → tools
+  '🤖': 'robot',      // Ralph alt
+  '🛡️': 'shield-check', // Sentinel
+  '👁️': 'eye',        // Sentinel alt
+  '👁': 'eye',
+};
 
 interface AgentCardProps {
   agent: Agent;
@@ -93,9 +107,15 @@ export default function AgentCard({ agent, currentTask }: AgentCardProps) {
 
   return (
     <div className="glass-card p-5 hover:border-emerald-500/30 transition-all card-hover">
-      {/* Header: Emoji + Status */}
+      {/* Header: Icon + Status */}
       <div className="flex items-start justify-between mb-4">
-        <div className="text-5xl leading-none">{agent.emoji}</div>
+        <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+          <Icon 
+            name={emojiToIcon[agent.emoji] || 'person'} 
+            size={28} 
+            className="text-emerald-400" 
+          />
+        </div>
         <div className="flex items-center gap-2">
           <div className="relative">
             <div className={`w-2.5 h-2.5 rounded-full ${statusDisplay.color}`} />
