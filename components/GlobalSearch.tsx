@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useActivity, useTasks, useDocuments } from '../lib/convex';
 import { Activity, Task, Document, SearchResult } from '../types';
 import Link from 'next/link';
+import Icon from './ui/Icon';
 
 // ============================================================================
 // Helpers
@@ -69,9 +70,9 @@ function saveRecentSearch(query: string) {
 // ============================================================================
 
 const TYPE_ICONS: Record<string, string> = {
-  task: '📋',
-  activity: '📝',
-  document: '📄',
+  task: 'list-task',
+  activity: 'pencil-square',
+  document: 'file-text',
 };
 
 // ============================================================================
@@ -218,7 +219,7 @@ export default function GlobalSearch({ autoFocus = false, onSearch }: GlobalSear
       {/* Search Input */}
       <div className="relative mb-6">
         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-          <span className="text-foreground-muted text-lg">🔍</span>
+          <Icon name="search" size={20} className="text-foreground-muted" />
         </div>
         <input
           ref={inputRef}
@@ -290,7 +291,9 @@ export default function GlobalSearch({ autoFocus = false, onSearch }: GlobalSear
       {/* No Results */}
       {debouncedQuery && !isLoading && totalResults === 0 && (
         <div className="text-center py-12">
-          <div className="text-4xl mb-4">🔍</div>
+          <div className="mb-4 flex justify-center">
+            <Icon name="search" size={40} className="text-foreground-muted" />
+          </div>
           <h3 className="text-lg font-medium text-foreground mb-2">No results found</h3>
           <p className="text-foreground-secondary">Try different keywords or check your spelling</p>
         </div>
@@ -309,7 +312,7 @@ export default function GlobalSearch({ autoFocus = false, onSearch }: GlobalSear
             return (
               <div key={type}>
                 <h3 className="text-xs font-semibold text-foreground-muted uppercase tracking-wider mb-3 flex items-center gap-2">
-                  <span>{icon}</span>
+                  <Icon name={icon} size={14} />
                   {label}
                   <span className="text-foreground-muted">({items.length})</span>
                 </h3>

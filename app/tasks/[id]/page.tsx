@@ -3,6 +3,7 @@
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useTask, useTaskMessages, useAgents } from '../../../lib/convex';
+import Icon from '../../../components/ui/Icon';
 
 // Format relative time
 function formatRelativeTime(timestamp: any | null): string {
@@ -93,7 +94,9 @@ export default function TaskDetailPage() {
             ← Back to Tasks
           </Link>
           <div className="text-center py-16">
-            <div className="text-4xl mb-4">🔍</div>
+            <div className="mb-4 flex justify-center">
+              <Icon name="search" size={40} className="text-foreground-muted" />
+            </div>
             <p className="text-foreground-secondary">Task not found</p>
           </div>
         </div>
@@ -162,7 +165,7 @@ export default function TaskDetailPage() {
         {/* Comments section */}
         <div className="bg-white/5 border border-white/10 rounded-lg p-6">
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            💬 Comments
+            <Icon name="chat" size={20} className="text-emerald-400" /> Comments
             <span className="text-sm font-normal text-foreground-muted">({messages.length})</span>
           </h2>
 
@@ -172,7 +175,9 @@ export default function TaskDetailPage() {
             </div>
           ) : messages.length === 0 ? (
             <div className="text-center py-8 text-foreground-muted">
-              <div className="text-2xl mb-2">💭</div>
+              <div className="mb-2 flex justify-center">
+                <Icon name="chat" size={24} className="text-foreground-muted" />
+              </div>
               <p>No comments yet</p>
             </div>
           ) : (
@@ -182,7 +187,11 @@ export default function TaskDetailPage() {
                 return (
                   <div key={message.id} className="border-l-2 border-white/10 pl-4 py-2">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-lg">{agent?.emoji || '🤖'}</span>
+                      {agent?.emoji ? (
+                        <span className="text-lg">{agent.emoji}</span>
+                      ) : (
+                        <Icon name="robot" size={18} className="text-emerald-400" />
+                      )}
                       <span className="font-medium text-emerald-400">
                         {agent?.name || message.fromAgentId || 'Unknown'}
                       </span>

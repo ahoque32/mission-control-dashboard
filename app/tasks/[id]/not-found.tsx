@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Icon from '../../../components/ui/Icon';
 
 export default function TaskNotFound() {
   return (
@@ -9,7 +10,9 @@ export default function TaskNotFound() {
         </Link>
 
         <div className="text-center py-16">
-          <div className="text-6xl mb-6">🔍</div>
+          <div className="mb-6 flex justify-center">
+            <Icon name="search" size={56} className="text-foreground-muted" />
+          </div>
           <h1 className="text-2xl font-bold text-foreground mb-4">
             Task Not Found
           </h1>

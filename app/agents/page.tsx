@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import { useAgents, useTasks, useActivity } from '../../lib/convex';
 import { Agent, Task, Activity, AgentLevel } from '../../types';
+import Icon from '../../components/ui/Icon';
 
 // Helper function to format relative time
 function formatRelativeTime(timestamp: any): string {
@@ -81,28 +82,28 @@ function getLevelStyles(level: AgentLevel) {
         bg: 'bg-emerald-500/20',
         text: 'text-emerald-400',
         border: 'border-emerald-500/40',
-        icon: '👑'
+        icon: 'trophy-fill'
       };
     case 'specialist':
       return {
         bg: 'bg-blue-500/10',
         text: 'text-blue-400',
         border: 'border-blue-500/30',
-        icon: '⚡'
+        icon: 'lightning-fill'
       };
     case 'intern':
       return {
         bg: 'bg-purple-500/10',
         text: 'text-purple-400',
         border: 'border-purple-500/30',
-        icon: '🌱'
+        icon: 'tree-fill'
       };
     default:
       return {
         bg: 'bg-gray-500/10',
         text: 'text-gray-400',
         border: 'border-gray-500/30',
-        icon: '○'
+        icon: 'circle'
       };
   }
 }
@@ -219,7 +220,7 @@ function AgentDetailCard({ agent, tasks, activities }: AgentDetailCardProps) {
           
           {/* Level Badge */}
           <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg ${levelStyles.bg} border ${levelStyles.border}`}>
-            <span className="text-sm">{levelStyles.icon}</span>
+            <Icon name={levelStyles.icon} size={14} className={levelStyles.text} />
             <span className={`text-xs font-medium uppercase tracking-wide ${levelStyles.text}`}>
               {agent.level}
             </span>
@@ -388,7 +389,9 @@ export default function AgentsPage() {
       <div className="min-h-screen p-8">
         <div className="max-w-7xl mx-auto">
           <div className="glass-card p-6 text-center border-red-500/30">
-            <div className="text-4xl mb-3">⚠️</div>
+            <div className="mb-3 flex justify-center">
+              <Icon name="exclamation-triangle" size={40} className="text-yellow-400" />
+            </div>
             <h2 className="text-xl font-semibold text-red-400 mb-2">Error Loading Agents</h2>
             <p className="text-sm text-foreground-muted">{agentsError.message}</p>
           </div>
@@ -401,10 +404,14 @@ export default function AgentsPage() {
     return (
       <div className="min-h-screen p-8">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl font-bold text-foreground mb-8">🤖 Agents</h1>
+          <h1 className="text-4xl font-bold text-foreground mb-8 flex items-center gap-3">
+            <Icon name="robot" size={36} className="text-emerald-400" /> Agents
+          </h1>
           
           <div className="glass-card p-12 text-center">
-            <div className="text-6xl mb-4">👻</div>
+            <div className="mb-4 flex justify-center">
+              <Icon name="person-x" size={56} className="text-foreground-muted" />
+            </div>
             <h2 className="text-2xl font-semibold text-foreground mb-2">No Agents Yet</h2>
             <p className="text-foreground-secondary">
               Agents will appear here once they&apos;re registered in the system.
@@ -423,7 +430,9 @@ export default function AgentsPage() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-3">🤖 Agents</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-3 flex items-center gap-3">
+            <Icon name="robot" size={32} className="text-emerald-400" /> Agents
+          </h1>
           <div className="flex flex-wrap items-center gap-4 text-sm">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>

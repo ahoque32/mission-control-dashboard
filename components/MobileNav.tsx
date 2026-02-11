@@ -16,6 +16,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAgents } from '../lib/convex';
 import ThemeToggle from './ThemeToggle';
+import Icon from './ui/Icon';
 
 interface NavItem {
   label: string;
@@ -24,14 +25,14 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { label: 'Dashboard', href: '/', icon: '📊' },
-  { label: 'Tasks', href: '/tasks', icon: '✓' },
-  { label: 'Agents', href: '/agents', icon: '🤖' },
-  { label: 'Activity', href: '/activity', icon: '📡' },
-  { label: 'Documents', href: '/documents', icon: '📄' },
-  { label: 'Calendar', href: '/calendar', icon: '📅' },
-  { label: 'Search', href: '/search', icon: '🔍' },
-  { label: 'Finance', href: '/finance', icon: '💰' },
+  { label: 'Dashboard', href: '/', icon: 'speedometer2' },
+  { label: 'Tasks', href: '/tasks', icon: 'kanban' },
+  { label: 'Agents', href: '/agents', icon: 'cpu' },
+  { label: 'Activity', href: '/activity', icon: 'broadcast' },
+  { label: 'Documents', href: '/documents', icon: 'file-text' },
+  { label: 'Calendar', href: '/calendar', icon: 'calendar3' },
+  { label: 'Search', href: '/search', icon: 'search' },
+  { label: 'Finance', href: '/finance', icon: 'wallet2' },
 ];
 
 export default function MobileNav() {
@@ -110,7 +111,7 @@ export default function MobileNav() {
                     `}
                     aria-current={isActive ? 'page' : undefined}
                   >
-                    <span className="text-lg" aria-hidden="true">{item.icon}</span>
+                    <Icon name={item.icon} size={20} className={isActive ? 'text-emerald-400' : ''} />
                     <span>{item.label}</span>
                     
                     {item.href === '/agents' && !loading && (

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import Icon from '../../components/ui/Icon';
 
 export default function SearchError({
   error,
@@ -16,7 +17,9 @@ export default function SearchError({
   return (
     <div className="p-6 max-w-3xl mx-auto">
       <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-8 text-center">
-        <div className="text-4xl mb-4">🔍</div>
+        <div className="mb-4 flex justify-center">
+          <Icon name="search" size={40} className="text-red-400" />
+        </div>
         <h2 className="text-xl font-semibold text-red-400 mb-2">
           Search Unavailable
         </h2>

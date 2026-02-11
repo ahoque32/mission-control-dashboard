@@ -15,11 +15,13 @@
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
+    "bootstrap-icons": "^1.13.1",
     "convex": "^1.31.7",
     "firebase": "^12.9.0",
     "lucide-react": "^0.563.0",
     "next": "16.1.6",
     "react": "19.2.3",
+    "react-bootstrap-icons": "^1.11.6",
     "react-dom": "19.2.3",
     "react-markdown": "^10.1.0"
   },

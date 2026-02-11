@@ -2,6 +2,7 @@
 
 import { useAgents, useTasks } from '../lib/convex';
 import AgentCard from './AgentCard';
+import Icon from './ui/Icon';
 
 export default function AgentGrid() {
   const { agents, loading: agentsLoading, error: agentsError } = useAgents();
@@ -27,7 +28,9 @@ export default function AgentGrid() {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center max-w-md">
-          <div className="text-4xl mb-3">⚠️</div>
+          <div className="mb-3 flex justify-center">
+            <Icon name="exclamation-triangle" size={40} className="text-yellow-400" />
+          </div>
           <h3 className="text-lg font-semibold text-foreground mb-2">
             Failed to load agents
           </h3>
@@ -44,7 +47,9 @@ export default function AgentGrid() {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center max-w-md">
-          <div className="text-4xl mb-3">🤖</div>
+          <div className="mb-3 flex justify-center">
+            <Icon name="robot" size={40} className="text-foreground-muted" />
+          </div>
           <h3 className="text-lg font-semibold text-foreground mb-2">
             No agents found
           </h3>

@@ -1,10 +1,13 @@
 import Link from 'next/link';
+import Icon from '../components/ui/Icon';
 
 export default function NotFound() {
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
       <div className="max-w-md w-full text-center">
-        <div className="text-8xl mb-6">🔍</div>
+        <div className="mb-6 flex justify-center">
+          <Icon name="search" size={72} className="text-foreground-muted" />
+        </div>
         <h1 className="text-3xl font-bold text-foreground mb-4">
           Page Not Found
         </h1>

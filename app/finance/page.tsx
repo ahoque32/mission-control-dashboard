@@ -5,6 +5,7 @@ import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import FinanceChat from '../../components/finance/FinanceChat';
 import FinanceChatErrorBoundary from '../../components/finance/FinanceChatErrorBoundary';
+import Icon from '../../components/ui/Icon';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -414,7 +415,10 @@ export default function FinancePage() {
 
       {/* PayPal Payout Section */}
       <div className="glass-card p-4 md:p-6 mb-6">
-        <h2 className="text-lg font-semibold text-foreground mb-4">💸 Send PayPal Payout</h2>
+        <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+          <Icon name="cash-coin" size={20} className="text-emerald-400" />
+          Send PayPal Payout
+        </h2>
         <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-end">
           {/* Recipient */}
           <div className="flex-1 min-w-0">

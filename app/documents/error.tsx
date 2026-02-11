@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import Icon from '../../components/ui/Icon';
 
 export default function DocumentsError({
   error,
@@ -17,7 +18,9 @@ export default function DocumentsError({
     <div className="min-h-screen  p-4 sm:p-6 lg:p-8">
       <div className="max-w-2xl mx-auto">
         <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-8 text-center">
-          <div className="text-4xl mb-4">📄</div>
+          <div className="mb-4 flex justify-center">
+            <Icon name="file-text" size={40} className="text-red-400" />
+          </div>
           <h2 className="text-xl font-semibold text-red-400 mb-2">
             Failed to Load Documents
           </h2>

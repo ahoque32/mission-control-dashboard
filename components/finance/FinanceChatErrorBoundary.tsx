@@ -1,6 +1,7 @@
 'use client';
 
 import { Component, type ReactNode } from 'react';
+import Icon from '../ui/Icon';
 
 interface Props {
   children: ReactNode;
@@ -30,7 +31,9 @@ export default class FinanceChatErrorBoundary extends Component<Props, State> {
       return (
         <div className="bg-white/5 border border-white/10 rounded-xl backdrop-blur p-6">
           <div className="text-center">
-            <span className="text-2xl mb-2 block">⚠️</span>
+            <span className="mb-2 flex justify-center">
+              <Icon name="exclamation-triangle" size={24} className="text-yellow-400" />
+            </span>
             <h3 className="text-sm font-medium text-foreground mb-1">
               Finance Chat Unavailable
             </h3>

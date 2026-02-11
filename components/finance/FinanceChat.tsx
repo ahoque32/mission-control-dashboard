@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
+import Icon from '../ui/Icon';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -199,7 +200,7 @@ export default function FinanceChat({ days = 30 }: FinanceChatProps) {
       {/* Header */}
       <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-lg">💬</span>
+          <Icon name="chat" size={20} className="text-emerald-400" />
           <h2 className="text-base font-semibold text-foreground">
             Finance AI Chat
           </h2>

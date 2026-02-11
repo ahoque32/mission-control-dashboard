@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import Icon from '../components/ui/Icon';
 
 export default function Error({
   error,
@@ -16,7 +17,9 @@ export default function Error({
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
       <div className="max-w-md w-full text-center">
-        <div className="text-6xl mb-6">⚠️</div>
+        <div className="mb-6 flex justify-center">
+          <Icon name="exclamation-triangle" size={56} className="text-yellow-400" />
+        </div>
         <h1 className="text-2xl font-bold text-foreground mb-4">
           Something went wrong
         </h1>
