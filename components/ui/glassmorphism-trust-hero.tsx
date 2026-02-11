@@ -34,7 +34,7 @@ const StatItem = ({ value, label }: { value: string; label: string }) => (
 // --- MAIN COMPONENT ---
 export default function HeroSection() {
   return (
-    <div className="relative w-full bg-zinc-950 text-white overflow-hidden font-sans">
+    <div className="relative w-full min-h-screen text-white overflow-hidden font-sans" style={{ backgroundColor: '#0f1a14' }}>
       {/* SCOPED ANIMATIONS */}
       <style>{`
         @keyframes fadeSlideIn {
@@ -59,16 +59,33 @@ export default function HeroSection() {
         .delay-500 { animation-delay: 0.5s; }
       `}</style>
 
-      {/* Background Image with Gradient Mask */}
-      <div
-        className="absolute inset-0 z-0 bg-[url(/images/hero-bg-space.jpg)] bg-cover bg-center opacity-40"
+      {/* Dark green gradient overlay */}
+      <div 
+        className="absolute inset-0 z-0"
         style={{
-          maskImage: "linear-gradient(180deg, transparent, black 0%, black 70%, transparent)",
-          WebkitMaskImage: "linear-gradient(180deg, transparent, black 0%, black 70%, transparent)",
+          background: 'linear-gradient(135deg, rgba(15, 26, 20, 0.95) 0%, rgba(20, 35, 28, 0.9) 50%, rgba(15, 26, 20, 0.95) 100%)'
         }}
       />
 
-      <div className="relative z-10 mx-auto max-w-7xl px-4 pt-24 pb-12 sm:px-6 md:pt-32 md:pb-20 lg:px-8">
+      {/* Background Image - atmospheric silhouette */}
+      <div
+        className="absolute inset-0 z-[1] bg-[url(https://images.unsplash.com/photo-1534996858221-380b92700493?w=1920&q=80)] bg-cover bg-center"
+        style={{
+          opacity: 0.5,
+          mixBlendMode: 'overlay',
+        }}
+      />
+
+      {/* Amber/orange glow effect on right side */}
+      <div 
+        className="absolute right-0 top-1/4 w-1/2 h-1/2 z-[2]"
+        style={{
+          background: 'radial-gradient(ellipse at center, rgba(200, 120, 50, 0.3) 0%, transparent 70%)',
+          filter: 'blur(60px)',
+        }}
+      />
+
+      <div className="relative z-10 mx-auto max-w-7xl px-4 pt-24 pb-12 sm:px-6 md:pt-32 md:pb-20 lg:px-8 min-h-screen flex items-center">
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-8 items-start">
           {/* --- LEFT COLUMN --- */}
           <div className="lg:col-span-7 flex flex-col justify-center space-y-8 pt-8">
