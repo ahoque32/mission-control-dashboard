@@ -53,7 +53,7 @@ export default function TaskCard({ task, assigneeEmojis = [], onClick }: TaskCar
     <div
       onClick={handleClick}
       className="
-        bg-card border border-border rounded-xl p-4
+        glass-card p-4
         hover:border-accent/50 hover:shadow-lg hover:shadow-accent/5
         transition-all duration-200
         cursor-pointer

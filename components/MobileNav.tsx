@@ -45,7 +45,7 @@ export default function MobileNav() {
   return (
     <>
       {/* Mobile Header */}
-      <header className="lg:hidden bg-background border-b border-border sticky top-0 z-50 transition-colors">
+      <header className="lg:hidden glass-nav border-b border-border sticky top-0 z-50 transition-colors">
         <div className="flex items-center justify-between p-4">
           <div>
             <h1 className="text-xl font-bold text-foreground">Mission Control</h1>
@@ -87,7 +87,7 @@ export default function MobileNav() {
           
           <div 
             id="mobile-nav-menu"
-            className="lg:hidden fixed top-[89px] left-0 right-0 bottom-0 bg-background z-40 overflow-y-auto modal-content transition-colors"
+            className="lg:hidden fixed top-[89px] left-0 right-0 bottom-0 glass-nav z-40 overflow-y-auto modal-content transition-colors"
             role="dialog"
             aria-modal="true"
             aria-label="Navigation menu"
@@ -131,7 +131,7 @@ export default function MobileNav() {
 
             {/* Agent Status in Mobile */}
             <div className="p-4 border-t border-border mt-4">
-              <div className="bg-background-secondary rounded-lg p-3 shadow-sm">
+              <div className="glass-card p-3">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-medium text-foreground-secondary uppercase tracking-wide">
                     Agent Status
