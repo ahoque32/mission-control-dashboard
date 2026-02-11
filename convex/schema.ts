@@ -26,7 +26,17 @@ export default defineSchema({
     tags: v.array(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
-  }).index("by_updatedAt", ["updatedAt"]),
+    // Spawn tracking fields (optional for manual tasks)
+    isSpawnTask: v.optional(v.boolean()),
+    sessionKey: v.optional(v.string()),
+    agentName: v.optional(v.string()),
+    spawnedAt: v.optional(v.number()),
+    completedAt: v.optional(v.number()),
+    result: v.optional(v.string()),
+  })
+    .index("by_updatedAt", ["updatedAt"])
+    .index("by_sessionKey", ["sessionKey"])
+    .index("by_status", ["status"]),
 
   activities: defineTable({
     type: v.string(),

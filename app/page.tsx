@@ -3,6 +3,7 @@
 import { useMemo } from 'react';
 import { useAgents, useTasks } from '../lib/convex';
 import AgentGrid from '../components/AgentGrid';
+import { AgentPulse } from '../components/AgentPulse';
 import ActivityFeed from '../components/ActivityFeed';
 import TaskCard from '../components/TaskCard';
 import type { Task } from '../types';
@@ -90,13 +91,27 @@ export default function Home() {
         </p>
       </div>
 
-      {/* Top Section: Agent Status Cards */}
+      {/* Top Section: Agent Status Cards + Agent Pulse */}
       <section className="mb-6 sm:mb-8">
-        <h2 className="text-lg sm:text-xl font-semibold text-foreground mb-3 sm:mb-4 flex items-center gap-2">
-          <span className="text-xl sm:text-2xl">👥</span>
-          Agent Status
-        </h2>
-        <AgentGrid />
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6">
+          {/* Agent Grid - 3/4 width */}
+          <div className="lg:col-span-3">
+            <h2 className="text-lg sm:text-xl font-semibold text-foreground mb-3 sm:mb-4 flex items-center gap-2">
+              <span className="text-xl sm:text-2xl">👥</span>
+              Agent Status
+            </h2>
+            <AgentGrid />
+          </div>
+          
+          {/* Agent Pulse - 1/4 width */}
+          <div className="lg:col-span-1">
+            <h2 className="text-lg sm:text-xl font-semibold text-foreground mb-3 sm:mb-4 flex items-center gap-2">
+              <span className="text-xl sm:text-2xl">💓</span>
+              Live Pulse
+            </h2>
+            <AgentPulse />
+          </div>
+        </div>
       </section>
 
       {/* Middle Section: Activity Feed (40% left) + Task Summary Stats (60% right) */}
