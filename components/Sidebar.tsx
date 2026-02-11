@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAgents } from '../lib/convex';
 import { AgentStatus } from '../types';
+import ThemeToggle from './ThemeToggle';
 
 interface NavItem {
   label: string;
@@ -52,9 +53,12 @@ export default function Sidebar() {
     <aside className="w-64 glass-sidebar border-r border-border flex flex-col h-screen sticky top-0 transition-colors">
       {/* Header */}
       <div className="p-6 border-b border-border">
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">
-          Mission Control
-        </h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            Mission Control
+          </h1>
+          <ThemeToggle />
+        </div>
         <p className="text-sm text-foreground-secondary mt-1">Real-time Operations</p>
       </div>
 
