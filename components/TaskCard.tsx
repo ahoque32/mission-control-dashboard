@@ -53,16 +53,17 @@ export default function TaskCard({ task, assigneeEmojis = [], onClick }: TaskCar
     <div
       onClick={handleClick}
       className="
-        bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-4
-        hover:border-[#d4a574]/50 hover:shadow-lg hover:shadow-[#d4a574]/10
+        bg-card border border-border rounded-xl p-4
+        hover:border-accent/50 hover:shadow-lg hover:shadow-accent/5
         transition-all duration-200
         cursor-pointer
         group
+        card-hover
       "
     >
       {/* Header: Title & Status Indicator */}
       <div className="flex items-start justify-between gap-2 mb-3">
-        <h4 className="text-sm font-medium text-[#ededed] line-clamp-2 flex-1 group-hover:text-[#d4a574] transition-colors">
+        <h4 className="text-sm font-medium text-foreground line-clamp-2 flex-1 group-hover:text-accent transition-colors">
           {task.title}
         </h4>
         
@@ -75,7 +76,7 @@ export default function TaskCard({ task, assigneeEmojis = [], onClick }: TaskCar
 
       {/* Description */}
       {task.description && (
-        <p className="text-xs text-[#888] mb-3 line-clamp-2">
+        <p className="text-xs text-foreground-secondary mb-3 line-clamp-2">
           {task.description}
         </p>
       )}
@@ -100,7 +101,7 @@ export default function TaskCard({ task, assigneeEmojis = [], onClick }: TaskCar
                 key={index}
                 className="
                   w-6 h-6 rounded-full 
-                  bg-[#0a0a0a] border border-[#2a2a2a]
+                  bg-background-secondary border border-border
                   flex items-center justify-center
                   text-xs
                   hover:scale-110 transition-transform
@@ -114,9 +115,9 @@ export default function TaskCard({ task, assigneeEmojis = [], onClick }: TaskCar
               <div
                 className="
                   w-6 h-6 rounded-full 
-                  bg-[#0a0a0a] border border-[#2a2a2a]
+                  bg-background-secondary border border-border
                   flex items-center justify-center
-                  text-[10px] text-[#666] font-mono
+                  text-[10px] text-foreground-muted font-mono
                 "
                 title={`+${assigneeEmojis.length - 3} more assignees`}
               >
@@ -128,7 +129,7 @@ export default function TaskCard({ task, assigneeEmojis = [], onClick }: TaskCar
 
         {/* No assignees indicator */}
         {assigneeEmojis.length === 0 && (
-          <div className="text-xs text-[#666] font-mono">
+          <div className="text-xs text-foreground-muted font-mono">
             Unassigned
           </div>
         )}
@@ -136,18 +137,18 @@ export default function TaskCard({ task, assigneeEmojis = [], onClick }: TaskCar
 
       {/* Tags (if present) */}
       {task.tags.length > 0 && (
-        <div className="mt-3 pt-3 border-t border-[#2a2a2a]">
+        <div className="mt-3 pt-3 border-t border-border">
           <div className="flex flex-wrap gap-1">
             {task.tags.slice(0, 2).map((tag, index) => (
               <span
                 key={index}
-                className="text-xs px-2 py-0.5 rounded bg-[#0a0a0a] text-[#666] border border-[#2a2a2a]"
+                className="text-xs px-2 py-0.5 rounded bg-background-secondary text-foreground-muted border border-border"
               >
                 {tag}
               </span>
             ))}
             {task.tags.length > 2 && (
-              <span className="text-xs text-[#666] font-mono self-center">
+              <span className="text-xs text-foreground-muted font-mono self-center">
                 +{task.tags.length - 2}
               </span>
             )}

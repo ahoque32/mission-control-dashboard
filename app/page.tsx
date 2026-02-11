@@ -69,30 +69,30 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#0a0a0a]">
+      <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="text-center">
-          <div className="inline-block w-8 h-8 border-4 border-[#d4a574] border-t-transparent rounded-full animate-spin mb-3" />
-          <p className="text-[#888]">Loading dashboard...</p>
+          <div className="inline-block w-8 h-8 border-4 border-accent border-t-transparent rounded-full animate-spin mb-3" />
+          <p className="text-foreground-secondary">Loading dashboard...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-[#ededed] p-4 sm:p-6 space-y-6 sm:space-y-8">
+    <div className="min-h-screen bg-background text-foreground p-4 sm:p-6 space-y-6 sm:space-y-8 transition-colors">
       {/* Page Header */}
       <div className="mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-[#ededed] mb-2">
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
           Mission Control Dashboard
         </h1>
-        <p className="text-sm sm:text-base text-[#888]">
+        <p className="text-sm sm:text-base text-foreground-secondary">
           Real-time view of agents, tasks, and activity
         </p>
       </div>
 
       {/* Top Section: Agent Status Cards */}
       <section className="mb-6 sm:mb-8">
-        <h2 className="text-lg sm:text-xl font-semibold text-[#ededed] mb-3 sm:mb-4 flex items-center gap-2">
+        <h2 className="text-lg sm:text-xl font-semibold text-foreground mb-3 sm:mb-4 flex items-center gap-2">
           <span className="text-xl sm:text-2xl">👥</span>
           Agent Status
         </h2>
@@ -103,7 +103,7 @@ export default function Home() {
       <section className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6 mb-6 sm:mb-8">
         {/* Activity Feed - Left 40% (2 of 5 columns) */}
         <div className="lg:col-span-2">
-          <h2 className="text-lg sm:text-xl font-semibold text-[#ededed] mb-3 sm:mb-4 flex items-center gap-2">
+          <h2 className="text-lg sm:text-xl font-semibold text-foreground mb-3 sm:mb-4 flex items-center gap-2">
             <span className="text-xl sm:text-2xl">📊</span>
             Recent Activity
           </h2>
@@ -112,7 +112,7 @@ export default function Home() {
 
         {/* Task Summary Statistics - Right 60% (3 of 5 columns) */}
         <div className="lg:col-span-3">
-          <h2 className="text-lg sm:text-xl font-semibold text-[#ededed] mb-3 sm:mb-4 flex items-center gap-2">
+          <h2 className="text-lg sm:text-xl font-semibold text-foreground mb-3 sm:mb-4 flex items-center gap-2">
             <span className="text-xl sm:text-2xl">📈</span>
             Task Summary
           </h2>
@@ -120,67 +120,67 @@ export default function Home() {
           {/* Stats Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
             {/* Total Tasks */}
-            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-3 sm:p-4 hover:border-[#d4a574]/30 transition-all">
-              <div className="text-2xl sm:text-3xl font-bold text-[#d4a574] mb-1">
+            <div className="bg-card border border-border rounded-xl p-3 sm:p-4 hover:border-accent/30 transition-all shadow-sm hover:shadow-md card-hover">
+              <div className="text-2xl sm:text-3xl font-bold text-accent mb-1">
                 {taskStats.total}
               </div>
-              <div className="text-xs sm:text-sm text-[#888]">Total Tasks</div>
+              <div className="text-xs sm:text-sm text-foreground-secondary">Total Tasks</div>
             </div>
 
             {/* Pending (inbox + assigned) */}
-            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-3 sm:p-4 hover:border-blue-400/30 transition-all">
-              <div className="text-2xl sm:text-3xl font-bold text-blue-400 mb-1">
+            <div className="bg-card border border-border rounded-xl p-3 sm:p-4 hover:border-blue-400/30 transition-all shadow-sm hover:shadow-md card-hover">
+              <div className="text-2xl sm:text-3xl font-bold text-blue-500 mb-1">
                 {taskStats.pending}
               </div>
-              <div className="text-xs sm:text-sm text-[#888]">Pending</div>
+              <div className="text-xs sm:text-sm text-foreground-secondary">Pending</div>
             </div>
 
             {/* In Progress */}
-            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-3 sm:p-4 hover:border-purple-400/30 transition-all">
-              <div className="text-2xl sm:text-3xl font-bold text-purple-400 mb-1">
+            <div className="bg-card border border-border rounded-xl p-3 sm:p-4 hover:border-purple-400/30 transition-all shadow-sm hover:shadow-md card-hover">
+              <div className="text-2xl sm:text-3xl font-bold text-status-progress mb-1">
                 {taskStats.inProgress}
               </div>
-              <div className="text-xs sm:text-sm text-[#888]">In Progress</div>
+              <div className="text-xs sm:text-sm text-foreground-secondary">In Progress</div>
             </div>
 
             {/* In Review */}
-            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-3 sm:p-4 hover:border-yellow-400/30 transition-all">
-              <div className="text-2xl sm:text-3xl font-bold text-yellow-400 mb-1">
+            <div className="bg-card border border-border rounded-xl p-3 sm:p-4 hover:border-yellow-400/30 transition-all shadow-sm hover:shadow-md card-hover">
+              <div className="text-2xl sm:text-3xl font-bold text-status-warning mb-1">
                 {taskStats.review}
               </div>
-              <div className="text-xs sm:text-sm text-[#888]">In Review</div>
+              <div className="text-xs sm:text-sm text-foreground-secondary">In Review</div>
             </div>
 
             {/* Done */}
-            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-3 sm:p-4 hover:border-green-400/30 transition-all">
-              <div className="text-2xl sm:text-3xl font-bold text-green-400 mb-1">
+            <div className="bg-card border border-border rounded-xl p-3 sm:p-4 hover:border-green-400/30 transition-all shadow-sm hover:shadow-md card-hover">
+              <div className="text-2xl sm:text-3xl font-bold text-status-success mb-1">
                 {taskStats.done}
               </div>
-              <div className="text-xs sm:text-sm text-[#888]">Completed</div>
+              <div className="text-xs sm:text-sm text-foreground-secondary">Completed</div>
             </div>
 
             {/* Blocked */}
-            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-3 sm:p-4 hover:border-red-400/30 transition-all">
-              <div className="text-2xl sm:text-3xl font-bold text-red-400 mb-1">
+            <div className="bg-card border border-border rounded-xl p-3 sm:p-4 hover:border-red-400/30 transition-all shadow-sm hover:shadow-md card-hover">
+              <div className="text-2xl sm:text-3xl font-bold text-status-error mb-1">
                 {taskStats.blocked}
               </div>
-              <div className="text-xs sm:text-sm text-[#888]">Blocked</div>
+              <div className="text-xs sm:text-sm text-foreground-secondary">Blocked</div>
             </div>
 
             {/* Completed Today */}
-            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-3 sm:p-4 hover:border-green-400/30 transition-all">
-              <div className="text-2xl sm:text-3xl font-bold text-green-400 mb-1">
+            <div className="bg-card border border-border rounded-xl p-3 sm:p-4 hover:border-green-400/30 transition-all shadow-sm hover:shadow-md card-hover">
+              <div className="text-2xl sm:text-3xl font-bold text-status-success mb-1">
                 {taskStats.completedToday}
               </div>
-              <div className="text-xs sm:text-sm text-[#888]">Done Today</div>
+              <div className="text-xs sm:text-sm text-foreground-secondary">Done Today</div>
             </div>
 
             {/* High Priority */}
-            <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-3 sm:p-4 hover:border-red-400/30 transition-all">
-              <div className="text-2xl sm:text-3xl font-bold text-red-400 mb-1">
+            <div className="bg-card border border-border rounded-xl p-3 sm:p-4 hover:border-red-400/30 transition-all shadow-sm hover:shadow-md card-hover">
+              <div className="text-2xl sm:text-3xl font-bold text-status-error mb-1">
                 {taskStats.highPriority}
               </div>
-              <div className="text-xs sm:text-sm text-[#888]">High Priority</div>
+              <div className="text-xs sm:text-sm text-foreground-secondary">High Priority</div>
             </div>
           </div>
         </div>
@@ -188,14 +188,14 @@ export default function Home() {
 
       {/* Bottom Section: Recent Tasks */}
       <section>
-        <h2 className="text-lg sm:text-xl font-semibold text-[#ededed] mb-3 sm:mb-4 flex items-center gap-2">
+        <h2 className="text-lg sm:text-xl font-semibold text-foreground mb-3 sm:mb-4 flex items-center gap-2">
           <span className="text-xl sm:text-2xl">📋</span>
           Recent Tasks
         </h2>
         {recentTasks.length === 0 ? (
-          <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-8 text-center">
+          <div className="bg-card border border-border rounded-xl p-8 text-center shadow-sm">
             <div className="text-4xl mb-3">📋</div>
-            <p className="text-[#888]">No tasks yet. Create your first task to get started!</p>
+            <p className="text-foreground-secondary">No tasks yet. Create your first task to get started!</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">

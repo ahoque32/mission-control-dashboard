@@ -7,6 +7,7 @@
  * - Collapsible sidebar
  * - Touch-friendly navigation
  * - Agent status indicator
+ * - Theme toggle
  * - Overlay backdrop
  */
 
@@ -14,6 +15,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAgents } from '../lib/convex';
+import ThemeToggle from './ThemeToggle';
 
 interface NavItem {
   label: string;
@@ -43,30 +45,34 @@ export default function MobileNav() {
   return (
     <>
       {/* Mobile Header */}
-      <header className="lg:hidden bg-[#0a0a0a] border-b border-[#2a2a2a] sticky top-0 z-50">
+      <header className="lg:hidden bg-background border-b border-border sticky top-0 z-50 transition-colors">
         <div className="flex items-center justify-between p-4">
           <div>
-            <h1 className="text-xl font-bold text-[#ededed]">Mission Control</h1>
-            <p className="text-xs text-[#888]">Real-time Operations</p>
+            <h1 className="text-xl font-bold text-foreground">Mission Control</h1>
+            <p className="text-xs text-foreground-secondary">Real-time Operations</p>
           </div>
           
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="text-[#ededed] p-3 hover:bg-[#1a1a1a] rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
-            aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"}
-            aria-expanded={isOpen}
-            aria-controls="mobile-nav-menu"
-          >
-            {isOpen ? (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            ) : (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            )}
-          </button>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="text-foreground p-3 hover:bg-background-secondary rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+              aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"}
+              aria-expanded={isOpen}
+              aria-controls="mobile-nav-menu"
+            >
+              {isOpen ? (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -81,7 +87,7 @@ export default function MobileNav() {
           
           <div 
             id="mobile-nav-menu"
-            className="lg:hidden fixed top-[89px] left-0 right-0 bottom-0 bg-[#0a0a0a] z-40 overflow-y-auto modal-content"
+            className="lg:hidden fixed top-[89px] left-0 right-0 bottom-0 bg-background z-40 overflow-y-auto modal-content transition-colors"
             role="dialog"
             aria-modal="true"
             aria-label="Navigation menu"
@@ -98,8 +104,8 @@ export default function MobileNav() {
                     className={`
                       flex items-center gap-3 px-4 py-3 rounded-lg transition-all
                       ${isActive 
-                        ? 'bg-[#d4a574]/10 text-[#d4a574] font-medium' 
-                        : 'text-[#aaa] hover:bg-[#1a1a1a] hover:text-[#ededed]'
+                        ? 'bg-accent/10 text-accent font-medium shadow-sm' 
+                        : 'text-foreground-secondary hover:bg-background-secondary hover:text-foreground'
                       }
                     `}
                     aria-current={isActive ? 'page' : undefined}
@@ -110,7 +116,10 @@ export default function MobileNav() {
                     {item.href === '/agents' && !loading && (
                       <span className={`
                         ml-auto text-xs px-2 py-0.5 rounded-full
-                        ${isActive ? 'bg-[#d4a574]/20 text-[#d4a574]' : 'bg-[#2a2a2a] text-[#888]'}
+                        ${isActive 
+                          ? 'bg-accent/20 text-accent' 
+                          : 'bg-background-secondary text-foreground-secondary'
+                        }
                       `}>
                         {totalCount}
                       </span>
@@ -121,10 +130,10 @@ export default function MobileNav() {
             </nav>
 
             {/* Agent Status in Mobile */}
-            <div className="p-4 border-t border-[#2a2a2a] mt-4">
-              <div className="bg-[#1a1a1a] rounded-lg p-3">
+            <div className="p-4 border-t border-border mt-4">
+              <div className="bg-background-secondary rounded-lg p-3 shadow-sm">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-medium text-[#888] uppercase tracking-wide">
+                  <span className="text-xs font-medium text-foreground-secondary uppercase tracking-wide">
                     Agent Status
                   </span>
                 </div>
@@ -133,13 +142,13 @@ export default function MobileNav() {
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1.5">
                       <div 
-                        className={`w-2 h-2 rounded-full ${activeCount > 0 ? 'bg-green-500' : 'bg-[#444]'}`}
+                        className={`w-2 h-2 rounded-full ${activeCount > 0 ? 'bg-status-active' : 'bg-border-secondary'}`}
                         aria-label={`${activeCount} active agents`}
                       />
-                      <span className="text-sm text-[#ededed]">{activeCount}</span>
+                      <span className="text-sm text-foreground">{activeCount}</span>
                     </div>
-                    <span className="text-xs text-[#666]">/</span>
-                    <span className="text-sm text-[#888]">{totalCount} total</span>
+                    <span className="text-xs text-foreground-muted">/</span>
+                    <span className="text-sm text-foreground-secondary">{totalCount} total</span>
                   </div>
                 )}
               </div>
