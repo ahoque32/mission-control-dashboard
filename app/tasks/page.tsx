@@ -53,6 +53,7 @@ export default function TasksPage() {
   const [selectedAssignees, setSelectedAssignees] = useState<string[]>([]);
   const [selectedPriorities, setSelectedPriorities] = useState<TaskPriority[]>([]);
   const [selectedStatuses, setSelectedStatuses] = useState<TaskStatus[]>([]);
+  const [showSpawnTasks, setShowSpawnTasks] = useState(true); // Toggle for spawn tasks
 
   // Configure drag sensors
   const sensors = useSensors(
@@ -67,6 +68,10 @@ export default function TasksPage() {
   // Apply filters to tasks
   const filteredTasks = useMemo(() => {
     return tasks.filter(task => {
+      // Filter spawn tasks based on toggle
+      // @ts-expect-error isSpawnTask may not be in type yet
+      if (!showSpawnTasks && task.isSpawnTask) return false;
+      
       if (selectedAssignees.length > 0) {
         const hasSelectedAssignee = task.assigneeIds.some(id => 
           selectedAssignees.includes(id)
@@ -81,7 +86,7 @@ export default function TasksPage() {
       }
       return true;
     });
-  }, [tasks, selectedAssignees, selectedPriorities, selectedStatuses]);
+  }, [tasks, selectedAssignees, selectedPriorities, selectedStatuses, showSpawnTasks]);
 
   // Group filtered tasks by status
   const tasksByStatus = COLUMNS.reduce((acc, column) => {
@@ -326,6 +331,39 @@ export default function TasksPage() {
                     );
                   })}
                 </div>
+              </div>
+
+              {/* Spawn Tasks Toggle */}
+              <div className="flex items-center justify-between pt-2 border-t border-white/10">
+                <div className="flex items-center gap-2">
+                  <label className="text-[11px] font-semibold text-foreground-muted uppercase tracking-wider">
+                    Show Agent Spawns
+                  </label>
+                  <span className="text-xs text-foreground-muted/60">
+                    (auto-created tasks)
+                  </span>
+                </div>
+                <button
+                  onClick={() => setShowSpawnTasks(!showSpawnTasks)}
+                  className={`
+                    relative w-11 h-6 rounded-full transition-all duration-200
+                    ${showSpawnTasks 
+                      ? 'bg-emerald-500/30 border-emerald-500/50' 
+                      : 'bg-white/10 border-white/20'
+                    }
+                    border
+                  `}
+                >
+                  <span
+                    className={`
+                      absolute top-0.5 left-0.5 w-5 h-5 rounded-full transition-all duration-200
+                      ${showSpawnTasks 
+                        ? 'translate-x-5 bg-emerald-500' 
+                        : 'translate-x-0 bg-white/40'
+                      }
+                    `}
+                  />
+                </button>
               </div>
 
               {/* Clear Filters */}

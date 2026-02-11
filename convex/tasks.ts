@@ -95,7 +95,7 @@ export const createSpawnTask = mutation({
     return await ctx.db.insert("tasks", {
       title: args.title,
       description: args.description ?? "",
-      status: "running",
+      status: "in_progress", // Maps to kanban "In Progress" column
       priority: "medium",
       assigneeIds: [args.agentName],
       createdBy: "jhawk-sys",
@@ -116,7 +116,7 @@ export const createSpawnTask = mutation({
 export const completeSpawnTask = mutation({
   args: {
     sessionKey: v.string(),
-    status: v.string(), // "completed" or "failed"
+    status: v.string(), // "done" or "blocked" (mapped from completed/failed)
     result: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
@@ -131,9 +131,14 @@ export const completeSpawnTask = mutation({
       return null;
     }
 
+    // Map status to kanban columns
+    const kanbanStatus = args.status === "failed" ? "blocked" : 
+                         args.status === "completed" ? "done" : 
+                         args.status; // Allow direct done/blocked
+
     const now = Date.now();
     await ctx.db.patch(task._id, {
-      status: args.status,
+      status: kanbanStatus,
       completedAt: now,
       updatedAt: now,
       result: args.result,
@@ -149,7 +154,7 @@ export const getActiveSpawns = query({
   handler: async (ctx) => {
     return await ctx.db
       .query("tasks")
-      .withIndex("by_status", (q) => q.eq("status", "running"))
+      .withIndex("by_status", (q) => q.eq("status", "in_progress"))
       .filter((q) => q.eq(q.field("isSpawnTask"), true))
       .collect();
   },
@@ -214,10 +219,10 @@ export const getAgentPulse = query({
         agentStatus[agent].lastActivity = task.updatedAt;
       }
 
-      if (task.status === "running") {
+      if (task.status === "in_progress") {
         agentStatus[agent].status = "active";
         agentStatus[agent].currentTask = task.title;
-      } else if (task.status === "failed") {
+      } else if (task.status === "blocked") {
         agentStatus[agent].recentFailed++;
         // Only mark as failed if no active task
         if (agentStatus[agent].status !== "active") {
