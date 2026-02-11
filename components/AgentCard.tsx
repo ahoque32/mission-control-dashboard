@@ -92,7 +92,7 @@ export default function AgentCard({ agent, currentTask }: AgentCardProps) {
   const activeTaskName = recentActivity?.metadata?.taskName as string | undefined;
 
   return (
-    <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-5 hover:border-[#d4a574]/30 transition-all card-hover">
+    <div className="glass-card p-5 hover:border-accent/30 transition-all card-hover">
       {/* Header: Emoji + Status */}
       <div className="flex items-start justify-between mb-4">
         <div className="text-5xl leading-none">{agent.emoji}</div>
@@ -117,19 +117,19 @@ export default function AgentCard({ agent, currentTask }: AgentCardProps) {
 
       {/* Name and Role */}
       <div className="mb-3">
-        <h3 className="text-lg font-semibold text-[#ededed] mb-1">
+        <h3 className="text-lg font-semibold text-foreground mb-1">
           {agent.name}
         </h3>
-        <p className="text-sm text-[#888]">{agent.role}</p>
+        <p className="text-sm text-foreground-secondary">{agent.role}</p>
       </div>
 
       {/* Current Task */}
       {currentTask && (
-        <div className="mb-3 pb-3 border-b border-[#2a2a2a]">
-          <p className="text-xs text-[#666] uppercase tracking-wide mb-1">
+        <div className="mb-3 pb-3 border-b border-border">
+          <p className="text-xs text-foreground-muted uppercase tracking-wide mb-1">
             Current Task
           </p>
-          <p className="text-sm text-[#aaa] line-clamp-2">
+          <p className="text-sm text-foreground-secondary line-clamp-2">
             {currentTask}
           </p>
         </div>
@@ -137,8 +137,8 @@ export default function AgentCard({ agent, currentTask }: AgentCardProps) {
 
       {/* Last Heartbeat */}
       <div className="flex items-center justify-between text-xs">
-        <span className="text-[#666]">Last heartbeat:</span>
-        <span className="text-[#888] font-mono">
+        <span className="text-foreground-muted">Last heartbeat:</span>
+        <span className="text-foreground-secondary font-mono">
           {formatRelativeTime(agent.lastHeartbeat)}
         </span>
       </div>

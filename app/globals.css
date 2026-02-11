@@ -140,6 +140,32 @@ html {
   animation: slideUp 300ms ease-out;
 }
 
+/* Glass-morphism effect for light mode */
+.glass-card {
+  @apply bg-white/80 backdrop-blur-md border border-gray-200/50 shadow-lg rounded-xl;
+}
+
+.glass-nav {
+  @apply bg-white/90 backdrop-blur-lg border border-gray-200/30 shadow-md;
+}
+
+.glass-sidebar {
+  @apply bg-white/85 backdrop-blur-lg border border-gray-200/40 shadow-xl;
+}
+
+/* Dark mode overrides for glass effects */
+.dark .glass-card {
+  @apply bg-gray-900/80 backdrop-blur-md border-gray-700/50;
+}
+
+.dark .glass-nav {
+  @apply bg-gray-900/90 backdrop-blur-lg border-gray-700/30;
+}
+
+.dark .glass-sidebar {
+  @apply bg-gray-900/85 backdrop-blur-lg border-gray-700/40;
+}
+
 /* Enhanced card hover effects for both themes */
 .card-hover {
   transition: all 200ms ease-out;
@@ -148,15 +174,28 @@ html {
 .card-hover:hover {
   transform: translateY(-2px);
   box-shadow: 
-    0 4px 12px rgba(59, 130, 246, 0.1),
-    0 2px 8px rgba(0, 0, 0, 0.06);
+    0 8px 25px rgba(59, 130, 246, 0.12),
+    0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 /* Dark theme card hover */
 .dark .card-hover:hover {
   box-shadow: 
-    0 4px 12px rgba(212, 165, 116, 0.1),
-    0 2px 8px rgba(0, 0, 0, 0.2);
+    0 8px 25px rgba(212, 165, 116, 0.12),
+    0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Glass card hover enhancement for light mode */
+.light .glass-card:hover {
+  @apply bg-white/90 border-gray-300/60;
+  box-shadow: 
+    0 12px 30px rgba(59, 130, 246, 0.15),
+    0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Glass card hover enhancement for dark mode */
+.dark .glass-card:hover {
+  @apply bg-gray-900/90 border-gray-600/60;
 }
 
 /* Custom scrollbar for both themes */

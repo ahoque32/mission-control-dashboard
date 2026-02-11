@@ -49,7 +49,7 @@ export default function Sidebar() {
   const totalCount = agents.length;
 
   return (
-    <aside className="w-64 bg-sidebar border-r border-border flex flex-col h-screen sticky top-0 transition-colors">
+    <aside className="w-64 glass-sidebar border-r border-border flex flex-col h-screen sticky top-0 transition-colors">
       {/* Header */}
       <div className="p-6 border-b border-border">
         <h1 className="text-2xl font-bold tracking-tight text-foreground">
@@ -98,7 +98,7 @@ export default function Sidebar() {
 
       {/* Agent Status Footer */}
       <div className="p-4 border-t border-border">
-        <div className="bg-background-secondary rounded-lg p-3 shadow-sm">
+        <div className="glass-card p-3">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-medium text-foreground-secondary uppercase tracking-wide">
               Agent Status

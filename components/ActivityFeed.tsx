@@ -259,7 +259,7 @@ export default function ActivityFeed({ fullPage = false, maxItems }: ActivityFee
           <select
             value={agentFilter}
             onChange={(e) => setAgentFilter(e.target.value)}
-            className="bg-card border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:border-accent/50 transition-colors"
+            className="glass-card px-3 py-2 text-sm text-foreground focus:outline-none focus:border-accent/50 transition-colors"
           >
             <option value="">All Agents</option>
             {agentNames.map(name => (
@@ -271,7 +271,7 @@ export default function ActivityFeed({ fullPage = false, maxItems }: ActivityFee
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            className="bg-card border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:border-accent/50 transition-colors"
+            className="glass-card px-3 py-2 text-sm text-foreground focus:outline-none focus:border-accent/50 transition-colors"
           >
             <option value="">All Types</option>
             {FILTER_TYPES.map(t => (
@@ -338,7 +338,7 @@ export default function ActivityFeed({ fullPage = false, maxItems }: ActivityFee
                     key={activity.id}
                     role="article"
                     aria-label={`Activity by ${agentName}: ${activity.message}`}
-                    className="bg-card border border-border rounded-xl p-3 sm:p-4 hover:border-accent/30 transition-all flex items-start gap-2.5 sm:gap-3 shadow-sm hover:shadow-md card-hover"
+                    className="glass-card p-3 sm:p-4 hover:border-accent/30 transition-all flex items-start gap-2.5 sm:gap-3 card-hover"
                   >
                     {/* Agent Avatar */}
                     <div className="w-10 h-10 rounded-full bg-background-secondary border border-border flex items-center justify-center flex-shrink-0 text-xl">
@@ -399,7 +399,7 @@ export default function ActivityFeed({ fullPage = false, maxItems }: ActivityFee
           <button
             onClick={loadMore}
             disabled={loadingMore}
-            className="px-6 py-3 bg-card border border-border text-foreground rounded-lg hover:border-accent/50 hover:text-accent transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium shadow-sm hover:shadow-md"
+            className="px-6 py-3 glass-card text-foreground hover:border-accent/50 hover:text-accent transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
           >
             {loadingMore ? (
               <span className="flex items-center gap-2">

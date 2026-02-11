@@ -20,7 +20,7 @@ export default function ThemeToggle() {
       className="
         relative inline-flex items-center justify-center
         w-9 h-9 rounded-lg
-        bg-card border border-border
+        glass-card
         hover:bg-background-secondary
         active:scale-95
         transition-all duration-200 ease-out

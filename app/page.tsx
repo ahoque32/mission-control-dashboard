@@ -120,7 +120,7 @@ export default function Home() {
           {/* Stats Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
             {/* Total Tasks */}
-            <div className="bg-card border border-border rounded-xl p-3 sm:p-4 hover:border-accent/30 transition-all shadow-sm hover:shadow-md card-hover">
+            <div className="glass-card p-3 sm:p-4 hover:border-accent/30 transition-all card-hover">
               <div className="text-2xl sm:text-3xl font-bold text-accent mb-1">
                 {taskStats.total}
               </div>
@@ -128,7 +128,7 @@ export default function Home() {
             </div>
 
             {/* Pending (inbox + assigned) */}
-            <div className="bg-card border border-border rounded-xl p-3 sm:p-4 hover:border-blue-400/30 transition-all shadow-sm hover:shadow-md card-hover">
+            <div className="glass-card p-3 sm:p-4 hover:border-blue-400/30 transition-all card-hover">
               <div className="text-2xl sm:text-3xl font-bold text-blue-500 mb-1">
                 {taskStats.pending}
               </div>
@@ -136,7 +136,7 @@ export default function Home() {
             </div>
 
             {/* In Progress */}
-            <div className="bg-card border border-border rounded-xl p-3 sm:p-4 hover:border-purple-400/30 transition-all shadow-sm hover:shadow-md card-hover">
+            <div className="glass-card p-3 sm:p-4 hover:border-purple-400/30 transition-all card-hover">
               <div className="text-2xl sm:text-3xl font-bold text-status-progress mb-1">
                 {taskStats.inProgress}
               </div>
@@ -144,7 +144,7 @@ export default function Home() {
             </div>
 
             {/* In Review */}
-            <div className="bg-card border border-border rounded-xl p-3 sm:p-4 hover:border-yellow-400/30 transition-all shadow-sm hover:shadow-md card-hover">
+            <div className="glass-card p-3 sm:p-4 hover:border-yellow-400/30 transition-all card-hover">
               <div className="text-2xl sm:text-3xl font-bold text-status-warning mb-1">
                 {taskStats.review}
               </div>
@@ -152,7 +152,7 @@ export default function Home() {
             </div>
 
             {/* Done */}
-            <div className="bg-card border border-border rounded-xl p-3 sm:p-4 hover:border-green-400/30 transition-all shadow-sm hover:shadow-md card-hover">
+            <div className="glass-card p-3 sm:p-4 hover:border-green-400/30 transition-all card-hover">
               <div className="text-2xl sm:text-3xl font-bold text-status-success mb-1">
                 {taskStats.done}
               </div>
@@ -160,7 +160,7 @@ export default function Home() {
             </div>
 
             {/* Blocked */}
-            <div className="bg-card border border-border rounded-xl p-3 sm:p-4 hover:border-red-400/30 transition-all shadow-sm hover:shadow-md card-hover">
+            <div className="glass-card p-3 sm:p-4 hover:border-red-400/30 transition-all card-hover">
               <div className="text-2xl sm:text-3xl font-bold text-status-error mb-1">
                 {taskStats.blocked}
               </div>
@@ -168,7 +168,7 @@ export default function Home() {
             </div>
 
             {/* Completed Today */}
-            <div className="bg-card border border-border rounded-xl p-3 sm:p-4 hover:border-green-400/30 transition-all shadow-sm hover:shadow-md card-hover">
+            <div className="glass-card p-3 sm:p-4 hover:border-green-400/30 transition-all card-hover">
               <div className="text-2xl sm:text-3xl font-bold text-status-success mb-1">
                 {taskStats.completedToday}
               </div>
@@ -176,7 +176,7 @@ export default function Home() {
             </div>
 
             {/* High Priority */}
-            <div className="bg-card border border-border rounded-xl p-3 sm:p-4 hover:border-red-400/30 transition-all shadow-sm hover:shadow-md card-hover">
+            <div className="glass-card p-3 sm:p-4 hover:border-red-400/30 transition-all card-hover">
               <div className="text-2xl sm:text-3xl font-bold text-status-error mb-1">
                 {taskStats.highPriority}
               </div>
@@ -193,7 +193,7 @@ export default function Home() {
           Recent Tasks
         </h2>
         {recentTasks.length === 0 ? (
-          <div className="bg-card border border-border rounded-xl p-8 text-center shadow-sm">
+          <div className="glass-card p-8 text-center">
             <div className="text-4xl mb-3">📋</div>
             <p className="text-foreground-secondary">No tasks yet. Create your first task to get started!</p>
           </div>
