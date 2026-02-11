@@ -20,21 +20,22 @@ export default function ThemeToggle() {
       className="
         relative inline-flex items-center justify-center
         w-9 h-9 rounded-lg
-        bg-white dark:bg-[#1a1a1a]
-        border border-gray-200 dark:border-[#2a2a2a]
-        hover:bg-gray-50 dark:hover:bg-[#2a2a2a]
+        bg-card border border-border
+        hover:bg-background-secondary
         active:scale-95
         transition-all duration-200 ease-out
-        focus:outline-none focus:ring-2 focus:ring-blue-500/20
+        focus:outline-none focus:ring-2 focus:ring-accent/20
         group
       "
       aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+      aria-pressed={theme === 'dark'}
       title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+      type="button"
     >
       {/* Sun Icon - visible in dark mode */}
       <svg
         className={`
-          absolute w-4 h-4 text-amber-500
+          absolute w-4 h-4 text-status-warning
           transition-all duration-300 ease-out
           ${theme === 'dark' ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 rotate-45 scale-75'}
         `}
@@ -48,7 +49,7 @@ export default function ThemeToggle() {
       {/* Moon Icon - visible in light mode */}
       <svg
         className={`
-          absolute w-4 h-4 text-slate-600
+          absolute w-4 h-4 text-foreground-secondary
           transition-all duration-300 ease-out
           ${theme === 'light' ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-45 scale-75'}
         `}
@@ -64,7 +65,7 @@ export default function ThemeToggle() {
       </svg>
 
       {/* Hover effect overlay */}
-      <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-transparent to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+      <div className="absolute inset-0 rounded-lg bg-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
     </button>
   );
 }

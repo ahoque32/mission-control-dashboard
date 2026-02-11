@@ -16,38 +16,55 @@ interface ThemeProviderProps {
   children: ReactNode;
 }
 
+// Helper to safely get initial theme from document class (set by blocking script)
+function getInitialTheme(): Theme {
+  if (typeof window === 'undefined') return 'dark';
+  
+  // Check if blocking script already set the class
+  if (document.documentElement.classList.contains('light')) return 'light';
+  if (document.documentElement.classList.contains('dark')) return 'dark';
+  
+  return 'dark'; // Fallback
+}
+
 export function ThemeProvider({ children }: ThemeProviderProps) {
-  const [theme, setThemeState] = useState<Theme>('dark');
+  // Initialize from actual DOM state to avoid hydration mismatch
+  const [theme, setThemeState] = useState<Theme>(getInitialTheme);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Get theme from localStorage or system preference
-    const stored = localStorage.getItem('theme') as Theme | null;
-    
-    if (stored && (stored === 'light' || stored === 'dark')) {
-      setThemeState(stored);
-    } else {
-      // Default to system preference, but prefer dark for Mission Control aesthetic
-      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setThemeState(systemPrefersDark ? 'dark' : 'light');
-    }
-    
     setMounted(true);
+    
+    // Sync state with actual DOM class (in case blocking script ran)
+    const currentTheme = getInitialTheme();
+    if (currentTheme !== theme) {
+      setThemeState(currentTheme);
+    }
   }, []);
 
   useEffect(() => {
     if (!mounted) return;
 
-    // Update document class and localStorage
-    const root = document.documentElement;
-    root.classList.remove('light', 'dark');
-    root.classList.add(theme);
-    localStorage.setItem('theme', theme);
+    // Update document class and localStorage with error handling
+    try {
+      const root = document.documentElement;
+      root.classList.remove('light', 'dark');
+      root.classList.add(theme);
+      
+      localStorage.setItem('theme', theme);
+    } catch (error) {
+      // Handle SecurityError (private browsing) or QuotaExceededError
+      console.warn('Failed to persist theme preference:', error);
+    }
     
     // Update meta theme-color for mobile browsers
-    const metaTheme = document.querySelector('meta[name="theme-color"]');
-    if (metaTheme) {
-      metaTheme.setAttribute('content', theme === 'dark' ? '#0a0a0a' : '#ffffff');
+    try {
+      const metaTheme = document.querySelector('meta[name="theme-color"]');
+      if (metaTheme) {
+        metaTheme.setAttribute('content', theme === 'dark' ? '#0a0a0a' : '#ffffff');
+      }
+    } catch (error) {
+      console.warn('Failed to update theme-color meta tag:', error);
     }
   }, [theme, mounted]);
 
@@ -59,11 +76,8 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     setTheme(theme === 'dark' ? 'light' : 'dark');
   };
 
-  // Prevent hydration mismatch by not rendering until mounted
-  if (!mounted) {
-    return null;
-  }
-
+  // FIXED: Render children immediately to avoid hydration mismatch
+  // The blocking script in layout ensures correct initial theme class
   return (
     <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
       {children}

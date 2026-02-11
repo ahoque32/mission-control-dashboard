@@ -79,9 +79,12 @@ body {
   transition: background-color 150ms ease-out, color 150ms ease-out;
 }
 
-/* Smooth transitions for theme switching */
-* {
-  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+/* Smooth transitions for theme switching - targeted to avoid performance issues */
+/* Only apply to elements that actually change with theme */
+body, main, aside, nav, header, section, article,
+div[class*="bg-"], div[class*="border-"], div[class*="text-"],
+button, a, input, select, textarea {
+  transition-property: background-color, border-color, color;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
 }
