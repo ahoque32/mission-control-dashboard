@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { useActivityPaginated, useAgents } from '../lib/convex';
 import { Activity, ActivityType } from '../types';
+import Icon from './ui/Icon';
 
 // ============================================================================
 // Helpers
@@ -71,35 +72,35 @@ interface ActivityStyle {
 }
 
 const ACTIVITY_STYLES: Record<string, ActivityStyle> = {
-  task_completed: { icon: '✅', bgColor: 'bg-green-500/10', textColor: 'text-green-400', borderColor: 'border-green-500/20', label: 'Task Completed' },
-  task_started: { icon: '🚀', bgColor: 'bg-blue-500/10', textColor: 'text-blue-400', borderColor: 'border-blue-500/20', label: 'Task Started' },
-  research: { icon: '🔍', bgColor: 'bg-purple-500/10', textColor: 'text-purple-400', borderColor: 'border-purple-500/20', label: 'Research' },
-  deployment: { icon: '🚢', bgColor: 'bg-orange-500/10', textColor: 'text-orange-400', borderColor: 'border-orange-500/20', label: 'Deployment' },
-  code_review: { icon: '👀', bgColor: 'bg-yellow-500/10', textColor: 'text-yellow-400', borderColor: 'border-yellow-500/20', label: 'Code Review' },
-  system_maintenance: { icon: '🔧', bgColor: 'bg-gray-500/10', textColor: 'text-gray-400', borderColor: 'border-gray-500/20', label: 'Maintenance' },
-  communication: { icon: '💬', bgColor: 'bg-cyan-500/10', textColor: 'text-cyan-400', borderColor: 'border-cyan-500/20', label: 'Communication' },
-  monitoring: { icon: '📊', bgColor: 'bg-indigo-500/10', textColor: 'text-indigo-400', borderColor: 'border-indigo-500/20', label: 'Monitoring' },
-  spawn_completed: { icon: '🌱', bgColor: 'bg-emerald-500/10', textColor: 'text-emerald-400', borderColor: 'border-emerald-500/20', label: 'Spawn Completed' },
-  spawn_failed: { icon: '💥', bgColor: 'bg-red-500/10', textColor: 'text-red-400', borderColor: 'border-red-500/20', label: 'Spawn Failed' },
-  general: { icon: '📝', bgColor: 'bg-emerald-500/10', textColor: 'text-emerald-400', borderColor: 'border-emerald-500/20', label: 'General' },
+  task_completed: { icon: 'check-circle-fill', bgColor: 'bg-green-500/10', textColor: 'text-green-400', borderColor: 'border-green-500/20', label: 'Task Completed' },
+  task_started: { icon: 'rocket-takeoff', bgColor: 'bg-blue-500/10', textColor: 'text-blue-400', borderColor: 'border-blue-500/20', label: 'Task Started' },
+  research: { icon: 'search', bgColor: 'bg-purple-500/10', textColor: 'text-purple-400', borderColor: 'border-purple-500/20', label: 'Research' },
+  deployment: { icon: 'send', bgColor: 'bg-orange-500/10', textColor: 'text-orange-400', borderColor: 'border-orange-500/20', label: 'Deployment' },
+  code_review: { icon: 'eye', bgColor: 'bg-yellow-500/10', textColor: 'text-yellow-400', borderColor: 'border-yellow-500/20', label: 'Code Review' },
+  system_maintenance: { icon: 'wrench', bgColor: 'bg-gray-500/10', textColor: 'text-gray-400', borderColor: 'border-gray-500/20', label: 'Maintenance' },
+  communication: { icon: 'chat', bgColor: 'bg-cyan-500/10', textColor: 'text-cyan-400', borderColor: 'border-cyan-500/20', label: 'Communication' },
+  monitoring: { icon: 'graph-up', bgColor: 'bg-indigo-500/10', textColor: 'text-indigo-400', borderColor: 'border-indigo-500/20', label: 'Monitoring' },
+  spawn_completed: { icon: 'tree', bgColor: 'bg-emerald-500/10', textColor: 'text-emerald-400', borderColor: 'border-emerald-500/20', label: 'Spawn Completed' },
+  spawn_failed: { icon: 'exclamation-triangle-fill', bgColor: 'bg-red-500/10', textColor: 'text-red-400', borderColor: 'border-red-500/20', label: 'Spawn Failed' },
+  general: { icon: 'pencil-square', bgColor: 'bg-emerald-500/10', textColor: 'text-emerald-400', borderColor: 'border-emerald-500/20', label: 'General' },
   // Legacy types
-  agent_task_completed: { icon: '✅', bgColor: 'bg-green-500/10', textColor: 'text-green-400', borderColor: 'border-green-500/20', label: 'Task Completed' },
-  agent_task_started: { icon: '🚀', bgColor: 'bg-blue-500/10', textColor: 'text-blue-400', borderColor: 'border-blue-500/20', label: 'Task Started' },
-  agent_task_failed: { icon: '❌', bgColor: 'bg-red-500/10', textColor: 'text-red-400', borderColor: 'border-red-500/20', label: 'Task Failed' },
-  agent_run_started: { icon: '▶️', bgColor: 'bg-blue-500/10', textColor: 'text-blue-400', borderColor: 'border-blue-500/20', label: 'Run Started' },
-  agent_run_completed: { icon: '🏁', bgColor: 'bg-green-500/10', textColor: 'text-green-400', borderColor: 'border-green-500/20', label: 'Run Completed' },
-  session_created: { icon: '🔗', bgColor: 'bg-purple-500/10', textColor: 'text-purple-400', borderColor: 'border-purple-500/20', label: 'Session Created' },
-  session_state_changed: { icon: '🔄', bgColor: 'bg-purple-500/10', textColor: 'text-purple-400', borderColor: 'border-purple-500/20', label: 'Session Changed' },
-  task_created: { icon: '📝', bgColor: 'bg-blue-500/10', textColor: 'text-blue-400', borderColor: 'border-blue-500/20', label: 'Task Created' },
-  task_updated: { icon: '✏️', bgColor: 'bg-yellow-500/10', textColor: 'text-yellow-400', borderColor: 'border-yellow-500/20', label: 'Task Updated' },
-  task_assigned: { icon: '👤', bgColor: 'bg-cyan-500/10', textColor: 'text-cyan-400', borderColor: 'border-cyan-500/20', label: 'Task Assigned' },
-  message_sent: { icon: '💬', bgColor: 'bg-purple-500/10', textColor: 'text-purple-400', borderColor: 'border-purple-500/20', label: 'Message Sent' },
-  document_created: { icon: '📄', bgColor: 'bg-blue-500/10', textColor: 'text-blue-400', borderColor: 'border-blue-500/20', label: 'Document Created' },
-  agent_status_changed: { icon: '🔄', bgColor: 'bg-cyan-500/10', textColor: 'text-cyan-400', borderColor: 'border-cyan-500/20', label: 'Status Changed' },
+  agent_task_completed: { icon: 'check-circle-fill', bgColor: 'bg-green-500/10', textColor: 'text-green-400', borderColor: 'border-green-500/20', label: 'Task Completed' },
+  agent_task_started: { icon: 'rocket-takeoff', bgColor: 'bg-blue-500/10', textColor: 'text-blue-400', borderColor: 'border-blue-500/20', label: 'Task Started' },
+  agent_task_failed: { icon: 'x-circle-fill', bgColor: 'bg-red-500/10', textColor: 'text-red-400', borderColor: 'border-red-500/20', label: 'Task Failed' },
+  agent_run_started: { icon: 'play-fill', bgColor: 'bg-blue-500/10', textColor: 'text-blue-400', borderColor: 'border-blue-500/20', label: 'Run Started' },
+  agent_run_completed: { icon: 'flag-fill', bgColor: 'bg-green-500/10', textColor: 'text-green-400', borderColor: 'border-green-500/20', label: 'Run Completed' },
+  session_created: { icon: 'link-45deg', bgColor: 'bg-purple-500/10', textColor: 'text-purple-400', borderColor: 'border-purple-500/20', label: 'Session Created' },
+  session_state_changed: { icon: 'arrow-repeat', bgColor: 'bg-purple-500/10', textColor: 'text-purple-400', borderColor: 'border-purple-500/20', label: 'Session Changed' },
+  task_created: { icon: 'pencil-square', bgColor: 'bg-blue-500/10', textColor: 'text-blue-400', borderColor: 'border-blue-500/20', label: 'Task Created' },
+  task_updated: { icon: 'pencil-square', bgColor: 'bg-yellow-500/10', textColor: 'text-yellow-400', borderColor: 'border-yellow-500/20', label: 'Task Updated' },
+  task_assigned: { icon: 'person-fill', bgColor: 'bg-cyan-500/10', textColor: 'text-cyan-400', borderColor: 'border-cyan-500/20', label: 'Task Assigned' },
+  message_sent: { icon: 'chat', bgColor: 'bg-purple-500/10', textColor: 'text-purple-400', borderColor: 'border-purple-500/20', label: 'Message Sent' },
+  document_created: { icon: 'file-earmark-text', bgColor: 'bg-blue-500/10', textColor: 'text-blue-400', borderColor: 'border-blue-500/20', label: 'Document Created' },
+  agent_status_changed: { icon: 'arrow-repeat', bgColor: 'bg-cyan-500/10', textColor: 'text-cyan-400', borderColor: 'border-cyan-500/20', label: 'Status Changed' },
 };
 
 const DEFAULT_STYLE: ActivityStyle = {
-  icon: '📌', bgColor: 'bg-emerald-500/10', textColor: 'text-emerald-400', borderColor: 'border-emerald-500/20', label: 'Activity'
+  icon: 'pin-map-fill', bgColor: 'bg-emerald-500/10', textColor: 'text-emerald-400', borderColor: 'border-emerald-500/20', label: 'Activity'
 };
 
 function getActivityStyle(type: string): ActivityStyle {
@@ -108,22 +109,22 @@ function getActivityStyle(type: string): ActivityStyle {
 
 // All supported filter types
 const FILTER_TYPES: { value: string; label: string }[] = [
-  { value: 'task_completed', label: '✅ Task Completed' },
-  { value: 'task_started', label: '🚀 Task Started' },
-  { value: 'research', label: '🔍 Research' },
-  { value: 'deployment', label: '🚢 Deployment' },
-  { value: 'code_review', label: '👀 Code Review' },
-  { value: 'system_maintenance', label: '🔧 Maintenance' },
-  { value: 'communication', label: '💬 Communication' },
-  { value: 'monitoring', label: '📊 Monitoring' },
-  { value: 'spawn_completed', label: '🌱 Spawn Completed' },
-  { value: 'spawn_failed', label: '💥 Spawn Failed' },
-  { value: 'general', label: '📝 General' },
-  { value: 'agent_task_completed', label: '✅ Agent Task Completed' },
-  { value: 'agent_task_started', label: '🚀 Agent Task Started' },
-  { value: 'agent_task_failed', label: '❌ Agent Task Failed' },
-  { value: 'agent_run_started', label: '▶️ Agent Run Started' },
-  { value: 'agent_run_completed', label: '🏁 Agent Run Completed' },
+  { value: 'task_completed', label: 'Task Completed' },
+  { value: 'task_started', label: 'Task Started' },
+  { value: 'research', label: 'Research' },
+  { value: 'deployment', label: 'Deployment' },
+  { value: 'code_review', label: 'Code Review' },
+  { value: 'system_maintenance', label: 'Maintenance' },
+  { value: 'communication', label: 'Communication' },
+  { value: 'monitoring', label: 'Monitoring' },
+  { value: 'spawn_completed', label: 'Spawn Completed' },
+  { value: 'spawn_failed', label: 'Spawn Failed' },
+  { value: 'general', label: 'General' },
+  { value: 'agent_task_completed', label: 'Agent Task Completed' },
+  { value: 'agent_task_started', label: 'Agent Task Started' },
+  { value: 'agent_task_failed', label: 'Agent Task Failed' },
+  { value: 'agent_run_started', label: 'Agent Run Started' },
+  { value: 'agent_run_completed', label: 'Agent Run Completed' },
 ];
 
 // ============================================================================
@@ -242,7 +243,9 @@ export default function ActivityFeed({ fullPage = false, maxItems }: ActivityFee
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <div className="text-4xl mb-3">⚠️</div>
+          <div className="mb-3 flex justify-center">
+            <Icon name="exclamation-triangle" size={40} className="text-yellow-400" />
+          </div>
           <p className="text-sm text-status-error mb-1">Failed to load activity</p>
           <p className="text-xs text-foreground-muted">{error.message}</p>
         </div>
@@ -295,7 +298,9 @@ export default function ActivityFeed({ fullPage = false, maxItems }: ActivityFee
       {filteredActivities.length === 0 && (
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <div className="text-4xl mb-3">📭</div>
+            <div className="mb-3 flex justify-center">
+              <Icon name="mailbox2" size={40} className="text-foreground-muted" />
+            </div>
             <p className="text-sm text-foreground-secondary mb-1">
               {agentFilter || typeFilter ? 'No activities match your filters' : 'No activity yet'}
             </p>
@@ -325,7 +330,7 @@ export default function ActivityFeed({ fullPage = false, maxItems }: ActivityFee
             <div className="space-y-2">
               {group.activities.map((activity) => {
                 const agent = agentMap[activity.agentId];
-                const agentEmoji = agent?.emoji || '🤖';
+                const agentEmoji = agent?.emoji;
                 const agentName = activity.metadata?.agentName || agent?.name || activity.agentId || 'Unknown';
                 const style = getActivityStyle(activity.type);
                 const metadata = activity.metadata || {};
@@ -341,8 +346,12 @@ export default function ActivityFeed({ fullPage = false, maxItems }: ActivityFee
                     className="glass-card p-3 sm:p-4 hover:border-accent/30 transition-all flex items-start gap-2.5 sm:gap-3 card-hover"
                   >
                     {/* Agent Avatar */}
-                    <div className="w-10 h-10 rounded-full bg-background-secondary border border-border flex items-center justify-center flex-shrink-0 text-xl">
-                      {agentEmoji}
+                    <div className="w-10 h-10 rounded-full bg-background-secondary border border-border flex items-center justify-center flex-shrink-0">
+                      {agentEmoji ? (
+                        <span className="text-xl">{agentEmoji}</span>
+                      ) : (
+                        <Icon name="robot" size={20} className="text-emerald-400" />
+                      )}
                     </div>
 
                     {/* Content */}
@@ -375,12 +384,12 @@ export default function ActivityFeed({ fullPage = false, maxItems }: ActivityFee
                       {/* Badges */}
                       <div className="mt-2 flex flex-wrap gap-2">
                         <span className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded ${style.bgColor} ${style.textColor} border ${style.borderColor}`}>
-                          <span>{style.icon}</span>
+                          <Icon name={style.icon} size={12} />
                           {style.label}
                         </span>
                         {duration !== undefined && duration > 0 && (
-                          <span className="inline-block text-xs px-2 py-0.5 rounded bg-background-tertiary text-foreground-secondary border border-border">
-                            ⏱️ {formatDuration(duration)}
+                          <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-background-tertiary text-foreground-secondary border border-border">
+                            <Icon name="stopwatch" size={12} /> {formatDuration(duration)}
                           </span>
                         )}
                       </div>

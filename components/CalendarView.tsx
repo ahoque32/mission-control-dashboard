@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { useCronJobs } from '../lib/convex';
 import { CronJob, CronJobCategory } from '../types';
+import Icon from './ui/Icon';
 
 // ============================================================================
 // Helpers
@@ -208,7 +209,9 @@ export default function CalendarView() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <div className="text-4xl mb-3">⚠️</div>
+          <div className="mb-3 flex justify-center">
+            <Icon name="exclamation-triangle" size={40} className="text-yellow-400" />
+          </div>
           <p className="text-sm text-red-400 mb-1">Failed to load schedule</p>
           <p className="text-xs text-foreground-muted">{error.message}</p>
         </div>
@@ -295,7 +298,9 @@ export default function CalendarView() {
       {/* ── Empty State ── */}
       {allFiltered && (
         <div className="flex flex-col items-center justify-center py-16 rounded-2xl border border-dashed border-white/10 bg-white/[0.02]">
-          <div className="text-4xl mb-3">🔍</div>
+          <div className="mb-3 flex justify-center">
+            <Icon name="search" size={40} className="text-foreground-muted" />
+          </div>
           <p className="text-sm text-foreground-muted mb-1">No categories selected</p>
           <p className="text-xs text-foreground-muted mb-4">Toggle some categories above to see scheduled jobs</p>
           <button

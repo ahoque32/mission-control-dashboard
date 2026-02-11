@@ -5,6 +5,7 @@ import { useDocuments, useTasks, useAgents } from '../../lib/convex';
 import { Document, DocumentType, Task, Agent } from '../../types';
 import ReactMarkdown from 'react-markdown';
 import Link from 'next/link';
+import Icon from '../../components/ui/Icon';
 
 // Document type configuration
 const DOCUMENT_TYPES: { 
@@ -17,28 +18,28 @@ const DOCUMENT_TYPES: {
   { 
     id: 'deliverable', 
     label: 'Deliverables', 
-    icon: '📦',
+    icon: 'inbox',
     color: '#10b981',
     bgColor: 'bg-emerald-500/20'
   },
   { 
     id: 'research', 
     label: 'Research', 
-    icon: '🔬',
+    icon: 'search',
     color: '#3b82f6',
     bgColor: 'bg-blue-500/20'
   },
   { 
     id: 'protocol', 
     label: 'Protocols', 
-    icon: '📋',
+    icon: 'clipboard-data',
     color: '#10b981',
     bgColor: 'bg-emerald-500/20'
   },
   { 
     id: 'note', 
     label: 'Notes', 
-    icon: '📝',
+    icon: 'pencil-square',
     color: '#888',
     bgColor: 'bg-gray-500/20'
   },
@@ -83,7 +84,7 @@ function DocumentCard({ document, onClick, linkedTask, createdByAgent }: Documen
       "
     >
       <div className="flex items-start gap-3">
-        <span className="text-2xl">{typeConfig.icon}</span>
+        <Icon name={typeConfig.icon} size={24} style={{ color: typeConfig.color }} />
         <div className="flex-1 min-w-0">
           <h3 className="text-sm font-medium text-foreground mb-1 line-clamp-2">
             {document.title}
@@ -163,7 +164,7 @@ function DocumentDetailModal({ document, isOpen, onClose, linkedTask, createdByA
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-3">
-                  <span className="text-3xl">{typeConfig.icon}</span>
+                  <Icon name={typeConfig.icon} size={28} style={{ color: typeConfig.color }} />
                   <span 
                     className={`text-xs font-medium px-2 py-1 rounded-lg uppercase tracking-wide ${typeConfig.bgColor}`}
                     style={{ color: typeConfig.color }}
@@ -259,7 +260,9 @@ function DocumentDetailModal({ document, isOpen, onClose, linkedTask, createdByA
               </div>
             ) : (
               <div className="text-center py-12 text-foreground-muted">
-                <div className="text-4xl mb-3">📝</div>
+                <div className="mb-3 flex justify-center">
+                  <Icon name="pencil-square" size={40} className="text-foreground-muted" />
+                </div>
                 <p>This document has no content yet.</p>
               </div>
             )}
@@ -332,7 +335,9 @@ export default function DocumentsPage() {
       <div className="min-h-screen p-8">
         <div className="max-w-7xl mx-auto">
           <div className="glass-card p-6 text-center border-red-500/30">
-            <div className="text-4xl mb-3">⚠️</div>
+            <div className="mb-3 flex justify-center">
+              <Icon name="exclamation-triangle" size={40} className="text-yellow-400" />
+            </div>
             <h2 className="text-xl font-semibold text-red-400 mb-2">Error Loading Documents</h2>
             <p className="text-sm text-foreground-muted">{documentsError.message}</p>
           </div>
@@ -346,7 +351,10 @@ export default function DocumentsPage() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-3">📄 Documents</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-3 flex items-center gap-3">
+            <Icon name="file-text" size={32} className="text-emerald-400" />
+            Documents
+          </h1>
           <p className="text-foreground-secondary">
             {documents.length} {documents.length === 1 ? 'document' : 'documents'} in the system
           </p>
@@ -379,7 +387,7 @@ export default function DocumentsPage() {
                   }
                 `}
               >
-                <span>{type.icon}</span>
+                <Icon name={type.icon} size={16} />
                 <span>{type.label}</span>
                 <span className="text-xs opacity-70">({documentsByType[type.id].length})</span>
               </button>
@@ -390,7 +398,9 @@ export default function DocumentsPage() {
         {/* Empty State */}
         {documents.length === 0 && (
           <div className="glass-card p-12 text-center">
-            <div className="text-6xl mb-4">📂</div>
+            <div className="mb-4 flex justify-center">
+              <Icon name="folder2-open" size={56} className="text-foreground-muted" />
+            </div>
             <h2 className="text-2xl font-semibold text-foreground mb-2">No Documents Yet</h2>
             <p className="text-foreground-secondary">
               Documents will appear here once they&apos;re created in the system.
@@ -401,7 +411,9 @@ export default function DocumentsPage() {
         {/* Filtered Empty State */}
         {documents.length > 0 && filteredDocuments.length === 0 && (
           <div className="glass-card p-12 text-center">
-            <div className="text-5xl mb-4">🔍</div>
+            <div className="mb-4 flex justify-center">
+              <Icon name="search" size={48} className="text-foreground-muted" />
+            </div>
             <h2 className="text-xl font-semibold text-foreground mb-2">No Documents Found</h2>
             <p className="text-foreground-secondary mb-4">
               No documents match the selected filter.
@@ -427,7 +439,7 @@ export default function DocumentsPage() {
               return (
                 <div key={type.id}>
                   <div className="flex items-center gap-3 mb-4">
-                    <span className="text-2xl">{type.icon}</span>
+                    <Icon name={type.icon} size={24} style={{ color: type.color }} />
                     <h2 className="text-xl font-semibold text-foreground">{type.label}</h2>
                     <span className="text-sm text-foreground-muted">({typeDocuments.length})</span>
                   </div>

@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, KeyboardEvent, ChangeEvent } from 'react';
 import { useTaskMessages, useCreateMessage } from '../lib/convex';
 import { Message, Agent } from '../types';
 import ReactMarkdown from 'react-markdown';
+import Icon from './ui/Icon';
 
 interface TaskCommentsProps {
   taskId: string;
@@ -196,7 +197,9 @@ export default function TaskComments({
     return (
       <div className="py-8">
         <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-6 text-center">
-          <div className="text-3xl mb-3">⚠️</div>
+          <div className="mb-3 flex justify-center">
+            <Icon name="exclamation-triangle" size={32} className="text-yellow-400" />
+          </div>
           <h3 className="text-lg font-semibold text-red-400 mb-2">Failed to Load Comments</h3>
           <p className="text-sm text-foreground-secondary mb-4">{error.message}</p>
         </div>
@@ -210,7 +213,9 @@ export default function TaskComments({
       <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
         {messages.length === 0 ? (
           <div className="text-center py-8 text-foreground-muted">
-            <div className="text-3xl mb-2">💬</div>
+            <div className="mb-2 flex justify-center">
+              <Icon name="chat" size={32} className="text-foreground-muted" />
+            </div>
             <p>No comments yet</p>
             <p className="text-sm mt-1">Be the first to start the conversation</p>
           </div>
@@ -232,7 +237,11 @@ export default function TaskComments({
               >
                 {/* Comment Header */}
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="text-lg">{author?.emoji || '👤'}</span>
+                  {author?.emoji ? (
+                    <span className="text-lg">{author.emoji}</span>
+                  ) : (
+                    <Icon name="person-fill" size={18} className="text-foreground-muted" />
+                  )}
                   <div className="flex-1">
                     <span className="text-sm font-medium text-foreground">
                       {author?.name || 'Unknown'}
@@ -318,7 +327,7 @@ export default function TaskComments({
         {/* Toolbar */}
         <div className="flex items-center justify-between mb-2 px-1">
           <div className="flex items-center gap-2 text-xs text-foreground-muted">
-            <span>💬 Markdown supported</span>
+            <span className="inline-flex items-center gap-1"><Icon name="chat" size={12} /> Markdown supported</span>
             <span>•</span>
             <span>@ to mention agents</span>
           </div>
@@ -332,7 +341,9 @@ export default function TaskComments({
                   : 'text-foreground-muted hover:text-foreground'
               }`}
             >
-              {showPreview ? '✏️ Edit' : '👁️ Preview'}
+              <span className="inline-flex items-center gap-1">
+                {showPreview ? <><Icon name="pencil-square" size={12} /> Edit</> : <><Icon name="eye" size={12} /> Preview</>}
+              </span>
             </button>
           </div>
         </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Icon from './ui/Icon';
 import { 
   DndContext, 
   DragEndEvent, 
@@ -105,7 +106,9 @@ export default function KanbanBoard() {
     return (
       <div className="flex items-center justify-center h-96">
         <div className="text-center max-w-md">
-          <div className="text-5xl mb-4">⚠️</div>
+          <div className="mb-4 flex justify-center">
+            <Icon name="exclamation-triangle" size={48} className="text-yellow-400" />
+          </div>
           <h3 className="text-xl font-semibold text-foreground mb-2">
             Failed to load tasks
           </h3>

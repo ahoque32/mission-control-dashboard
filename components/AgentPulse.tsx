@@ -2,6 +2,7 @@
 
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import Icon from "./ui/Icon";
 
 const statusConfig = {
   active: {
@@ -30,12 +31,12 @@ const statusConfig = {
   },
 };
 
-const agentEmojis: Record<string, string> = {
-  JHawk: "🦅",
-  Ralph: "🤖",
-  Scout: "🔍",
-  Archivist: "📚",
-  Sentinel: "🛡️",
+const agentIcons: Record<string, string> = {
+  JHawk: "cpu",
+  Ralph: "robot",
+  Scout: "binoculars",
+  Archivist: "book",
+  Sentinel: "shield-check",
 };
 
 export function AgentPulse() {
@@ -67,7 +68,7 @@ export function AgentPulse() {
       <div className="space-y-2">
         {agents.map(([name, data]) => {
           const config = statusConfig[data.status];
-          const emoji = agentEmojis[name] || "🤖";
+          const iconName = agentIcons[name] || "robot";
 
           return (
             <div
@@ -91,7 +92,7 @@ export function AgentPulse() {
               {/* Agent info */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-sm">{emoji}</span>
+                  <Icon name={iconName} size={14} className="text-emerald-400" />
                   <span className="text-sm font-medium text-white/90">
                     {name}
                   </span>

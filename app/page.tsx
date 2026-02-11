@@ -7,6 +7,7 @@ import { AgentPulse } from '../components/AgentPulse';
 import ActivityFeed from '../components/ActivityFeed';
 import TaskCard from '../components/TaskCard';
 import type { Task } from '../types';
+import Icon from '../components/ui/Icon';
 
 export default function Home() {
   const { agents, loading: agentsLoading } = useAgents();
@@ -97,7 +98,7 @@ export default function Home() {
           {/* Agent Grid - 3/4 width */}
           <div className="lg:col-span-3">
             <h2 className="text-lg sm:text-xl font-semibold text-foreground mb-3 sm:mb-4 flex items-center gap-2">
-              <span className="text-xl sm:text-2xl">👥</span>
+              <Icon name="people-fill" size={24} className="text-emerald-400" />
               Agent Status
             </h2>
             <AgentGrid />
@@ -106,7 +107,7 @@ export default function Home() {
           {/* Agent Pulse - 1/4 width */}
           <div className="lg:col-span-1">
             <h2 className="text-lg sm:text-xl font-semibold text-foreground mb-3 sm:mb-4 flex items-center gap-2">
-              <span className="text-xl sm:text-2xl">💓</span>
+              <Icon name="heart-pulse" size={24} className="text-emerald-400" />
               Live Pulse
             </h2>
             <AgentPulse />
@@ -119,7 +120,7 @@ export default function Home() {
         {/* Activity Feed - Left 40% (2 of 5 columns) */}
         <div className="lg:col-span-2">
           <h2 className="text-lg sm:text-xl font-semibold text-foreground mb-3 sm:mb-4 flex items-center gap-2">
-            <span className="text-xl sm:text-2xl">📊</span>
+            <Icon name="bar-chart" size={24} className="text-emerald-400" />
             Recent Activity
           </h2>
           <ActivityFeed />
@@ -128,7 +129,7 @@ export default function Home() {
         {/* Task Summary Statistics - Right 60% (3 of 5 columns) */}
         <div className="lg:col-span-3">
           <h2 className="text-lg sm:text-xl font-semibold text-foreground mb-3 sm:mb-4 flex items-center gap-2">
-            <span className="text-xl sm:text-2xl">📈</span>
+            <Icon name="graph-up-arrow" size={24} className="text-emerald-400" />
             Task Summary
           </h2>
           
@@ -204,12 +205,14 @@ export default function Home() {
       {/* Bottom Section: Recent Tasks */}
       <section>
         <h2 className="text-lg sm:text-xl font-semibold text-foreground mb-3 sm:mb-4 flex items-center gap-2">
-          <span className="text-xl sm:text-2xl">📋</span>
+          <Icon name="list-task" size={24} className="text-emerald-400" />
           Recent Tasks
         </h2>
         {recentTasks.length === 0 ? (
           <div className="glass-card p-8 text-center">
-            <div className="text-4xl mb-3">📋</div>
+            <div className="mb-3 flex justify-center">
+              <Icon name="list-task" size={40} className="text-foreground-muted" />
+            </div>
             <p className="text-foreground-secondary">No tasks yet. Create your first task to get started!</p>
           </div>
         ) : (

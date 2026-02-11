@@ -21,6 +21,7 @@ import { Task, TaskStatus, TaskPriority } from '../../types';
 import KanbanColumn from '../../components/KanbanColumn';
 import DraggableTaskCard from '../../components/DraggableTaskCard';
 import NewTaskForm from '../../components/NewTaskForm';
+import Icon from '../../components/ui/Icon';
 
 // Column definitions
 const COLUMNS: { id: TaskStatus; label: string; color: string }[] = [
@@ -163,7 +164,9 @@ export default function TasksPage() {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center max-w-md">
-          <div className="text-5xl mb-4">⚠️</div>
+          <div className="mb-4 flex justify-center">
+            <Icon name="exclamation-triangle" size={48} className="text-yellow-400" />
+          </div>
           <h3 className="text-xl font-semibold text-foreground mb-2">Failed to load tasks</h3>
           <p className="text-foreground-muted text-sm">{error.message}</p>
         </div>
@@ -384,7 +387,9 @@ export default function TasksPage() {
         {/* ── Empty State: Filtered ── */}
         {filteredTasks.length === 0 && tasks.length > 0 && (
           <div className="glass-card p-12 text-center mb-6">
-            <div className="text-5xl mb-4">🔍</div>
+            <div className="mb-4 flex justify-center">
+              <Icon name="search" size={48} className="text-foreground-muted" />
+            </div>
             <h3 className="text-lg font-semibold text-foreground mb-2">No tasks match your filters</h3>
             <p className="text-foreground-muted text-sm mb-4">Try adjusting your filter criteria</p>
             <button
@@ -399,7 +404,9 @@ export default function TasksPage() {
         {/* ── Empty State: No Tasks ── */}
         {tasks.length === 0 && (
           <div className="glass-card p-12 text-center">
-            <div className="text-5xl mb-4">📋</div>
+            <div className="mb-4 flex justify-center">
+              <Icon name="list-task" size={48} className="text-foreground-muted" />
+            </div>
             <h3 className="text-lg font-semibold text-foreground mb-2">No tasks yet</h3>
             <p className="text-foreground-muted text-sm mb-4">Create your first task to get started</p>
             <button
@@ -454,7 +461,9 @@ export default function TasksPage() {
                     {columnTasks.length === 0 && (
                       <div className="flex flex-col items-center justify-center py-12 px-4">
                         <div className="w-full border-2 border-dashed border-white/10 rounded-xl py-8 px-4 text-center">
-                          <div className="text-2xl mb-2 opacity-30">📥</div>
+                          <div className="mb-2 opacity-30 flex justify-center">
+                            <Icon name="inbox" size={24} />
+                          </div>
                           <p className="text-[11px] text-foreground-muted font-medium">
                             Drop tasks here
                           </p>
