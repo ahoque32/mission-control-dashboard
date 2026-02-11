@@ -61,7 +61,7 @@ export default function HeroSection() {
 
       {/* Background Image with Gradient Mask */}
       <div
-        className="absolute inset-0 z-0 bg-[url(https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1920&q=80)] bg-cover bg-center opacity-40"
+        className="absolute inset-0 z-0 bg-[url(/images/hero-bg-space.jpg)] bg-cover bg-center opacity-40"
         style={{
           maskImage: "linear-gradient(180deg, transparent, black 0%, black 70%, transparent)",
           WebkitMaskImage: "linear-gradient(180deg, transparent, black 0%, black 70%, transparent)",

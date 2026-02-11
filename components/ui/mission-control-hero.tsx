@@ -61,7 +61,7 @@ export default function MissionControlHero() {
 
       {/* Background Image with Gradient Mask */}
       <div
-        className="absolute inset-0 z-0 bg-[url(https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=1920&q=80)] bg-cover bg-center opacity-40"
+        className="absolute inset-0 z-0 bg-[url(/images/hero-bg-tech.jpg)] bg-cover bg-center opacity-40"
         style={{
           maskImage: "linear-gradient(180deg, transparent, black 0%, black 70%, transparent)",
           WebkitMaskImage: "linear-gradient(180deg, transparent, black 0%, black 70%, transparent)",
