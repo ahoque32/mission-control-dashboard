@@ -26,9 +26,9 @@ import NewTaskForm from '../../components/NewTaskForm';
 const COLUMNS: { id: TaskStatus; label: string; color: string }[] = [
   { id: 'inbox', label: 'Inbox', color: '#666' },
   { id: 'assigned', label: 'Assigned', color: '#3b82f6' },
-  { id: 'in_progress', label: 'In Progress', color: '#d4a574' },
+  { id: 'in_progress', label: 'In Progress', color: '#10b981' },
   { id: 'review', label: 'Review', color: '#8b5cf6' },
-  { id: 'done', label: 'Done', color: '#10b981' },
+  { id: 'done', label: 'Done', color: '#34d399' },
   { id: 'blocked', label: 'Blocked', color: '#ef4444' }
 ];
 
@@ -54,18 +54,13 @@ export default function TasksPage() {
   const [selectedPriorities, setSelectedPriorities] = useState<TaskPriority[]>([]);
   const [selectedStatuses, setSelectedStatuses] = useState<TaskStatus[]>([]);
 
-  // Configure drag sensors — PointerSensor for desktop, TouchSensor for mobile
+  // Configure drag sensors
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
+      activationConstraint: { distance: 8 },
     }),
     useSensor(TouchSensor, {
-      activationConstraint: {
-        delay: 200,
-        tolerance: 8,
-      },
+      activationConstraint: { delay: 200, tolerance: 8 },
     })
   );
 
@@ -94,14 +89,12 @@ export default function TasksPage() {
     return acc;
   }, {} as Record<TaskStatus, Task[]>);
 
-  // Handle drag start
   const handleDragStart = (event: DragStartEvent) => {
     const taskId = event.active.id as string;
     const task = tasks.find(t => t.id === taskId);
     if (task) setActiveTask(task);
   };
 
-  // Handle drag end
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveTask(null);
@@ -119,7 +112,6 @@ export default function TasksPage() {
     }
   };
 
-  // Toggle filters
   const toggleAssignee = (agentId: string) => {
     setSelectedAssignees(prev =>
       prev.includes(agentId) ? prev.filter(id => id !== agentId) : [...prev, agentId]
@@ -153,10 +145,10 @@ export default function TasksPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-[#0a0a0a]">
+      <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#d4a574] border-r-transparent mb-4" />
-          <p className="text-[#888]">Loading tasks...</p>
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-emerald-500 border-r-transparent mb-4" />
+          <p className="text-foreground-muted">Loading tasks...</p>
         </div>
       </div>
     );
@@ -164,11 +156,11 @@ export default function TasksPage() {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-screen bg-[#0a0a0a]">
+      <div className="flex items-center justify-center h-screen">
         <div className="text-center max-w-md">
           <div className="text-5xl mb-4">⚠️</div>
-          <h3 className="text-xl font-semibold text-[#ededed] mb-2">Failed to load tasks</h3>
-          <p className="text-[#888] text-sm">{error.message}</p>
+          <h3 className="text-xl font-semibold text-foreground mb-2">Failed to load tasks</h3>
+          <p className="text-foreground-muted text-sm">{error.message}</p>
         </div>
       </div>
     );
@@ -182,25 +174,25 @@ export default function TasksPage() {
         onSuccess={() => console.log('Task created successfully!')}
       />
 
-      <div className="min-h-screen bg-[#0a0a0a] p-4 sm:p-6">
+      <div className="min-h-screen p-4 sm:p-6">
         {/* ── Header ── */}
         <div className="mb-5 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-[#ededed] tracking-tight">Tasks</h1>
-            <span className="text-xs font-mono font-semibold px-2.5 py-1 rounded-full bg-[#d4a574]/15 text-[#d4a574] border border-[#d4a574]/20">
+            <h1 className="text-2xl font-bold text-foreground tracking-tight">Tasks</h1>
+            <span className="text-xs font-mono font-semibold px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
               {filteredTasks.length}
             </span>
             {hasActiveFilters && (
-              <span className="text-xs text-[#888] italic">filtered</span>
+              <span className="text-xs text-foreground-muted italic">filtered</span>
             )}
           </div>
           <button
             onClick={() => setIsNewTaskFormOpen(true)}
             className="
-              group flex items-center gap-2 px-5 py-2.5 rounded-lg font-semibold text-sm
-              bg-gradient-to-r from-[#d4a574] to-[#c9996a] text-[#0a0a0a]
-              hover:from-[#ddb48a] hover:to-[#d4a574]
-              shadow-md shadow-[#d4a574]/20 hover:shadow-lg hover:shadow-[#d4a574]/30
+              group flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm
+              bg-emerald-500 text-white
+              hover:bg-emerald-400
+              shadow-md shadow-emerald-500/20 hover:shadow-lg hover:shadow-emerald-500/30
               transition-all duration-200
             "
           >
@@ -216,7 +208,7 @@ export default function TasksPage() {
           <button
             onClick={() => setFiltersOpen(!filtersOpen)}
             className="
-              flex items-center gap-2 text-sm text-[#888] hover:text-[#ededed]
+              flex items-center gap-2 text-sm text-foreground-muted hover:text-foreground
               transition-colors duration-200 mb-2
             "
           >
@@ -228,7 +220,7 @@ export default function TasksPage() {
             </svg>
             <span className="font-medium">Filters</span>
             {activeFilterCount > 0 && (
-              <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-full bg-[#d4a574]/20 text-[#d4a574] animate-pulse">
+              <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 animate-pulse">
                 {activeFilterCount}
               </span>
             )}
@@ -238,10 +230,10 @@ export default function TasksPage() {
             overflow-hidden transition-all duration-300 ease-in-out
             ${filtersOpen ? 'max-h-[400px] opacity-100' : 'max-h-0 opacity-0'}
           `}>
-            <div className="backdrop-blur-md bg-white/[0.03] border border-white/[0.06] rounded-xl p-4 space-y-4">
+            <div className="glass-card p-4 space-y-4">
               {/* Assignee Filter */}
               <div>
-                <label className="block text-[11px] font-semibold text-[#666] uppercase tracking-wider mb-2">
+                <label className="block text-[11px] font-semibold text-foreground-muted uppercase tracking-wider mb-2">
                   Assignee
                 </label>
                 <div className="flex flex-wrap gap-1.5">
@@ -255,8 +247,8 @@ export default function TasksPage() {
                           px-3 py-1.5 rounded-full text-xs font-medium
                           transition-all duration-200 border
                           ${active
-                            ? 'bg-[#d4a574]/20 text-[#d4a574] border-[#d4a574]/40 shadow-sm shadow-[#d4a574]/10'
-                            : 'bg-white/[0.03] text-[#888] border-white/[0.08] hover:border-white/[0.15] hover:text-[#aaa]'
+                            ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40 shadow-sm shadow-emerald-500/10'
+                            : 'bg-white/5 text-foreground-muted border-white/10 hover:border-white/20 hover:text-foreground-secondary'
                           }
                         `}
                       >
@@ -269,7 +261,7 @@ export default function TasksPage() {
 
               {/* Priority Filter */}
               <div>
-                <label className="block text-[11px] font-semibold text-[#666] uppercase tracking-wider mb-2">
+                <label className="block text-[11px] font-semibold text-foreground-muted uppercase tracking-wider mb-2">
                   Priority
                 </label>
                 <div className="flex flex-wrap gap-1.5">
@@ -285,7 +277,7 @@ export default function TasksPage() {
                           transition-all duration-200 border
                           ${active
                             ? 'shadow-sm'
-                            : 'bg-white/[0.03] text-[#888] border-white/[0.08] hover:border-white/[0.15] hover:text-[#aaa]'
+                            : 'bg-white/5 text-foreground-muted border-white/10 hover:border-white/20 hover:text-foreground-secondary'
                           }
                         `}
                         style={active ? {
@@ -304,7 +296,7 @@ export default function TasksPage() {
 
               {/* Status Filter */}
               <div>
-                <label className="block text-[11px] font-semibold text-[#666] uppercase tracking-wider mb-2">
+                <label className="block text-[11px] font-semibold text-foreground-muted uppercase tracking-wider mb-2">
                   Status
                 </label>
                 <div className="flex flex-wrap gap-1.5">
@@ -319,7 +311,7 @@ export default function TasksPage() {
                           transition-all duration-200 border
                           ${active
                             ? 'shadow-sm'
-                            : 'bg-white/[0.03] text-[#888] border-white/[0.08] hover:border-white/[0.15] hover:text-[#aaa]'
+                            : 'bg-white/5 text-foreground-muted border-white/10 hover:border-white/20 hover:text-foreground-secondary'
                           }
                         `}
                         style={active ? {
@@ -338,10 +330,10 @@ export default function TasksPage() {
 
               {/* Clear Filters */}
               {hasActiveFilters && (
-                <div className="pt-2 border-t border-white/[0.06]">
+                <div className="pt-2 border-t border-white/10">
                   <button
                     onClick={clearFilters}
-                    className="text-xs text-[#d4a574] hover:text-[#ddb48a] transition-colors duration-200 font-medium"
+                    className="text-xs text-emerald-400 hover:text-emerald-300 transition-colors duration-200 font-medium"
                   >
                     ✕ Clear all filters
                   </button>
@@ -353,13 +345,13 @@ export default function TasksPage() {
 
         {/* ── Empty State: Filtered ── */}
         {filteredTasks.length === 0 && tasks.length > 0 && (
-          <div className="backdrop-blur-md bg-white/[0.03] border border-white/[0.06] rounded-xl p-12 text-center mb-6">
+          <div className="glass-card p-12 text-center mb-6">
             <div className="text-5xl mb-4">🔍</div>
-            <h3 className="text-lg font-semibold text-[#ededed] mb-2">No tasks match your filters</h3>
-            <p className="text-[#666] text-sm mb-4">Try adjusting your filter criteria</p>
+            <h3 className="text-lg font-semibold text-foreground mb-2">No tasks match your filters</h3>
+            <p className="text-foreground-muted text-sm mb-4">Try adjusting your filter criteria</p>
             <button
               onClick={clearFilters}
-              className="px-4 py-2 rounded-lg text-sm font-medium bg-[#d4a574]/15 text-[#d4a574] border border-[#d4a574]/20 hover:bg-[#d4a574]/25 transition-all duration-200"
+              className="px-4 py-2 rounded-xl text-sm font-medium bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/25 transition-all duration-200"
             >
               Clear Filters
             </button>
@@ -368,16 +360,16 @@ export default function TasksPage() {
 
         {/* ── Empty State: No Tasks ── */}
         {tasks.length === 0 && (
-          <div className="backdrop-blur-md bg-white/[0.03] border border-white/[0.06] rounded-xl p-12 text-center">
+          <div className="glass-card p-12 text-center">
             <div className="text-5xl mb-4">📋</div>
-            <h3 className="text-lg font-semibold text-[#ededed] mb-2">No tasks yet</h3>
-            <p className="text-[#666] text-sm mb-4">Create your first task to get started</p>
+            <h3 className="text-lg font-semibold text-foreground mb-2">No tasks yet</h3>
+            <p className="text-foreground-muted text-sm mb-4">Create your first task to get started</p>
             <button
               onClick={() => setIsNewTaskFormOpen(true)}
               className="
-                px-5 py-2.5 rounded-lg font-semibold text-sm
-                bg-gradient-to-r from-[#d4a574] to-[#c9996a] text-[#0a0a0a]
-                hover:from-[#ddb48a] hover:to-[#d4a574]
+                px-5 py-2.5 rounded-xl font-semibold text-sm
+                bg-emerald-500 text-white
+                hover:bg-emerald-400
                 transition-all duration-200
               "
             >
@@ -387,9 +379,8 @@ export default function TasksPage() {
         )}
 
         {/* ── Kanban Board ── */}
-        {/* Mobile hint for horizontal scrolling */}
         {filteredTasks.length > 0 && (
-          <p className="sm:hidden text-xs text-[#555] text-center mb-2">← Swipe columns · Long-press to drag tasks →</p>
+          <p className="sm:hidden text-xs text-foreground-muted text-center mb-2">← Swipe columns · Long-press to drag tasks →</p>
         )}
         {filteredTasks.length > 0 && (
           <DndContext
@@ -422,12 +413,11 @@ export default function TasksPage() {
                       </div>
                     </SortableContext>
 
-                    {/* Empty column state */}
                     {columnTasks.length === 0 && (
                       <div className="flex flex-col items-center justify-center py-12 px-4">
-                        <div className="w-full border-2 border-dashed border-white/[0.06] rounded-lg py-8 px-4 text-center">
+                        <div className="w-full border-2 border-dashed border-white/10 rounded-xl py-8 px-4 text-center">
                           <div className="text-2xl mb-2 opacity-30">📥</div>
-                          <p className="text-[11px] text-[#444] font-medium">
+                          <p className="text-[11px] text-foreground-muted font-medium">
                             Drop tasks here
                           </p>
                         </div>
@@ -438,22 +428,21 @@ export default function TasksPage() {
               })}
             </div>
 
-            {/* Drag Overlay — dramatic style */}
+            {/* Drag Overlay */}
             <DragOverlay>
               {activeTask ? (
                 <div className="
-                  bg-[#1a1a1a]/95 backdrop-blur-lg 
-                  border-2 border-[#d4a574]/60 
-                  rounded-xl p-4 
-                  shadow-2xl shadow-[#d4a574]/20
+                  glass-card p-4 
+                  border-2 border-emerald-500/60
+                  shadow-2xl shadow-emerald-500/20
                   rotate-[2deg] scale-105
                   max-w-[300px]
                 ">
-                  <h4 className="text-sm font-semibold text-[#ededed] line-clamp-2 mb-1">
+                  <h4 className="text-sm font-semibold text-foreground line-clamp-2 mb-1">
                     {activeTask.title}
                   </h4>
                   {activeTask.description && (
-                    <p className="text-[11px] text-[#888] line-clamp-1">{activeTask.description}</p>
+                    <p className="text-[11px] text-foreground-muted line-clamp-1">{activeTask.description}</p>
                   )}
                 </div>
               ) : null}

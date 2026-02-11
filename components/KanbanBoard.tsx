@@ -93,8 +93,8 @@ export default function KanbanBoard() {
     return (
       <div className="flex items-center justify-center h-96" role="status" aria-label="Loading tasks">
         <div className="text-center">
-          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#d4a574] border-r-transparent mb-4" aria-hidden="true" />
-          <p className="text-[#888]">Loading tasks...</p>
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-emerald-500 border-r-transparent mb-4" aria-hidden="true" />
+          <p className="text-foreground-secondary">Loading tasks...</p>
         </div>
       </div>
     );
@@ -106,10 +106,10 @@ export default function KanbanBoard() {
       <div className="flex items-center justify-center h-96">
         <div className="text-center max-w-md">
           <div className="text-5xl mb-4">⚠️</div>
-          <h3 className="text-xl font-semibold text-[#ededed] mb-2">
+          <h3 className="text-xl font-semibold text-foreground mb-2">
             Failed to load tasks
           </h3>
-          <p className="text-[#888] text-sm">
+          <p className="text-foreground-secondary text-sm">
             {error.message}
           </p>
         </div>
@@ -151,7 +151,7 @@ export default function KanbanBoard() {
 
               {/* Empty state */}
               {columnTasks.length === 0 && (
-                <div className="text-center py-8 text-[#666] text-sm">
+                <div className="text-center py-8 text-foreground-muted text-sm">
                   No tasks
                 </div>
               )}
@@ -163,8 +163,8 @@ export default function KanbanBoard() {
       {/* Drag Overlay - shows the task being dragged */}
       <DragOverlay>
         {activeTask ? (
-          <div className="bg-[#1a1a1a] border border-[#d4a574] rounded-lg p-4 shadow-xl opacity-90 cursor-grabbing">
-            <h4 className="text-sm font-medium text-[#ededed] line-clamp-2">
+          <div className="bg-white/5 border border-emerald-500 rounded-lg p-4 shadow-xl opacity-90 cursor-grabbing">
+            <h4 className="text-sm font-medium text-foreground line-clamp-2">
               {activeTask.title}
             </h4>
           </div>

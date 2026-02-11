@@ -4,8 +4,8 @@
  * Sidebar Component
  * Main navigation sidebar for desktop view
  * Features:
- * - Dark theme styling
- * - Active route highlighting
+ * - Glassmorphism design
+ * - Active route highlighting with emerald accent
  * - Real-time agent status
  * - Responsive design (hidden on mobile)
  */
@@ -72,10 +72,10 @@ export default function Sidebar() {
               key={item.href}
               href={item.href}
               className={`
-                flex items-center gap-3 px-4 py-3 rounded-lg transition-all
+                flex items-center gap-3 px-4 py-3 rounded-xl transition-all
                 ${isActive 
-                  ? 'bg-accent/10 text-accent font-medium shadow-sm' 
-                  : 'text-foreground-secondary hover:bg-background-secondary hover:text-foreground'
+                  ? 'bg-emerald-500/15 text-emerald-400 font-medium border border-emerald-500/20' 
+                  : 'text-foreground-secondary hover:bg-white/5 hover:text-foreground border border-transparent'
                 }
               `}
               aria-current={isActive ? 'page' : undefined}
@@ -88,8 +88,8 @@ export default function Sidebar() {
                 <span className={`
                   ml-auto text-xs px-2 py-0.5 rounded-full
                   ${isActive 
-                    ? 'bg-accent/20 text-accent' 
-                    : 'bg-background-secondary text-foreground-secondary'
+                    ? 'bg-emerald-500/20 text-emerald-400' 
+                    : 'bg-white/5 text-foreground-secondary'
                   }
                 `}>
                   {totalCount}
@@ -116,7 +116,7 @@ export default function Sidebar() {
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1.5">
                 <div 
-                  className={`w-2 h-2 rounded-full ${activeCount > 0 ? 'bg-status-active' : 'bg-border-secondary'}`}
+                  className={`w-2 h-2 rounded-full ${activeCount > 0 ? 'bg-emerald-500 animate-pulse' : 'bg-border-secondary'}`}
                   aria-label={`${activeCount} active agents`}
                 />
                 <span className="text-sm text-foreground">{activeCount}</span>

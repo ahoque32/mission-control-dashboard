@@ -200,7 +200,7 @@ export default function FinanceChat({ days = 30 }: FinanceChatProps) {
       <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="text-lg">💬</span>
-          <h2 className="text-base font-semibold text-[#ededed]">
+          <h2 className="text-base font-semibold text-foreground">
             Finance AI Chat
           </h2>
         </div>
@@ -217,7 +217,7 @@ export default function FinanceChat({ days = 30 }: FinanceChatProps) {
         {/* Empty state with starter chips */}
         {messages.length === 0 && !isLoading && (
           <div className="text-center py-6">
-            <p className="text-[#888] text-sm mb-4">
+            <p className="text-foreground-secondary text-sm mb-4">
               Ask me anything about your finances
             </p>
             <div className="flex flex-wrap justify-center gap-2">
@@ -226,7 +226,7 @@ export default function FinanceChat({ days = 30 }: FinanceChatProps) {
                   key={chip}
                   onClick={() => sendMessage(chip)}
                   className="text-xs px-3 py-2 rounded-full bg-white/5 border border-white/10
-                             text-[#ededed] hover:bg-white/10 transition-colors"
+                             text-foreground hover:bg-white/10 transition-colors"
                 >
                   {chip}
                 </button>
@@ -309,7 +309,7 @@ export default function FinanceChat({ days = 30 }: FinanceChatProps) {
             disabled={isLoading}
             rows={1}
             className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm
-                       text-[#ededed] placeholder:text-[#666] focus:outline-none focus:ring-2
+                       text-foreground placeholder:text-foreground-muted focus:outline-none focus:ring-2
                        focus:ring-blue-500/50 resize-none disabled:opacity-50"
           />
           <button

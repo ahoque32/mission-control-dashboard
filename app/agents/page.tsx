@@ -27,7 +27,7 @@ function isOffline(lastHeartbeat: any): boolean {
   const now = Date.now();
   const then = typeof lastHeartbeat === 'number' ? lastHeartbeat : (lastHeartbeat?.toMillis ? lastHeartbeat.toMillis() : 0);
   const diffMinutes = Math.floor((now - then) / 60000);
-  return diffMinutes > 5; // Consider offline if no heartbeat in 5+ minutes
+  return diffMinutes > 5;
 }
 
 // Get status color and label
@@ -36,22 +36,22 @@ function getStatusDisplay(agent: Agent) {
   
   if (offline) {
     return {
-      color: 'bg-[#333]',
+      color: 'bg-white/10',
       label: 'offline',
-      textColor: 'text-[#666]',
-      dotColor: 'bg-[#555]',
-      borderColor: 'border-[#333]'
+      textColor: 'text-foreground-muted',
+      dotColor: 'bg-gray-500',
+      borderColor: 'border-white/10'
     };
   }
 
   switch (agent.status) {
     case 'active':
       return {
-        color: 'bg-green-500/10',
+        color: 'bg-emerald-500/10',
         label: 'active',
-        textColor: 'text-green-400',
-        dotColor: 'bg-green-500',
-        borderColor: 'border-green-500/30'
+        textColor: 'text-emerald-400',
+        dotColor: 'bg-emerald-500',
+        borderColor: 'border-emerald-500/30'
       };
     case 'blocked':
       return {
@@ -78,9 +78,9 @@ function getLevelStyles(level: AgentLevel) {
   switch (level) {
     case 'lead':
       return {
-        bg: 'bg-[#d4a574]/20',
-        text: 'text-[#d4a574]',
-        border: 'border-[#d4a574]/40',
+        bg: 'bg-emerald-500/20',
+        text: 'text-emerald-400',
+        border: 'border-emerald-500/40',
         icon: '👑'
       };
     case 'specialist':
@@ -130,7 +130,7 @@ function getStatusHistory(agentId: string, activities: Activity[]): Activity[] {
       a.agentId === agentId && 
       a.type === 'agent_status_changed'
     )
-    .slice(0, 5); // Last 5 status changes
+    .slice(0, 5);
 }
 
 // Generate 24-hour heartbeat timeline data
@@ -138,7 +138,6 @@ function getHeartbeatTimeline(agent: Agent, activities: Activity[]) {
   const now = Date.now();
   const oneDayAgo = now - 24 * 60 * 60 * 1000;
   
-  // Get all agent activities in last 24h as heartbeat indicators
   const getMs = (ts: any) => typeof ts === 'number' ? ts : (ts?.toMillis ? ts.toMillis() : 0);
   const recentActivities = activities
     .filter(a => 
@@ -147,7 +146,6 @@ function getHeartbeatTimeline(agent: Agent, activities: Activity[]) {
     )
     .sort((a, b) => getMs(a.createdAt) - getMs(b.createdAt));
   
-  // Divide 24h into 24 hourly segments
   const segments: Array<{ active: boolean; count: number }> = [];
   for (let i = 0; i < 24; i++) {
     const segmentStart = oneDayAgo + (i * 60 * 60 * 1000);
@@ -185,13 +183,12 @@ function AgentDetailCard({ agent, tasks, activities }: AgentDetailCardProps) {
     return tasks.find(t => t.id === agent.currentTaskId);
   }, [agent.currentTaskId, tasks]);
 
-  // Format session key for display (truncate if too long)
   const displaySessionKey = agent.sessionKey.length > 30 
     ? `${agent.sessionKey.slice(0, 15)}...${agent.sessionKey.slice(-10)}`
     : agent.sessionKey;
 
   return (
-    <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl p-6 hover:border-[#d4a574]/40 transition-all card-hover group">
+    <div className="glass-card p-6 hover:border-emerald-500/30 transition-all card-hover group">
       {/* Header: Emoji, Name, Status */}
       <div className="flex items-start gap-3 sm:gap-4 mb-5">
         <div className="text-4xl sm:text-5xl leading-none group-hover:scale-110 transition-transform duration-300">
@@ -201,7 +198,7 @@ function AgentDetailCard({ agent, tasks, activities }: AgentDetailCardProps) {
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2 sm:gap-3 mb-2">
             <div className="flex-1 min-w-0">
-              <h3 className="text-lg sm:text-xl font-semibold text-[#ededed] mb-1 truncate">
+              <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-1 truncate">
                 {agent.name}
               </h3>
             </div>
@@ -217,11 +214,11 @@ function AgentDetailCard({ agent, tasks, activities }: AgentDetailCardProps) {
           
           {/* Role Badge */}
           <div className="flex items-center gap-2 mb-3">
-            <span className="text-sm text-[#888]">{agent.role}</span>
+            <span className="text-sm text-foreground-secondary">{agent.role}</span>
           </div>
           
           {/* Level Badge */}
-          <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md ${levelStyles.bg} border ${levelStyles.border}`}>
+          <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg ${levelStyles.bg} border ${levelStyles.border}`}>
             <span className="text-sm">{levelStyles.icon}</span>
             <span className={`text-xs font-medium uppercase tracking-wide ${levelStyles.text}`}>
               {agent.level}
@@ -232,67 +229,67 @@ function AgentDetailCard({ agent, tasks, activities }: AgentDetailCardProps) {
 
       {/* Current Task */}
       {currentTask ? (
-        <div className="mb-5 p-4 bg-[#0f0f0f] rounded-lg border border-[#2a2a2a]">
+        <div className="mb-5 p-4 bg-white/5 rounded-xl border border-white/10">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-[#d4a574] animate-pulse" />
-            <div className="text-xs text-[#d4a574] uppercase tracking-wide font-medium">
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <div className="text-xs text-emerald-400 uppercase tracking-wide font-medium">
               Current Task
             </div>
           </div>
-          <p className="text-sm text-[#ededed] font-medium mb-1 line-clamp-1">{currentTask.title}</p>
-          <p className="text-xs text-[#666] line-clamp-2">{currentTask.description}</p>
+          <p className="text-sm text-foreground font-medium mb-1 line-clamp-1">{currentTask.title}</p>
+          <p className="text-xs text-foreground-muted line-clamp-2">{currentTask.description}</p>
         </div>
       ) : (
-        <div className="mb-5 p-4 bg-[#0f0f0f] rounded-lg border border-[#2a2a2a]">
+        <div className="mb-5 p-4 bg-white/5 rounded-xl border border-white/10">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-[#444]" />
-            <div className="text-xs text-[#555] uppercase tracking-wide font-medium">
+            <div className="w-1.5 h-1.5 rounded-full bg-foreground-muted" />
+            <div className="text-xs text-foreground-muted uppercase tracking-wide font-medium">
               No Active Task
             </div>
           </div>
-          <p className="text-sm text-[#555] italic">Waiting for assignment...</p>
+          <p className="text-sm text-foreground-muted italic">Waiting for assignment...</p>
         </div>
       )}
 
       {/* Session Key */}
-      <div className="mb-5 p-3 bg-[#0f0f0f] rounded-lg border border-[#2a2a2a]">
-        <div className="text-[10px] text-[#555] uppercase tracking-wide mb-1.5">Session Key</div>
-        <code className="text-xs text-[#888] font-mono break-all">{displaySessionKey}</code>
+      <div className="mb-5 p-3 bg-white/5 rounded-xl border border-white/10">
+        <div className="text-[10px] text-foreground-muted uppercase tracking-wide mb-1.5">Session Key</div>
+        <code className="text-xs text-foreground-secondary font-mono break-all">{displaySessionKey}</code>
       </div>
 
       {/* Workload Stats */}
-      <div className="mb-5 pb-5 border-b border-[#2a2a2a]">
-        <div className="text-xs text-[#666] uppercase tracking-wide mb-3">Workload</div>
+      <div className="mb-5 pb-5 border-b border-white/10">
+        <div className="text-xs text-foreground-muted uppercase tracking-wide mb-3">Workload</div>
         <div className="grid grid-cols-3 gap-4">
-          <div className="text-center p-2 bg-[#0f0f0f] rounded-lg">
-            <div className="text-xl font-bold text-[#ededed] mb-0.5">{workload.total}</div>
-            <div className="text-[10px] text-[#666] uppercase tracking-wide">Total</div>
+          <div className="text-center p-2 bg-white/5 rounded-xl">
+            <div className="text-xl font-bold text-foreground mb-0.5">{workload.total}</div>
+            <div className="text-[10px] text-foreground-muted uppercase tracking-wide">Total</div>
           </div>
-          <div className="text-center p-2 bg-[#0f0f0f] rounded-lg">
-            <div className="text-xl font-bold text-[#d4a574] mb-0.5">{workload.inProgress}</div>
-            <div className="text-[10px] text-[#666] uppercase tracking-wide">Active</div>
+          <div className="text-center p-2 bg-white/5 rounded-xl">
+            <div className="text-xl font-bold text-emerald-400 mb-0.5">{workload.inProgress}</div>
+            <div className="text-[10px] text-foreground-muted uppercase tracking-wide">Active</div>
           </div>
-          <div className="text-center p-2 bg-[#0f0f0f] rounded-lg">
-            <div className="text-xl font-bold text-[#666] mb-0.5">{workload.assigned}</div>
-            <div className="text-[10px] text-[#666] uppercase tracking-wide">Queued</div>
+          <div className="text-center p-2 bg-white/5 rounded-xl">
+            <div className="text-xl font-bold text-foreground-muted mb-0.5">{workload.assigned}</div>
+            <div className="text-[10px] text-foreground-muted uppercase tracking-wide">Queued</div>
           </div>
         </div>
       </div>
 
-      {/* Last Heartbeat with Status Indicator */}
-      <div className="mb-5 pb-5 border-b border-[#2a2a2a]">
+      {/* Last Heartbeat */}
+      <div className="mb-5 pb-5 border-b border-white/10">
         <div className="flex items-center justify-between mb-3">
-          <div className="text-xs text-[#666] uppercase tracking-wide">Last Heartbeat</div>
-          <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full ${isOffline(agent.lastHeartbeat) ? 'bg-red-500/10' : 'bg-green-500/10'}`}>
-            <div className={`w-1.5 h-1.5 rounded-full ${isOffline(agent.lastHeartbeat) ? 'bg-red-500' : 'bg-green-500'} ${!isOffline(agent.lastHeartbeat) ? 'animate-pulse' : ''}`} />
-            <span className={`text-[10px] font-medium uppercase ${isOffline(agent.lastHeartbeat) ? 'text-red-400' : 'text-green-400'}`}>
+          <div className="text-xs text-foreground-muted uppercase tracking-wide">Last Heartbeat</div>
+          <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full ${isOffline(agent.lastHeartbeat) ? 'bg-red-500/10' : 'bg-emerald-500/10'}`}>
+            <div className={`w-1.5 h-1.5 rounded-full ${isOffline(agent.lastHeartbeat) ? 'bg-red-500' : 'bg-emerald-500'} ${!isOffline(agent.lastHeartbeat) ? 'animate-pulse' : ''}`} />
+            <span className={`text-[10px] font-medium uppercase ${isOffline(agent.lastHeartbeat) ? 'text-red-400' : 'text-emerald-400'}`}>
               {isOffline(agent.lastHeartbeat) ? 'Stale' : 'Live'}
             </span>
           </div>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-sm text-[#888] font-mono">{formatRelativeTime(agent.lastHeartbeat)}</span>
-          <span className="text-[10px] text-[#555]">
+          <span className="text-sm text-foreground-secondary font-mono">{formatRelativeTime(agent.lastHeartbeat)}</span>
+          <span className="text-[10px] text-foreground-muted">
             {new Date(typeof agent.lastHeartbeat === 'number' ? agent.lastHeartbeat : (agent.lastHeartbeat?.toMillis ? agent.lastHeartbeat.toMillis() : 0)).toLocaleTimeString()}
           </span>
         </div>
@@ -300,15 +297,15 @@ function AgentDetailCard({ agent, tasks, activities }: AgentDetailCardProps) {
 
       {/* Status History */}
       {statusHistory.length > 0 && (
-        <div className="mb-5 pb-5 border-b border-[#2a2a2a]">
-          <div className="text-xs text-[#666] uppercase tracking-wide mb-3">Recent Activity</div>
+        <div className="mb-5 pb-5 border-b border-white/10">
+          <div className="text-xs text-foreground-muted uppercase tracking-wide mb-3">Recent Activity</div>
           <div className="space-y-2">
             {statusHistory.map((activity) => (
               <div key={activity.id} className="flex items-center justify-between text-xs">
-                <span className="text-[#aaa] line-clamp-1 flex-1 min-w-0 mr-3">
+                <span className="text-foreground-secondary line-clamp-1 flex-1 min-w-0 mr-3">
                   {activity.message}
                 </span>
-                <span className="text-[#666] font-mono whitespace-nowrap text-[10px]">
+                <span className="text-foreground-muted font-mono whitespace-nowrap text-[10px]">
                   {formatRelativeTime(activity.createdAt)}
                 </span>
               </div>
@@ -319,13 +316,13 @@ function AgentDetailCard({ agent, tasks, activities }: AgentDetailCardProps) {
 
       {/* Heartbeat Timeline (Last 24h) */}
       <div>
-        <div className="text-xs text-[#666] uppercase tracking-wide mb-3">
+        <div className="text-xs text-foreground-muted uppercase tracking-wide mb-3">
           Activity Timeline (24h)
         </div>
         <div className="flex items-end gap-0.5 h-10">
           {heartbeatTimeline.map((segment, index) => {
             const height = segment.active ? Math.min(100, 20 + segment.count * 15) : 8;
-            const bgColor = segment.active ? 'bg-[#d4a574]' : 'bg-[#2a2a2a]';
+            const bgColor = segment.active ? 'bg-emerald-500' : 'bg-white/10';
             
             return (
               <div
@@ -337,7 +334,7 @@ function AgentDetailCard({ agent, tasks, activities }: AgentDetailCardProps) {
             );
           })}
         </div>
-        <div className="flex justify-between text-[10px] text-[#555] mt-2">
+        <div className="flex justify-between text-[10px] text-foreground-muted mt-2">
           <span>24h ago</span>
           <span>12h ago</span>
           <span>now</span>
@@ -360,27 +357,24 @@ export default function AgentsPage() {
       const aOffline = isOffline(a.lastHeartbeat);
       const bOffline = isOffline(b.lastHeartbeat);
       
-      // Online agents first
       if (aOffline && !bOffline) return 1;
       if (!aOffline && bOffline) return -1;
       
-      // Then sort by status (active > idle > blocked)
       const statusOrder = { active: 0, idle: 1, blocked: 2 };
       const statusDiff = statusOrder[a.status] - statusOrder[b.status];
       if (statusDiff !== 0) return statusDiff;
       
-      // Finally by name
       return a.name.localeCompare(b.name);
     });
   }, [agents]);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] p-8">
+      <div className="min-h-screen p-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-center h-64">
-            <div className="text-[#666]">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#d4a574] mx-auto mb-4"></div>
+            <div className="text-foreground-muted">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
               <p>Loading agents...</p>
             </div>
           </div>
@@ -391,12 +385,12 @@ export default function AgentsPage() {
 
   if (agentsError) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] p-8">
+      <div className="min-h-screen p-8">
         <div className="max-w-7xl mx-auto">
-          <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-6 text-center">
+          <div className="glass-card p-6 text-center border-red-500/30">
             <div className="text-4xl mb-3">⚠️</div>
             <h2 className="text-xl font-semibold text-red-400 mb-2">Error Loading Agents</h2>
-            <p className="text-sm text-[#888]">{agentsError.message}</p>
+            <p className="text-sm text-foreground-muted">{agentsError.message}</p>
           </div>
         </div>
       </div>
@@ -405,15 +399,15 @@ export default function AgentsPage() {
 
   if (agents.length === 0) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] p-8">
+      <div className="min-h-screen p-8">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl font-bold text-[#ededed] mb-8">🤖 Agents</h1>
+          <h1 className="text-4xl font-bold text-foreground mb-8">🤖 Agents</h1>
           
-          <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-12 text-center">
+          <div className="glass-card p-12 text-center">
             <div className="text-6xl mb-4">👻</div>
-            <h2 className="text-2xl font-semibold text-[#ededed] mb-2">No Agents Yet</h2>
-            <p className="text-[#888]">
-              Agents will appear here once they're registered in the system.
+            <h2 className="text-2xl font-semibold text-foreground mb-2">No Agents Yet</h2>
+            <p className="text-foreground-secondary">
+              Agents will appear here once they&apos;re registered in the system.
             </p>
           </div>
         </div>
@@ -425,28 +419,28 @@ export default function AgentsPage() {
   const onlineCount = sortedAgents.filter(a => !isOffline(a.lastHeartbeat)).length;
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl sm:text-4xl font-bold text-[#ededed] mb-3">🤖 Agents</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-3">🤖 Agents</h1>
           <div className="flex flex-wrap items-center gap-4 text-sm">
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-              <span className="text-[#888]">
-                <span className="text-[#ededed] font-medium">{activeCount}</span> active
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+              <span className="text-foreground-secondary">
+                <span className="text-foreground font-medium">{activeCount}</span> active
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-[#d4a574]"></div>
-              <span className="text-[#888]">
-                <span className="text-[#ededed] font-medium">{onlineCount}</span> online
+              <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
+              <span className="text-foreground-secondary">
+                <span className="text-foreground font-medium">{onlineCount}</span> online
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-[#555]"></div>
-              <span className="text-[#888]">
-                <span className="text-[#ededed] font-medium">{sortedAgents.length - onlineCount}</span> offline
+              <div className="w-2 h-2 rounded-full bg-gray-500"></div>
+              <span className="text-foreground-secondary">
+                <span className="text-foreground font-medium">{sortedAgents.length - onlineCount}</span> offline
               </span>
             </div>
           </div>

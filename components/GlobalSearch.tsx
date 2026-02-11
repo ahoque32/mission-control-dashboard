@@ -27,7 +27,7 @@ function highlightMatch(text: string, query: string): React.ReactNode {
   const parts = text.split(new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi'));
   return parts.map((part, i) =>
     part.toLowerCase() === query.toLowerCase() ? (
-      <mark key={i} className="bg-[#d4a574]/30 text-[#ededed] rounded px-0.5">
+      <mark key={i} className="bg-emerald-500/30 text-foreground rounded px-0.5">
         {part}
       </mark>
     ) : (
@@ -218,7 +218,7 @@ export default function GlobalSearch({ autoFocus = false, onSearch }: GlobalSear
       {/* Search Input */}
       <div className="relative mb-6">
         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-          <span className="text-[#888] text-lg">🔍</span>
+          <span className="text-foreground-muted text-lg">🔍</span>
         </div>
         <input
           ref={inputRef}
@@ -226,14 +226,14 @@ export default function GlobalSearch({ autoFocus = false, onSearch }: GlobalSear
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search tasks, activities, documents..."
-          className="w-full pl-12 pr-10 py-4 bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl text-[#ededed] placeholder-[#666] text-lg focus:outline-none focus:border-[#d4a574]/50 focus:ring-1 focus:ring-[#d4a574]/20"
+          className="w-full pl-12 pr-10 py-4 glass-card text-foreground placeholder-foreground-muted text-lg focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/20"
           aria-label="Search"
           autoComplete="off"
         />
         {query && (
           <button
             onClick={clearSearch}
-            className="absolute inset-y-0 right-0 pr-3 flex items-center text-[#888] hover:text-[#ededed] min-w-[44px] justify-center"
+            className="absolute inset-y-0 right-0 pr-3 flex items-center text-foreground-muted hover:text-foreground min-w-[44px] justify-center"
             aria-label="Clear search"
           >
             ✕
@@ -243,9 +243,9 @@ export default function GlobalSearch({ autoFocus = false, onSearch }: GlobalSear
 
       {/* Keyboard shortcut hint — hidden on mobile since ⌘K requires a keyboard */}
       {!query && (
-        <div className="text-xs text-[#666] mb-6 text-center">
+        <div className="text-xs text-foreground-muted mb-6 text-center">
           <span className="hidden sm:inline">
-            Press <kbd className="px-1.5 py-0.5 bg-[#2a2a2a] border border-[#3a3a3a] rounded text-[#888] font-mono">⌘K</kbd> from anywhere to search
+            Press <kbd className="px-1.5 py-0.5 bg-white/5 border border-white/10 rounded text-foreground-secondary font-mono">⌘K</kbd> from anywhere to search
           </span>
           <span className="sm:hidden">
             Use the menu to navigate to Search, or tap the search field above
@@ -256,13 +256,13 @@ export default function GlobalSearch({ autoFocus = false, onSearch }: GlobalSear
       {/* Recent Searches */}
       {!query && recentSearches.length > 0 && (
         <div className="mb-8">
-          <h3 className="text-xs font-semibold text-[#888] uppercase tracking-wider mb-3">Recent Searches</h3>
+          <h3 className="text-xs font-semibold text-foreground-muted uppercase tracking-wider mb-3">Recent Searches</h3>
           <div className="flex flex-wrap gap-2">
             {recentSearches.map((search, i) => (
               <button
                 key={i}
                 onClick={() => handleRecentClick(search)}
-                className="px-3 py-1.5 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg text-sm text-[#aaa] hover:border-[#d4a574]/50 hover:text-[#ededed] transition-all"
+                className="px-3 py-1.5 glass-card text-sm text-foreground-secondary hover:border-emerald-500/30 hover:text-foreground transition-all"
               >
                 {search}
               </button>
@@ -274,13 +274,13 @@ export default function GlobalSearch({ autoFocus = false, onSearch }: GlobalSear
       {/* Loading */}
       {isLoading && debouncedQuery && (
         <div className="flex items-center justify-center py-12">
-          <div className="w-6 h-6 border-2 border-[#d4a574] border-t-transparent rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
         </div>
       )}
 
       {/* Results Count */}
       {debouncedQuery && !isLoading && (
-        <div className="text-sm text-[#888] mb-4">
+        <div className="text-sm text-foreground-muted mb-4">
           {totalResults === 0
             ? `No results for "${debouncedQuery}"`
             : `${totalResults} result${totalResults !== 1 ? 's' : ''} for "${debouncedQuery}"`}
@@ -291,8 +291,8 @@ export default function GlobalSearch({ autoFocus = false, onSearch }: GlobalSear
       {debouncedQuery && !isLoading && totalResults === 0 && (
         <div className="text-center py-12">
           <div className="text-4xl mb-4">🔍</div>
-          <h3 className="text-lg font-medium text-[#ededed] mb-2">No results found</h3>
-          <p className="text-[#888]">Try different keywords or check your spelling</p>
+          <h3 className="text-lg font-medium text-foreground mb-2">No results found</h3>
+          <p className="text-foreground-secondary">Try different keywords or check your spelling</p>
         </div>
       )}
 
@@ -308,10 +308,10 @@ export default function GlobalSearch({ autoFocus = false, onSearch }: GlobalSear
 
             return (
               <div key={type}>
-                <h3 className="text-xs font-semibold text-[#888] uppercase tracking-wider mb-3 flex items-center gap-2">
+                <h3 className="text-xs font-semibold text-foreground-muted uppercase tracking-wider mb-3 flex items-center gap-2">
                   <span>{icon}</span>
                   {label}
-                  <span className="text-[#666]">({items.length})</span>
+                  <span className="text-foreground-muted">({items.length})</span>
                 </h3>
 
                 <div className="space-y-2">
@@ -319,20 +319,20 @@ export default function GlobalSearch({ autoFocus = false, onSearch }: GlobalSear
                     <Link
                       key={result.id}
                       href={result.url}
-                      className="block p-4 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg hover:border-[#d4a574]/30 transition-all"
+                      className="block p-4 glass-card hover:border-emerald-500/30 transition-all"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-[#ededed] mb-1 truncate">
+                          <p className="text-sm font-medium text-foreground mb-1 truncate">
                             {highlightMatch(result.title, debouncedQuery)}
                           </p>
                           {result.snippet && (
-                            <p className="text-xs text-[#888] line-clamp-2">
+                            <p className="text-xs text-foreground-secondary line-clamp-2">
                               {highlightMatch(result.snippet, debouncedQuery)}
                             </p>
                           )}
                         </div>
-                        <span className="text-xs text-[#666] whitespace-nowrap flex-shrink-0">
+                        <span className="text-xs text-foreground-muted whitespace-nowrap flex-shrink-0">
                           {formatTimestamp(result.timestamp)}
                         </span>
                       </div>

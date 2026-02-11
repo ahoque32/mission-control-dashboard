@@ -57,9 +57,9 @@ function getStatusDisplay(agent: Agent) {
   switch (agent.status) {
     case 'active':
       return {
-        color: 'bg-green-500',
+        color: 'bg-emerald-500',
         label: 'active',
-        textColor: 'text-green-400'
+        textColor: 'text-emerald-400'
       };
     case 'blocked':
       return {
@@ -70,9 +70,9 @@ function getStatusDisplay(agent: Agent) {
     case 'idle':
     default:
       return {
-        color: 'bg-yellow-500',
+        color: 'bg-amber-500',
         label: 'idle',
-        textColor: 'text-yellow-400'
+        textColor: 'text-amber-400'
       };
   }
 }
@@ -92,7 +92,7 @@ export default function AgentCard({ agent, currentTask }: AgentCardProps) {
   const activeTaskName = recentActivity?.metadata?.taskName as string | undefined;
 
   return (
-    <div className="glass-card p-5 hover:border-accent/30 transition-all card-hover">
+    <div className="glass-card p-5 hover:border-emerald-500/30 transition-all card-hover">
       {/* Header: Emoji + Status */}
       <div className="flex items-start justify-between mb-4">
         <div className="text-5xl leading-none">{agent.emoji}</div>
@@ -101,7 +101,7 @@ export default function AgentCard({ agent, currentTask }: AgentCardProps) {
             <div className={`w-2.5 h-2.5 rounded-full ${statusDisplay.color}`} />
             {isActive && (
               <div 
-                className="absolute inset-0 w-2.5 h-2.5 rounded-full bg-green-400 animate-ping opacity-75"
+                className="absolute inset-0 w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping opacity-75"
                 title={activeTaskName ? `Working on: ${activeTaskName}` : 'Active now'}
               />
             )}
@@ -125,7 +125,7 @@ export default function AgentCard({ agent, currentTask }: AgentCardProps) {
 
       {/* Current Task */}
       {currentTask && (
-        <div className="mb-3 pb-3 border-b border-border">
+        <div className="mb-3 pb-3 border-b border-white/10">
           <p className="text-xs text-foreground-muted uppercase tracking-wide mb-1">
             Current Task
           </p>

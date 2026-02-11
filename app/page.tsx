@@ -69,9 +69,9 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
+      <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="inline-block w-8 h-8 border-4 border-accent border-t-transparent rounded-full animate-spin mb-3" />
+          <div className="inline-block w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mb-3" />
           <p className="text-foreground-secondary">Loading dashboard...</p>
         </div>
       </div>
@@ -79,7 +79,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground p-4 sm:p-6 space-y-6 sm:space-y-8 transition-colors">
+    <div className="min-h-screen text-foreground p-4 sm:p-6 space-y-6 sm:space-y-8 transition-colors">
       {/* Page Header */}
       <div className="mb-6 sm:mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
@@ -120,8 +120,8 @@ export default function Home() {
           {/* Stats Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
             {/* Total Tasks */}
-            <div className="glass-card p-3 sm:p-4 hover:border-accent/30 transition-all card-hover">
-              <div className="text-2xl sm:text-3xl font-bold text-accent mb-1">
+            <div className="glass-card p-3 sm:p-4 hover:border-emerald-500/30 transition-all card-hover">
+              <div className="text-2xl sm:text-3xl font-bold text-emerald-400 mb-1">
                 {taskStats.total}
               </div>
               <div className="text-xs sm:text-sm text-foreground-secondary">Total Tasks</div>
@@ -129,7 +129,7 @@ export default function Home() {
 
             {/* Pending (inbox + assigned) */}
             <div className="glass-card p-3 sm:p-4 hover:border-blue-400/30 transition-all card-hover">
-              <div className="text-2xl sm:text-3xl font-bold text-blue-500 mb-1">
+              <div className="text-2xl sm:text-3xl font-bold text-blue-400 mb-1">
                 {taskStats.pending}
               </div>
               <div className="text-xs sm:text-sm text-foreground-secondary">Pending</div>
@@ -137,7 +137,7 @@ export default function Home() {
 
             {/* In Progress */}
             <div className="glass-card p-3 sm:p-4 hover:border-purple-400/30 transition-all card-hover">
-              <div className="text-2xl sm:text-3xl font-bold text-status-progress mb-1">
+              <div className="text-2xl sm:text-3xl font-bold text-purple-400 mb-1">
                 {taskStats.inProgress}
               </div>
               <div className="text-xs sm:text-sm text-foreground-secondary">In Progress</div>
@@ -145,15 +145,15 @@ export default function Home() {
 
             {/* In Review */}
             <div className="glass-card p-3 sm:p-4 hover:border-yellow-400/30 transition-all card-hover">
-              <div className="text-2xl sm:text-3xl font-bold text-status-warning mb-1">
+              <div className="text-2xl sm:text-3xl font-bold text-yellow-400 mb-1">
                 {taskStats.review}
               </div>
               <div className="text-xs sm:text-sm text-foreground-secondary">In Review</div>
             </div>
 
             {/* Done */}
-            <div className="glass-card p-3 sm:p-4 hover:border-green-400/30 transition-all card-hover">
-              <div className="text-2xl sm:text-3xl font-bold text-status-success mb-1">
+            <div className="glass-card p-3 sm:p-4 hover:border-emerald-400/30 transition-all card-hover">
+              <div className="text-2xl sm:text-3xl font-bold text-emerald-400 mb-1">
                 {taskStats.done}
               </div>
               <div className="text-xs sm:text-sm text-foreground-secondary">Completed</div>
@@ -161,15 +161,15 @@ export default function Home() {
 
             {/* Blocked */}
             <div className="glass-card p-3 sm:p-4 hover:border-red-400/30 transition-all card-hover">
-              <div className="text-2xl sm:text-3xl font-bold text-status-error mb-1">
+              <div className="text-2xl sm:text-3xl font-bold text-red-400 mb-1">
                 {taskStats.blocked}
               </div>
               <div className="text-xs sm:text-sm text-foreground-secondary">Blocked</div>
             </div>
 
             {/* Completed Today */}
-            <div className="glass-card p-3 sm:p-4 hover:border-green-400/30 transition-all card-hover">
-              <div className="text-2xl sm:text-3xl font-bold text-status-success mb-1">
+            <div className="glass-card p-3 sm:p-4 hover:border-emerald-400/30 transition-all card-hover">
+              <div className="text-2xl sm:text-3xl font-bold text-emerald-400 mb-1">
                 {taskStats.completedToday}
               </div>
               <div className="text-xs sm:text-sm text-foreground-secondary">Done Today</div>
@@ -177,7 +177,7 @@ export default function Home() {
 
             {/* High Priority */}
             <div className="glass-card p-3 sm:p-4 hover:border-red-400/30 transition-all card-hover">
-              <div className="text-2xl sm:text-3xl font-bold text-status-error mb-1">
+              <div className="text-2xl sm:text-3xl font-bold text-red-400 mb-1">
                 {taskStats.highPriority}
               </div>
               <div className="text-xs sm:text-sm text-foreground-secondary">High Priority</div>

@@ -31,16 +31,16 @@ export default class FinanceChatErrorBoundary extends Component<Props, State> {
         <div className="bg-white/5 border border-white/10 rounded-xl backdrop-blur p-6">
           <div className="text-center">
             <span className="text-2xl mb-2 block">⚠️</span>
-            <h3 className="text-sm font-medium text-[#ededed] mb-1">
+            <h3 className="text-sm font-medium text-foreground mb-1">
               Finance Chat Unavailable
             </h3>
-            <p className="text-xs text-[#888] mb-3">
+            <p className="text-xs text-foreground-secondary mb-3">
               {this.state.error || 'Something went wrong loading the chat.'}
             </p>
             <button
               onClick={() => this.setState({ hasError: false, error: null })}
               className="text-xs px-3 py-1.5 rounded-lg bg-white/5 border border-white/10
-                         text-[#ededed] hover:bg-white/10 transition-colors"
+                         text-foreground hover:bg-white/10 transition-colors"
             >
               Try Again
             </button>

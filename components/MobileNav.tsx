@@ -4,11 +4,11 @@
  * MobileNav Component
  * Mobile-responsive navigation with hamburger menu
  * Features:
+ * - Glassmorphism styling
  * - Collapsible sidebar
  * - Touch-friendly navigation
  * - Agent status indicator
  * - Theme toggle
- * - Overlay backdrop
  */
 
 import { useState } from 'react';
@@ -57,7 +57,7 @@ export default function MobileNav() {
             
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="text-foreground p-3 hover:bg-background-secondary rounded-lg transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+              className="text-foreground p-3 hover:bg-white/10 rounded-xl transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
               aria-label={isOpen ? "Close navigation menu" : "Open navigation menu"}
               aria-expanded={isOpen}
               aria-controls="mobile-nav-menu"
@@ -80,7 +80,7 @@ export default function MobileNav() {
       {isOpen && (
         <>
           <div 
-            className="lg:hidden fixed inset-0 bg-black/50 z-40 modal-backdrop"
+            className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40 modal-backdrop"
             onClick={() => setIsOpen(false)}
             aria-hidden="true"
           />
@@ -102,10 +102,10 @@ export default function MobileNav() {
                     href={item.href}
                     onClick={() => setIsOpen(false)}
                     className={`
-                      flex items-center gap-3 px-4 py-3 rounded-lg transition-all
+                      flex items-center gap-3 px-4 py-3 rounded-xl transition-all
                       ${isActive 
-                        ? 'bg-accent/10 text-accent font-medium shadow-sm' 
-                        : 'text-foreground-secondary hover:bg-background-secondary hover:text-foreground'
+                        ? 'bg-emerald-500/15 text-emerald-400 font-medium border border-emerald-500/20' 
+                        : 'text-foreground-secondary hover:bg-white/5 hover:text-foreground border border-transparent'
                       }
                     `}
                     aria-current={isActive ? 'page' : undefined}
@@ -117,8 +117,8 @@ export default function MobileNav() {
                       <span className={`
                         ml-auto text-xs px-2 py-0.5 rounded-full
                         ${isActive 
-                          ? 'bg-accent/20 text-accent' 
-                          : 'bg-background-secondary text-foreground-secondary'
+                          ? 'bg-emerald-500/20 text-emerald-400' 
+                          : 'bg-white/5 text-foreground-secondary'
                         }
                       `}>
                         {totalCount}
@@ -142,7 +142,7 @@ export default function MobileNav() {
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1.5">
                       <div 
-                        className={`w-2 h-2 rounded-full ${activeCount > 0 ? 'bg-status-active' : 'bg-border-secondary'}`}
+                        className={`w-2 h-2 rounded-full ${activeCount > 0 ? 'bg-emerald-500 animate-pulse' : 'bg-border-secondary'}`}
                         aria-label={`${activeCount} active agents`}
                       />
                       <span className="text-sm text-foreground">{activeCount}</span>

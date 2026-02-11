@@ -21,8 +21,8 @@ const geistMono = Geist_Mono({
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+    { media: "(prefers-color-scheme: light)", color: "#f0f4f1" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a1a0f" },
   ],
 };
 
@@ -96,7 +96,7 @@ export default function RootLayout({
                     <MobileNav />
 
                     {/* Page Content */}
-                    <main className="flex-1 overflow-auto bg-background">
+                    <main className="flex-1 overflow-auto">
                       {children}
                     </main>
                   </div>

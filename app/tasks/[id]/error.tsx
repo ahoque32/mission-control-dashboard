@@ -15,9 +15,9 @@ export default function TaskDetailError({
   }, [error]);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white p-6">
+    <div className="min-h-screen bg-background text-white p-6">
       <div className="max-w-4xl mx-auto">
-        <Link href="/tasks" className="text-[#d4a574] hover:underline mb-6 inline-block">
+        <Link href="/tasks" className="text-emerald-400 hover:underline mb-6 inline-block">
           ← Back to Tasks
         </Link>
 
@@ -26,20 +26,20 @@ export default function TaskDetailError({
           <h2 className="text-xl font-semibold text-red-400 mb-2">
             Failed to Load Task
           </h2>
-          <p className="text-[#888] mb-6">
+          <p className="text-foreground-secondary mb-6">
             There was a problem loading this task. The task may have been deleted
             or there could be a connection issue.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <button
               onClick={reset}
-              className="px-6 py-3 bg-[#d4a574] text-[#0a0a0a] font-semibold rounded-lg hover:bg-[#c9996a] transition-colors"
+              className="px-6 py-3 bg-emerald-500 text-white font-semibold rounded-lg hover:bg-emerald-400 transition-colors"
             >
               Try Again
             </button>
             <Link
               href="/tasks"
-              className="px-6 py-3 bg-[#1a1a1a] text-[#ededed] font-semibold rounded-lg border border-[#2a2a2a] hover:border-[#d4a574]/50 transition-colors"
+              className="px-6 py-3 bg-white/5 text-foreground font-semibold rounded-lg border border-white/10 hover:border-emerald-500/50 transition-colors"
             >
               View All Tasks
             </Link>
