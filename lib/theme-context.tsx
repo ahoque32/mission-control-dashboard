@@ -34,12 +34,8 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 
   useEffect(() => {
     setMounted(true);
-    
-    // Sync state with actual DOM class (in case blocking script ran)
-    const currentTheme = getInitialTheme();
-    if (currentTheme !== theme) {
-      setThemeState(currentTheme);
-    }
+    // Note: No need to sync theme from DOM here - useState already 
+    // initializes from getInitialTheme() which reads the DOM class
   }, []);
 
   useEffect(() => {

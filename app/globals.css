@@ -220,9 +220,11 @@ html {
 /* Focus styles for better accessibility */
 .focus-ring:focus {
   outline: none;
-  ring: 2px;
-  ring-color: var(--accent);
-  ring-opacity: 0.3;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+}
+
+.dark .focus-ring:focus {
+  box-shadow: 0 0 0 2px rgba(212, 165, 116, 0.3);
 }
 
 /* Status badge styles */
