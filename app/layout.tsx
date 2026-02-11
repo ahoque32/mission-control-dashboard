@@ -7,6 +7,7 @@ import SearchShortcut from "../components/SearchShortcut";
 import ConvexClientProvider from "../components/ConvexClientProvider";
 import { AuthProvider } from "../lib/auth-context";
 import AuthGate from "../components/AuthGate";
+import { ThemeProvider } from "../lib/theme-context";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,7 +20,10 @@ const geistMono = Geist_Mono({
 });
 
 export const viewport: Viewport = {
-  themeColor: "#0a0a0a",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+  ],
 };
 
 export const metadata: Metadata = {
@@ -48,34 +52,36 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthProvider>
-          <AuthGate>
-            <ConvexClientProvider>
-              <SearchShortcut />
-              <div className="flex h-screen overflow-hidden">
-                {/* Desktop Sidebar - Hidden on mobile */}
-                <div className="hidden lg:block">
-                  <Sidebar />
-                </div>
+        <ThemeProvider>
+          <AuthProvider>
+            <AuthGate>
+              <ConvexClientProvider>
+                <SearchShortcut />
+                <div className="flex h-screen overflow-hidden">
+                  {/* Desktop Sidebar - Hidden on mobile */}
+                  <div className="hidden lg:block">
+                    <Sidebar />
+                  </div>
 
-                {/* Main Content Area */}
-                <div className="flex-1 flex flex-col overflow-hidden">
-                  {/* Mobile Navigation - Hidden on desktop */}
-                  <MobileNav />
+                  {/* Main Content Area */}
+                  <div className="flex-1 flex flex-col overflow-hidden">
+                    {/* Mobile Navigation - Hidden on desktop */}
+                    <MobileNav />
 
-                  {/* Page Content */}
-                  <main className="flex-1 overflow-auto bg-[#0a0a0a]">
-                    {children}
-                  </main>
+                    {/* Page Content */}
+                    <main className="flex-1 overflow-auto bg-background">
+                      {children}
+                    </main>
+                  </div>
                 </div>
-              </div>
-            </ConvexClientProvider>
-          </AuthGate>
-        </AuthProvider>
+              </ConvexClientProvider>
+            </AuthGate>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

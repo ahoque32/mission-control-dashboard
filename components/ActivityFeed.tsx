@@ -230,8 +230,8 @@ export default function ActivityFeed({ fullPage = false, maxItems }: ActivityFee
     return (
       <div className="flex items-center justify-center h-64" role="status" aria-label="Loading activity">
         <div className="text-center">
-          <div className="w-8 h-8 border-2 border-[#d4a574] border-t-transparent rounded-full animate-spin mx-auto mb-3" aria-hidden="true" />
-          <p className="text-sm text-[#888]">Loading activity...</p>
+          <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin mx-auto mb-3" aria-hidden="true" />
+          <p className="text-sm text-foreground-secondary">Loading activity...</p>
         </div>
       </div>
     );
@@ -243,8 +243,8 @@ export default function ActivityFeed({ fullPage = false, maxItems }: ActivityFee
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <div className="text-4xl mb-3">⚠️</div>
-          <p className="text-sm text-red-400 mb-1">Failed to load activity</p>
-          <p className="text-xs text-[#666]">{error.message}</p>
+          <p className="text-sm text-status-error mb-1">Failed to load activity</p>
+          <p className="text-xs text-foreground-muted">{error.message}</p>
         </div>
       </div>
     );
@@ -259,7 +259,7 @@ export default function ActivityFeed({ fullPage = false, maxItems }: ActivityFee
           <select
             value={agentFilter}
             onChange={(e) => setAgentFilter(e.target.value)}
-            className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-2 text-sm text-[#ededed] focus:outline-none focus:border-[#d4a574]/50"
+            className="bg-card border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:border-accent/50 transition-colors"
           >
             <option value="">All Agents</option>
             {agentNames.map(name => (
@@ -271,7 +271,7 @@ export default function ActivityFeed({ fullPage = false, maxItems }: ActivityFee
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-3 py-2 text-sm text-[#ededed] focus:outline-none focus:border-[#d4a574]/50"
+            className="bg-card border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:border-accent/50 transition-colors"
           >
             <option value="">All Types</option>
             {FILTER_TYPES.map(t => (
@@ -283,7 +283,7 @@ export default function ActivityFeed({ fullPage = false, maxItems }: ActivityFee
           {(agentFilter || typeFilter) && (
             <button
               onClick={() => { setAgentFilter(''); setTypeFilter(''); }}
-              className="text-xs text-[#d4a574] hover:text-[#c9996a] px-3 py-2 self-center"
+              className="text-xs text-accent hover:text-accent-hover px-3 py-2 self-center transition-colors"
             >
               Clear filters ✕
             </button>
@@ -296,10 +296,10 @@ export default function ActivityFeed({ fullPage = false, maxItems }: ActivityFee
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="text-4xl mb-3">📭</div>
-            <p className="text-sm text-[#888] mb-1">
+            <p className="text-sm text-foreground-secondary mb-1">
               {agentFilter || typeFilter ? 'No activities match your filters' : 'No activity yet'}
             </p>
-            <p className="text-xs text-[#666]">
+            <p className="text-xs text-foreground-muted">
               {agentFilter || typeFilter ? 'Try adjusting your filters' : 'Activity will appear here as agents work'}
             </p>
           </div>
@@ -311,13 +311,13 @@ export default function ActivityFeed({ fullPage = false, maxItems }: ActivityFee
         {groupedActivities.map((group) => (
           <div key={group.label}>
             {/* Date header */}
-            <div className="sticky top-0 z-10 bg-[#0a0a0a]/95 backdrop-blur-sm py-2 mb-3">
+            <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm py-2 mb-3">
               <div className="flex items-center gap-3">
-                <h3 className="text-xs font-semibold text-[#888] uppercase tracking-wider">
+                <h3 className="text-xs font-semibold text-foreground-secondary uppercase tracking-wider">
                   {group.label}
                 </h3>
-                <div className="flex-1 h-px bg-[#2a2a2a]" />
-                <span className="text-xs text-[#666]">{group.activities.length} items</span>
+                <div className="flex-1 h-px bg-border" />
+                <span className="text-xs text-foreground-muted">{group.activities.length} items</span>
               </div>
             </div>
 
@@ -338,10 +338,10 @@ export default function ActivityFeed({ fullPage = false, maxItems }: ActivityFee
                     key={activity.id}
                     role="article"
                     aria-label={`Activity by ${agentName}: ${activity.message}`}
-                    className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-3 sm:p-4 hover:border-[#d4a574]/30 transition-all flex items-start gap-2.5 sm:gap-3"
+                    className="bg-card border border-border rounded-xl p-3 sm:p-4 hover:border-accent/30 transition-all flex items-start gap-2.5 sm:gap-3 shadow-sm hover:shadow-md card-hover"
                   >
                     {/* Agent Avatar */}
-                    <div className="w-10 h-10 rounded-full bg-[#0a0a0a] border border-[#2a2a2a] flex items-center justify-center flex-shrink-0 text-xl">
+                    <div className="w-10 h-10 rounded-full bg-background-secondary border border-border flex items-center justify-center flex-shrink-0 text-xl">
                       {agentEmoji}
                     </div>
 
@@ -349,20 +349,20 @@ export default function ActivityFeed({ fullPage = false, maxItems }: ActivityFee
                     <div className="flex-1 min-w-0">
                       {/* Header row */}
                       <div className="flex items-baseline justify-between gap-2 mb-1">
-                        <span className="text-sm font-medium text-[#ededed]">
+                        <span className="text-sm font-medium text-foreground">
                           {agentName}
                         </span>
-                        <span className="text-xs text-[#666] font-mono whitespace-nowrap">
+                        <span className="text-xs text-foreground-muted font-mono whitespace-nowrap">
                           {formatFullDate(activity.createdAt)}
                         </span>
                       </div>
 
                       {/* Message */}
-                      <p className="text-sm text-[#aaa] leading-relaxed">{activity.message}</p>
+                      <p className="text-sm text-foreground-secondary leading-relaxed">{activity.message}</p>
 
                       {/* Task name */}
                       {taskName && (
-                        <p className="text-xs text-[#666] mt-1 italic">Task: {taskName}</p>
+                        <p className="text-xs text-foreground-muted mt-1 italic">Task: {taskName}</p>
                       )}
 
                       {/* Error summary */}
@@ -379,7 +379,7 @@ export default function ActivityFeed({ fullPage = false, maxItems }: ActivityFee
                           {style.label}
                         </span>
                         {duration !== undefined && duration > 0 && (
-                          <span className="inline-block text-xs px-2 py-0.5 rounded bg-[#333] text-[#888] border border-[#444]">
+                          <span className="inline-block text-xs px-2 py-0.5 rounded bg-background-tertiary text-foreground-secondary border border-border">
                             ⏱️ {formatDuration(duration)}
                           </span>
                         )}
@@ -399,11 +399,11 @@ export default function ActivityFeed({ fullPage = false, maxItems }: ActivityFee
           <button
             onClick={loadMore}
             disabled={loadingMore}
-            className="px-6 py-3 bg-[#1a1a1a] border border-[#2a2a2a] text-[#ededed] rounded-lg hover:border-[#d4a574]/50 hover:text-[#d4a574] transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+            className="px-6 py-3 bg-card border border-border text-foreground rounded-lg hover:border-accent/50 hover:text-accent transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium shadow-sm hover:shadow-md"
           >
             {loadingMore ? (
               <span className="flex items-center gap-2">
-                <div className="w-4 h-4 border-2 border-[#d4a574] border-t-transparent rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-accent border-t-transparent rounded-full animate-spin" />
                 Loading...
               </span>
             ) : (

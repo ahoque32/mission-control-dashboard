@@ -49,13 +49,13 @@ export default function Sidebar() {
   const totalCount = agents.length;
 
   return (
-    <aside className="w-64 bg-[#0a0a0a] border-r border-[#2a2a2a] flex flex-col h-screen sticky top-0">
+    <aside className="w-64 bg-sidebar border-r border-border flex flex-col h-screen sticky top-0 transition-colors">
       {/* Header */}
-      <div className="p-6 border-b border-[#2a2a2a]">
-        <h1 className="text-2xl font-bold tracking-tight text-[#ededed]">
+      <div className="p-6 border-b border-border">
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">
           Mission Control
         </h1>
-        <p className="text-sm text-[#888] mt-1">Real-time Operations</p>
+        <p className="text-sm text-foreground-secondary mt-1">Real-time Operations</p>
       </div>
 
       {/* Navigation */}
@@ -70,8 +70,8 @@ export default function Sidebar() {
               className={`
                 flex items-center gap-3 px-4 py-3 rounded-lg transition-all
                 ${isActive 
-                  ? 'bg-[#d4a574]/10 text-[#d4a574] font-medium' 
-                  : 'text-[#aaa] hover:bg-[#1a1a1a] hover:text-[#ededed]'
+                  ? 'bg-accent/10 text-accent font-medium shadow-sm' 
+                  : 'text-foreground-secondary hover:bg-background-secondary hover:text-foreground'
                 }
               `}
               aria-current={isActive ? 'page' : undefined}
@@ -83,7 +83,10 @@ export default function Sidebar() {
               {item.href === '/agents' && !loading && (
                 <span className={`
                   ml-auto text-xs px-2 py-0.5 rounded-full
-                  ${isActive ? 'bg-[#d4a574]/20 text-[#d4a574]' : 'bg-[#2a2a2a] text-[#888]'}
+                  ${isActive 
+                    ? 'bg-accent/20 text-accent' 
+                    : 'bg-background-secondary text-foreground-secondary'
+                  }
                 `}>
                   {totalCount}
                 </span>
@@ -94,14 +97,14 @@ export default function Sidebar() {
       </nav>
 
       {/* Agent Status Footer */}
-      <div className="p-4 border-t border-[#2a2a2a]">
-        <div className="bg-[#1a1a1a] rounded-lg p-3">
+      <div className="p-4 border-t border-border">
+        <div className="bg-background-secondary rounded-lg p-3 shadow-sm">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-medium text-[#888] uppercase tracking-wide">
+            <span className="text-xs font-medium text-foreground-secondary uppercase tracking-wide">
               Agent Status
             </span>
             {loading && (
-              <span className="text-xs text-[#666]">Loading...</span>
+              <span className="text-xs text-foreground-muted">Loading...</span>
             )}
           </div>
           
@@ -109,13 +112,13 @@ export default function Sidebar() {
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1.5">
                 <div 
-                  className={`w-2 h-2 rounded-full ${activeCount > 0 ? 'bg-green-500' : 'bg-[#444]'}`}
+                  className={`w-2 h-2 rounded-full ${activeCount > 0 ? 'bg-status-active' : 'bg-border-secondary'}`}
                   aria-label={`${activeCount} active agents`}
                 />
-                <span className="text-sm text-[#ededed]">{activeCount}</span>
+                <span className="text-sm text-foreground">{activeCount}</span>
               </div>
-              <span className="text-xs text-[#666]">/</span>
-              <span className="text-sm text-[#888]">{totalCount} total</span>
+              <span className="text-xs text-foreground-muted">/</span>
+              <span className="text-sm text-foreground-secondary">{totalCount} total</span>
             </div>
           )}
         </div>
