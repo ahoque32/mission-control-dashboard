@@ -25,29 +25,29 @@ export default function KanbanColumn({
     <div
       ref={setNodeRef}
       className={`
-        flex-shrink-0 w-[85vw] sm:w-72 md:w-80 rounded-xl
+        flex-shrink-0 w-[85vw] sm:w-72 md:w-80 rounded-2xl
         transition-all duration-200 snap-start
-        backdrop-blur-md
+        backdrop-blur-xl
         ${isOver 
-          ? 'bg-white/[0.07] border border-[#d4a574]/40 shadow-lg shadow-[#d4a574]/5' 
-          : 'bg-white/[0.03] border border-white/[0.06]'}
+          ? 'bg-white/10 border border-emerald-500/40 shadow-lg shadow-emerald-500/5' 
+          : 'bg-white/[0.04] border border-white/10'}
       `}
     >
       {/* Colored top accent border */}
       <div 
-        className="h-[3px] rounded-t-xl mx-0"
+        className="h-[3px] rounded-t-2xl mx-0"
         style={{ background: `linear-gradient(90deg, ${color}, ${color}88)` }}
       />
 
-      {/* Column Header — glassmorphism */}
+      {/* Column Header */}
       <div className="px-4 py-3 backdrop-blur-sm bg-white/[0.03]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div 
-              className="w-2.5 h-2.5 rounded-full ring-2 ring-offset-1 ring-offset-[#0a0a0a]"
+              className="w-2.5 h-2.5 rounded-full"
               style={{ backgroundColor: color, boxShadow: `0 0 8px ${color}60` }}
             />
-            <h3 className="font-semibold text-sm text-[#ededed] tracking-wide uppercase">
+            <h3 className="font-semibold text-sm text-foreground tracking-wide uppercase">
               {label}
             </h3>
           </div>

@@ -107,13 +107,13 @@ export default function DraggableTaskCard({ task }: DraggableTaskCardProps) {
         <div className="flex items-start justify-between gap-2 mb-1.5">
           <Link 
             href={`/tasks/${task.id}`}
-            className="block text-[13px] font-medium text-[#ededed] line-clamp-2 hover:text-[#d4a574] transition-colors leading-snug"
+            className="block text-[13px] font-medium text-foreground line-clamp-2 hover:text-emerald-400 transition-colors leading-snug"
             onClick={(e) => e.stopPropagation()}
           >
             {task.title}
           </Link>
           {relativeTime && (
-            <span className="text-[10px] text-[#555] whitespace-nowrap mt-0.5 font-mono">
+            <span className="text-[10px] text-foreground-muted whitespace-nowrap mt-0.5 font-mono">
               {relativeTime}
             </span>
           )}
@@ -121,7 +121,7 @@ export default function DraggableTaskCard({ task }: DraggableTaskCardProps) {
 
         {/* Description */}
         {task.description && (
-          <p className="text-[11px] text-[#666] mb-2.5 line-clamp-2 leading-relaxed">
+          <p className="text-[11px] text-foreground-muted mb-2.5 line-clamp-2 leading-relaxed">
             {task.description}
           </p>
         )}
@@ -141,7 +141,7 @@ export default function DraggableTaskCard({ task }: DraggableTaskCardProps) {
               );
             })}
             {task.tags.length > 3 && (
-              <span className="text-[10px] text-[#555] font-mono px-1">
+              <span className="text-[10px] text-foreground-muted font-mono px-1">
                 +{task.tags.length - 3}
               </span>
             )}
@@ -174,7 +174,7 @@ export default function DraggableTaskCard({ task }: DraggableTaskCardProps) {
                 );
               })}
               {task.assigneeIds.length > 3 && (
-                <div className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-mono text-[#666] bg-white/5 ring-1 ring-[#111]">
+                <div className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-mono text-foreground-muted bg-white/5 ring-1 ring-[#111]">
                   +{task.assigneeIds.length - 3}
                 </div>
               )}

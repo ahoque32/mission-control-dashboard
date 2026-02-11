@@ -15,18 +15,18 @@ export default function CalendarError({
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-8 text-center">
+      <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-8 text-center">
         <div className="text-4xl mb-4">📅</div>
         <h2 className="text-xl font-semibold text-red-400 mb-2">
           Failed to Load Calendar
         </h2>
-        <p className="text-[#888] mb-6">
+        <p className="text-foreground-secondary mb-6">
           There was a problem loading the calendar view. This could be due to a
           network issue or a problem with the database connection.
         </p>
         <button
           onClick={reset}
-          className="px-6 py-3 bg-[#d4a574] text-[#0a0a0a] font-semibold rounded-lg hover:bg-[#c9996a] transition-colors"
+          className="px-6 py-3 bg-emerald-500 text-white font-semibold rounded-xl hover:bg-emerald-400 transition-colors"
         >
           Try Again
         </button>

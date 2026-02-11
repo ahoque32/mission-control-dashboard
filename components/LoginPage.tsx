@@ -6,33 +6,33 @@ export default function LoginPage() {
   const { signInWithGoogle, loading, error } = useAuth();
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center px-4">
+    <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'linear-gradient(135deg, #0a1a0f 0%, #1a2f1a 50%, #0d1f12 100%)' }}>
       <div className="max-w-sm w-full">
         {/* Logo / Branding */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#1a1a1a] border border-[#2a2a2a] mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 mb-4">
             <span className="text-3xl">🎯</span>
           </div>
-          <h1 className="text-2xl font-bold text-[#ededed] tracking-tight">
+          <h1 className="text-2xl font-bold text-white tracking-tight">
             Mission Control
           </h1>
-          <p className="text-sm text-[#888] mt-1">
+          <p className="text-sm text-white/60 mt-1">
             Real-time Operations Dashboard
           </p>
         </div>
 
         {/* Login Card */}
-        <div className="bg-[#111] border border-[#2a2a2a] rounded-xl p-6">
-          <h2 className="text-lg font-semibold text-[#ededed] mb-2">
+        <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 shadow-2xl">
+          <h2 className="text-lg font-semibold text-white mb-2">
             Sign in to continue
           </h2>
-          <p className="text-sm text-[#888] mb-6">
+          <p className="text-sm text-white/60 mb-6">
             Access restricted to authorized accounts only.
           </p>
 
           {/* Error Message */}
           {error && (
-            <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+            <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
               {error}
             </div>
           )}
@@ -41,7 +41,7 @@ export default function LoginPage() {
           <button
             onClick={signInWithGoogle}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-lg bg-white hover:bg-gray-50 text-gray-800 font-medium text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl bg-white hover:bg-gray-50 text-gray-800 font-medium text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
               <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
@@ -70,7 +70,7 @@ export default function LoginPage() {
         </div>
 
         {/* Footer */}
-        <p className="text-center text-xs text-[#555] mt-6">
+        <p className="text-center text-xs text-white/30 mt-6">
           Protected by Firebase Authentication
         </p>
       </div>

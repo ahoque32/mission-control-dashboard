@@ -75,10 +75,10 @@ export default function TaskDetailPage() {
 
   if (taskLoading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] text-white p-6">
+      <div className="min-h-screen bg-background text-white p-6">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-center h-64">
-            <div className="w-8 h-8 border-2 border-[#d4a574] border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
           </div>
         </div>
       </div>
@@ -87,14 +87,14 @@ export default function TaskDetailPage() {
 
   if (taskError || !task) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] text-white p-6">
+      <div className="min-h-screen bg-background text-white p-6">
         <div className="max-w-4xl mx-auto">
-          <Link href="/tasks" className="text-[#d4a574] hover:underline mb-4 inline-block">
+          <Link href="/tasks" className="text-emerald-400 hover:underline mb-4 inline-block">
             ← Back to Tasks
           </Link>
           <div className="text-center py-16">
             <div className="text-4xl mb-4">🔍</div>
-            <p className="text-[#888]">Task not found</p>
+            <p className="text-foreground-secondary">Task not found</p>
           </div>
         </div>
       </div>
@@ -102,15 +102,15 @@ export default function TaskDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white p-6">
+    <div className="min-h-screen bg-background text-white p-6">
       <div className="max-w-4xl mx-auto">
         {/* Back link */}
-        <Link href="/tasks" className="text-[#d4a574] hover:underline mb-6 inline-block">
+        <Link href="/tasks" className="text-emerald-400 hover:underline mb-6 inline-block">
           ← Back to Tasks
         </Link>
 
         {/* Task header */}
-        <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-6 mb-6">
+        <div className="bg-white/5 border border-white/10 rounded-lg p-6 mb-6">
           <div className="flex items-start justify-between gap-4 mb-4">
             <h1 className="text-2xl font-semibold text-white">{task.title}</h1>
             <div className="flex gap-2">
@@ -126,13 +126,13 @@ export default function TaskDetailPage() {
           </div>
 
           {task.description && (
-            <p className="text-[#888] mb-4">{task.description}</p>
+            <p className="text-foreground-secondary mb-4">{task.description}</p>
           )}
 
-          <div className="flex flex-wrap gap-4 text-sm text-[#666]">
+          <div className="flex flex-wrap gap-4 text-sm text-foreground-muted">
             {task.assigneeIds && task.assigneeIds.length > 0 && (
               <div>
-                <span className="text-[#888]">Assigned to: </span>
+                <span className="text-foreground-secondary">Assigned to: </span>
                 {task.assigneeIds.map((id, i) => {
                   const agent = getAgent(id);
                   return (
@@ -146,13 +146,13 @@ export default function TaskDetailPage() {
             )}
             {task.createdAt && (
               <div>
-                <span className="text-[#888]">Created: </span>
+                <span className="text-foreground-secondary">Created: </span>
                 {formatRelativeTime(task.createdAt)}
               </div>
             )}
             {task.updatedAt && (
               <div>
-                <span className="text-[#888]">Updated: </span>
+                <span className="text-foreground-secondary">Updated: </span>
                 {formatRelativeTime(task.updatedAt)}
               </div>
             )}
@@ -160,18 +160,18 @@ export default function TaskDetailPage() {
         </div>
 
         {/* Comments section */}
-        <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-6">
+        <div className="bg-white/5 border border-white/10 rounded-lg p-6">
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
             💬 Comments
-            <span className="text-sm font-normal text-[#666]">({messages.length})</span>
+            <span className="text-sm font-normal text-foreground-muted">({messages.length})</span>
           </h2>
 
           {messagesLoading ? (
             <div className="flex justify-center py-8">
-              <div className="w-6 h-6 border-2 border-[#d4a574] border-t-transparent rounded-full animate-spin" />
+              <div className="w-6 h-6 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
             </div>
           ) : messages.length === 0 ? (
-            <div className="text-center py-8 text-[#666]">
+            <div className="text-center py-8 text-foreground-muted">
               <div className="text-2xl mb-2">💭</div>
               <p>No comments yet</p>
             </div>
@@ -180,13 +180,13 @@ export default function TaskDetailPage() {
               {messages.map((message) => {
                 const agent = getAgent(message.fromAgentId);
                 return (
-                  <div key={message.id} className="border-l-2 border-[#333] pl-4 py-2">
+                  <div key={message.id} className="border-l-2 border-white/10 pl-4 py-2">
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-lg">{agent?.emoji || '🤖'}</span>
-                      <span className="font-medium text-[#d4a574]">
+                      <span className="font-medium text-emerald-400">
                         {agent?.name || message.fromAgentId || 'Unknown'}
                       </span>
-                      <span className="text-xs text-[#666]">
+                      <span className="text-xs text-foreground-muted">
                         {formatRelativeTime(message.createdAt)}
                       </span>
                     </div>
@@ -196,7 +196,7 @@ export default function TaskDetailPage() {
                     {message.mentions && message.mentions.length > 0 && (
                       <div className="mt-2 flex gap-1">
                         {message.mentions.map((mention) => (
-                          <span key={mention} className="text-xs bg-[#d4a574]/20 text-[#d4a574] px-2 py-0.5 rounded">
+                          <span key={mention} className="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded">
                             @{mention}
                           </span>
                         ))}

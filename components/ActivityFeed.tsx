@@ -81,7 +81,7 @@ const ACTIVITY_STYLES: Record<string, ActivityStyle> = {
   monitoring: { icon: '📊', bgColor: 'bg-indigo-500/10', textColor: 'text-indigo-400', borderColor: 'border-indigo-500/20', label: 'Monitoring' },
   spawn_completed: { icon: '🌱', bgColor: 'bg-emerald-500/10', textColor: 'text-emerald-400', borderColor: 'border-emerald-500/20', label: 'Spawn Completed' },
   spawn_failed: { icon: '💥', bgColor: 'bg-red-500/10', textColor: 'text-red-400', borderColor: 'border-red-500/20', label: 'Spawn Failed' },
-  general: { icon: '📝', bgColor: 'bg-[#d4a574]/10', textColor: 'text-[#d4a574]', borderColor: 'border-[#d4a574]/20', label: 'General' },
+  general: { icon: '📝', bgColor: 'bg-emerald-500/10', textColor: 'text-emerald-400', borderColor: 'border-emerald-500/20', label: 'General' },
   // Legacy types
   agent_task_completed: { icon: '✅', bgColor: 'bg-green-500/10', textColor: 'text-green-400', borderColor: 'border-green-500/20', label: 'Task Completed' },
   agent_task_started: { icon: '🚀', bgColor: 'bg-blue-500/10', textColor: 'text-blue-400', borderColor: 'border-blue-500/20', label: 'Task Started' },
@@ -99,7 +99,7 @@ const ACTIVITY_STYLES: Record<string, ActivityStyle> = {
 };
 
 const DEFAULT_STYLE: ActivityStyle = {
-  icon: '📌', bgColor: 'bg-[#d4a574]/10', textColor: 'text-[#d4a574]', borderColor: 'border-[#d4a574]/20', label: 'Activity'
+  icon: '📌', bgColor: 'bg-emerald-500/10', textColor: 'text-emerald-400', borderColor: 'border-emerald-500/20', label: 'Activity'
 };
 
 function getActivityStyle(type: string): ActivityStyle {

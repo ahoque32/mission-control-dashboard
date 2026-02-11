@@ -110,7 +110,7 @@ export default function NewTaskForm({ isOpen, onClose, onSuccess }: NewTaskFormP
       <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4">
         <div 
           className="
-            bg-[#0a0a0a]/95 backdrop-blur-xl border border-white/[0.08] rounded-t-2xl sm:rounded-2xl
+            bg-background/95 backdrop-blur-xl border border-white/[0.08] rounded-t-2xl sm:rounded-2xl
             w-full max-w-2xl max-h-[95vh] sm:max-h-[90vh]
             flex flex-col
             shadow-2xl shadow-black/50
@@ -121,18 +121,18 @@ export default function NewTaskForm({ isOpen, onClose, onSuccess }: NewTaskFormP
           <div className="border-b border-white/[0.06] px-6 py-5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#d4a574] to-[#c9996a] flex items-center justify-center">
-                  <svg className="w-4 h-4 text-[#0a0a0a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-500 to-[#c9996a] flex items-center justify-center">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
                   </svg>
                 </div>
-                <h2 className="text-xl font-bold text-[#ededed]">New Task</h2>
+                <h2 className="text-xl font-bold text-foreground">New Task</h2>
               </div>
               <button
                 onClick={handleCancel}
                 aria-label="Close form"
                 className="
-                  text-[#666] hover:text-[#ededed]
+                  text-foreground-muted hover:text-foreground
                   w-11 h-11 flex items-center justify-center
                   hover:bg-white/[0.06] rounded-lg
                   transition-all duration-200
@@ -156,8 +156,8 @@ export default function NewTaskForm({ isOpen, onClose, onSuccess }: NewTaskFormP
 
             {/* Title */}
             <div>
-              <label className="block text-[11px] font-semibold text-[#666] uppercase tracking-wider mb-2">
-                Title <span className="text-[#d4a574]">*</span>
+              <label className="block text-[11px] font-semibold text-foreground-muted uppercase tracking-wider mb-2">
+                Title <span className="text-emerald-400">*</span>
               </label>
               <input
                 type="text"
@@ -167,8 +167,8 @@ export default function NewTaskForm({ isOpen, onClose, onSuccess }: NewTaskFormP
                 className="
                   w-full px-4 py-3 rounded-lg
                   bg-white/[0.04] border border-white/[0.08]
-                  text-[#ededed] placeholder-[#444]
-                  focus:outline-none focus:border-[#d4a574]/50 focus:bg-white/[0.06]
+                  text-foreground placeholder-foreground-muted
+                  focus:outline-none focus:border-emerald-500/50 focus:bg-white/[0.06]
                   transition-all duration-200
                 "
                 autoFocus
@@ -177,7 +177,7 @@ export default function NewTaskForm({ isOpen, onClose, onSuccess }: NewTaskFormP
 
             {/* Description */}
             <div>
-              <label className="block text-[11px] font-semibold text-[#666] uppercase tracking-wider mb-2">
+              <label className="block text-[11px] font-semibold text-foreground-muted uppercase tracking-wider mb-2">
                 Description
               </label>
               <textarea
@@ -188,8 +188,8 @@ export default function NewTaskForm({ isOpen, onClose, onSuccess }: NewTaskFormP
                 className="
                   w-full px-4 py-3 rounded-lg
                   bg-white/[0.04] border border-white/[0.08]
-                  text-[#ededed] placeholder-[#444]
-                  focus:outline-none focus:border-[#d4a574]/50 focus:bg-white/[0.06]
+                  text-foreground placeholder-foreground-muted
+                  focus:outline-none focus:border-emerald-500/50 focus:bg-white/[0.06]
                   transition-all duration-200
                   resize-none font-mono text-sm
                 "
@@ -198,7 +198,7 @@ export default function NewTaskForm({ isOpen, onClose, onSuccess }: NewTaskFormP
 
             {/* Priority */}
             <div>
-              <label className="block text-[11px] font-semibold text-[#666] uppercase tracking-wider mb-2">
+              <label className="block text-[11px] font-semibold text-foreground-muted uppercase tracking-wider mb-2">
                 Priority
               </label>
               <div className="grid grid-cols-2 sm:flex gap-2">
@@ -214,7 +214,7 @@ export default function NewTaskForm({ isOpen, onClose, onSuccess }: NewTaskFormP
                         transition-all duration-200 border
                         ${isActive
                           ? 'shadow-sm'
-                          : 'bg-white/[0.03] text-[#666] border-white/[0.08] hover:border-white/[0.15]'
+                          : 'bg-white/[0.03] text-foreground-muted border-white/[0.08] hover:border-white/[0.15]'
                         }
                       `}
                       style={isActive ? {
@@ -232,7 +232,7 @@ export default function NewTaskForm({ isOpen, onClose, onSuccess }: NewTaskFormP
 
             {/* Assignees */}
             <div>
-              <label className="block text-[11px] font-semibold text-[#666] uppercase tracking-wider mb-2">
+              <label className="block text-[11px] font-semibold text-foreground-muted uppercase tracking-wider mb-2">
                 Assign To
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -245,7 +245,7 @@ export default function NewTaskForm({ isOpen, onClose, onSuccess }: NewTaskFormP
                         flex items-center gap-3 px-4 py-3 rounded-lg
                         cursor-pointer transition-all duration-200 border
                         ${isActive
-                          ? 'bg-[#d4a574]/10 border-[#d4a574]/30'
+                          ? 'bg-emerald-500/10 border-emerald-500/30'
                           : 'bg-white/[0.03] border-white/[0.06] hover:border-white/[0.12]'
                         }
                       `}
@@ -258,28 +258,28 @@ export default function NewTaskForm({ isOpen, onClose, onSuccess }: NewTaskFormP
                       />
                       <span className="text-xl">{agent.emoji}</span>
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm font-medium text-[#ededed] truncate">
+                        <div className="text-sm font-medium text-foreground truncate">
                           {agent.name}
                         </div>
-                        <div className="text-[11px] text-[#555] truncate">
+                        <div className="text-[11px] text-foreground-muted truncate">
                           {agent.role}
                         </div>
                       </div>
                       {isActive && (
-                        <span className="text-[#d4a574] text-sm">✓</span>
+                        <span className="text-emerald-400 text-sm">✓</span>
                       )}
                     </label>
                   );
                 })}
               </div>
               {agents.length === 0 && (
-                <p className="text-sm text-[#444] text-center py-4">No agents available</p>
+                <p className="text-sm text-foreground-muted text-center py-4">No agents available</p>
               )}
             </div>
 
             {/* Tags */}
             <div>
-              <label className="block text-[11px] font-semibold text-[#666] uppercase tracking-wider mb-2">
+              <label className="block text-[11px] font-semibold text-foreground-muted uppercase tracking-wider mb-2">
                 Tags
               </label>
               <input
@@ -290,8 +290,8 @@ export default function NewTaskForm({ isOpen, onClose, onSuccess }: NewTaskFormP
                 className="
                   w-full px-4 py-3 rounded-lg
                   bg-white/[0.04] border border-white/[0.08]
-                  text-[#ededed] placeholder-[#444]
-                  focus:outline-none focus:border-[#d4a574]/50 focus:bg-white/[0.06]
+                  text-foreground placeholder-foreground-muted
+                  focus:outline-none focus:border-emerald-500/50 focus:bg-white/[0.06]
                   transition-all duration-200
                 "
               />
@@ -300,7 +300,7 @@ export default function NewTaskForm({ isOpen, onClose, onSuccess }: NewTaskFormP
                   {tagsInput.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0).map((tag, index) => (
                     <span
                       key={index}
-                      className="text-[11px] px-2 py-0.5 rounded-full bg-[#d4a574]/10 text-[#d4a574] border border-[#d4a574]/20"
+                      className="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
                     >
                       {tag}
                     </span>
@@ -318,8 +318,8 @@ export default function NewTaskForm({ isOpen, onClose, onSuccess }: NewTaskFormP
               disabled={isSubmitting}
               className="
                 px-5 py-2.5 rounded-lg text-sm
-                bg-white/[0.04] text-[#888] border border-white/[0.08]
-                hover:bg-white/[0.07] hover:text-[#ededed]
+                bg-white/[0.04] text-foreground-secondary border border-white/[0.08]
+                hover:bg-white/[0.07] hover:text-foreground
                 transition-all duration-200
                 disabled:opacity-50 disabled:cursor-not-allowed
               "
@@ -332,8 +332,8 @@ export default function NewTaskForm({ isOpen, onClose, onSuccess }: NewTaskFormP
               disabled={isSubmitting}
               className="
                 px-5 py-2.5 rounded-lg text-sm font-semibold
-                bg-gradient-to-r from-[#d4a574] to-[#c9996a] text-[#0a0a0a]
-                hover:from-[#ddb48a] hover:to-[#d4a574]
+                bg-gradient-to-r from-emerald-500 to-[#c9996a] text-white
+                hover:from-[#ddb48a] hover:to-emerald-500
                 transition-all duration-200
                 disabled:opacity-50 disabled:cursor-not-allowed
                 flex items-center gap-2
@@ -341,7 +341,7 @@ export default function NewTaskForm({ isOpen, onClose, onSuccess }: NewTaskFormP
             >
               {isSubmitting ? (
                 <>
-                  <div className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-[#0a0a0a] border-r-transparent" />
+                  <div className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-white border-r-transparent" />
                   Creating...
                 </>
               ) : (

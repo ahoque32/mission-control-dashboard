@@ -3,21 +3,26 @@
 /* Theme Color Variables */
 :root {
   /* Light theme (default) */
-  --background: #ffffff;
-  --background-secondary: #f8fafc;
-  --background-tertiary: #f1f5f9;
-  --foreground: #1e293b;
-  --foreground-secondary: #64748b;
-  --foreground-muted: #94a3b8;
-  --accent: #3b82f6;
-  --accent-hover: #2563eb;
-  --border: #e2e8f0;
-  --border-secondary: #cbd5e1;
-  --card-background: #ffffff;
-  --sidebar-background: #ffffff;
-  --sidebar-active: #3b82f6;
+  --background: #f0f4f1;
+  --background-secondary: #e8efe9;
+  --background-tertiary: #dce5dd;
+  --foreground: #1a2f1a;
+  --foreground-secondary: #4a6b4a;
+  --foreground-muted: #7a9a7a;
+  --accent: #10b981;
+  --accent-hover: #059669;
+  --border: #c8d8c8;
+  --border-secondary: #a8c0a8;
+  --card-background: rgba(255, 255, 255, 0.85);
+  --sidebar-background: rgba(255, 255, 255, 0.9);
+  --sidebar-active: #10b981;
   
-  /* Status colors for light theme */
+  /* Glassmorphism-specific for light */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --glass-hover: rgba(255, 255, 255, 0.85);
+  
+  /* Status colors */
   --status-active: #10b981;
   --status-in-progress: #3b82f6;
   --status-warning: #f59e0b;
@@ -25,23 +30,28 @@
   --status-success: #10b981;
 }
 
-/* Dark theme overrides */
+/* Dark theme — Green glassmorphism design system */
 .dark {
-  --background: #0a0a0a;
-  --background-secondary: #1a1a1a;
-  --background-tertiary: #2a2a2a;
-  --foreground: #ededed;
-  --foreground-secondary: #aaaaaa;
-  --foreground-muted: #888888;
-  --accent: #d4a574;
-  --accent-hover: #c8956a;
-  --border: #2a2a2a;
-  --border-secondary: #3a3a3a;
-  --card-background: #1a1a1a;
-  --sidebar-background: #0a0a0a;
-  --sidebar-active: #d4a574;
+  --background: #0a1a0f;
+  --background-secondary: #0f2415;
+  --background-tertiary: #152e1b;
+  --foreground: #e8f0e8;
+  --foreground-secondary: #a0b8a0;
+  --foreground-muted: #607860;
+  --accent: #10b981;
+  --accent-hover: #34d399;
+  --border: rgba(255, 255, 255, 0.12);
+  --border-secondary: rgba(255, 255, 255, 0.08);
+  --card-background: rgba(255, 255, 255, 0.06);
+  --sidebar-background: rgba(255, 255, 255, 0.04);
+  --sidebar-active: #10b981;
   
-  /* Status colors for dark theme */
+  /* Glassmorphism-specific for dark */
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.15);
+  --glass-hover: rgba(255, 255, 255, 0.12);
+  
+  /* Status colors */
   --status-active: #10b981;
   --status-in-progress: #8b5cf6;
   --status-warning: #f59e0b;
@@ -73,14 +83,24 @@
 }
 
 body {
-  background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
   transition: background-color 150ms ease-out, color 150ms ease-out;
 }
 
-/* Smooth transitions for theme switching - targeted to avoid performance issues */
-/* Only apply to elements that actually change with theme */
+/* Light theme body background */
+:root body,
+.light body {
+  background: linear-gradient(135deg, #f0f4f1 0%, #e0ebe2 50%, #f0f4f1 100%);
+}
+
+/* Dark theme body background — green glassmorphism gradient */
+.dark body {
+  background: linear-gradient(135deg, #0a1a0f 0%, #1a2f1a 50%, #0d1f12 100%);
+  background-attachment: fixed;
+}
+
+/* Smooth transitions for theme switching */
 body, main, aside, nav, header, section, article,
 div[class*="bg-"], div[class*="border-"], div[class*="text-"],
 button, a, input, select, textarea {
@@ -113,23 +133,13 @@ html {
 
 /* Modal animations */
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .modal-backdrop {
@@ -140,72 +150,94 @@ html {
   animation: slideUp 300ms ease-out;
 }
 
-/* Glass-morphism effect for light mode */
+/* ═══════════════════════════════════════════════════════
+   Glassmorphism Design System
+   ═══════════════════════════════════════════════════════ */
+
+/* Glass Card — primary content card */
 .glass-card {
-  @apply bg-white/80 backdrop-blur-md border border-gray-200/50 shadow-lg rounded-xl;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 1rem;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
 }
 
+/* Glass Nav — navigation elements */
 .glass-nav {
-  @apply bg-white/90 backdrop-blur-lg border border-gray-200/30 shadow-md;
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
 }
 
+/* Glass Sidebar — sidebar panel */
 .glass-sidebar {
-  @apply bg-white/85 backdrop-blur-lg border border-gray-200/40 shadow-xl;
+  background: var(--sidebar-background);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.1);
 }
 
-/* Dark mode overrides for glass effects */
+/* Dark mode enhancements */
 .dark .glass-card {
-  @apply bg-gray-900/80 backdrop-blur-md border-gray-700/50;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .dark .glass-nav {
-  @apply bg-gray-900/90 backdrop-blur-lg border-gray-700/30;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
 }
 
 .dark .glass-sidebar {
-  @apply bg-gray-900/85 backdrop-blur-lg border-gray-700/40;
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
-/* Enhanced card hover effects for both themes */
+/* Card hover effects */
 .card-hover {
   transition: all 200ms ease-out;
 }
 
 .card-hover:hover {
   transform: translateY(-2px);
-  box-shadow: 
-    0 8px 25px rgba(59, 130, 246, 0.12),
-    0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-/* Dark theme card hover */
+.light .card-hover:hover,
+:root .card-hover:hover {
+  box-shadow: 0 8px 32px rgba(16, 185, 129, 0.1), 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
 .dark .card-hover:hover {
-  box-shadow: 
-    0 8px 25px rgba(212, 165, 116, 0.12),
-    0 4px 12px rgba(0, 0, 0, 0.3);
+  background: var(--glass-hover);
+  box-shadow: 0 8px 32px rgba(16, 185, 129, 0.1), 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 /* Glass card hover enhancement for light mode */
-.light .glass-card:hover {
-  @apply bg-white/90 border-gray-300/60;
-  box-shadow: 
-    0 12px 30px rgba(59, 130, 246, 0.15),
-    0 6px 15px rgba(0, 0, 0, 0.1);
+.light .glass-card:hover,
+:root .glass-card:hover {
+  border-color: rgba(16, 185, 129, 0.3);
+  box-shadow: 0 12px 40px rgba(16, 185, 129, 0.12), 0 6px 15px rgba(0, 0, 0, 0.08);
 }
 
 /* Glass card hover enhancement for dark mode */
 .dark .glass-card:hover {
-  @apply bg-gray-900/90 border-gray-600/60;
+  background: var(--glass-hover);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
-/* Custom scrollbar for both themes */
+/* ═══════════════════════════════════════════════════════
+   Scrollbar
+   ═══════════════════════════════════════════════════════ */
+   
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--background-secondary);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -217,14 +249,10 @@ html {
   background: var(--foreground-muted);
 }
 
-/* Focus styles for better accessibility */
+/* Focus styles */
 .focus-ring:focus {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
-}
-
-.dark .focus-ring:focus {
-  box-shadow: 0 0 0 2px rgba(212, 165, 116, 0.3);
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);
 }
 
 /* Status badge styles */
@@ -237,43 +265,13 @@ html {
   letter-spacing: 0.025em;
 }
 
-.status-active {
-  background: var(--status-active);
-  color: white;
-}
+.status-active { background: var(--status-active); color: white; }
+.status-progress { background: var(--status-progress); color: white; }
+.status-warning { background: var(--status-warning); color: white; }
+.status-error { background: var(--status-error); color: white; }
+.status-success { background: var(--status-success); color: white; }
 
-.status-progress {
-  background: var(--status-progress);
-  color: white;
-}
-
-.status-warning {
-  background: var(--status-warning);
-  color: white;
-}
-
-.status-error {
-  background: var(--status-error);
-  color: white;
-}
-
-.status-success {
-  background: var(--status-success);
-  color: white;
-}
-
-/* Chart color overrides for light theme */
-.light .chart-primary {
-  fill: #3b82f6;
-  stroke: #3b82f6;
-}
-
-.light .chart-secondary {
-  fill: #10b981;
-  stroke: #10b981;
-}
-
-/* Loading spinner for both themes */
+/* Loading spinner */
 .spinner {
   border: 3px solid var(--border);
   border-top: 3px solid var(--accent);
@@ -284,4 +282,12 @@ html {
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* Gradient text utility */
+.gradient-text {
+  background: linear-gradient(135deg, #10b981 0%, #34d399 50%, #6ee7b7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }

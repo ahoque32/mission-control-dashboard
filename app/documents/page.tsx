@@ -19,7 +19,7 @@ const DOCUMENT_TYPES: {
     label: 'Deliverables', 
     icon: '📦',
     color: '#10b981',
-    bgColor: 'bg-green-500/20'
+    bgColor: 'bg-emerald-500/20'
   },
   { 
     id: 'research', 
@@ -32,8 +32,8 @@ const DOCUMENT_TYPES: {
     id: 'protocol', 
     label: 'Protocols', 
     icon: '📋',
-    color: '#d4a574',
-    bgColor: 'bg-[#d4a574]/20'
+    color: '#10b981',
+    bgColor: 'bg-emerald-500/20'
   },
   { 
     id: 'note', 
@@ -77,18 +77,18 @@ function DocumentCard({ document, onClick, linkedTask, createdByAgent }: Documen
     <div
       onClick={onClick}
       className="
-        bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-4
-        hover:border-[#d4a574]/30 hover:bg-[#1f1f1f]
+        glass-card p-4
+        hover:border-emerald-500/30
         cursor-pointer transition-all card-hover
       "
     >
       <div className="flex items-start gap-3">
         <span className="text-2xl">{typeConfig.icon}</span>
         <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-medium text-[#ededed] mb-1 line-clamp-2">
+          <h3 className="text-sm font-medium text-foreground mb-1 line-clamp-2">
             {document.title}
           </h3>
-          <div className="flex items-center gap-2 text-xs text-[#666] mb-2">
+          <div className="flex items-center gap-2 text-xs text-foreground-muted mb-2">
             <span className={`px-2 py-0.5 rounded ${typeConfig.bgColor}`} style={{ color: typeConfig.color }}>
               {typeConfig.label}
             </span>
@@ -99,11 +99,11 @@ function DocumentCard({ document, onClick, linkedTask, createdByAgent }: Documen
           {/* Linked task indicator */}
           {linkedTask && (
             <div className="flex items-center gap-1.5 text-xs">
-              <span className="text-[#666]">Linked to:</span>
+              <span className="text-foreground-muted">Linked to:</span>
               <Link
                 href={`/tasks?task=${linkedTask.id}`}
                 onClick={(e) => e.stopPropagation()}
-                className="text-[#d4a574] hover:underline truncate max-w-[200px]"
+                className="text-emerald-400 hover:underline truncate max-w-[200px]"
               >
                 {linkedTask.title}
               </Link>
@@ -113,8 +113,8 @@ function DocumentCard({ document, onClick, linkedTask, createdByAgent }: Documen
           {/* Created by */}
           {createdByAgent && (
             <div className="flex items-center gap-1.5 text-xs mt-1">
-              <span className="text-[#666]">By:</span>
-              <span className="text-[#888]">{createdByAgent.emoji} {createdByAgent.name}</span>
+              <span className="text-foreground-muted">By:</span>
+              <span className="text-foreground-secondary">{createdByAgent.emoji} {createdByAgent.name}</span>
             </div>
           )}
         </div>
@@ -149,28 +149,29 @@ function DocumentDetailModal({ document, isOpen, onClose, linkedTask, createdByA
       <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4">
         <div 
           className="
-            bg-[#0a0a0a] border border-[#2a2a2a] rounded-t-xl sm:rounded-xl
+            glass-card
             w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh]
             flex flex-col
-            shadow-2xl shadow-[#d4a574]/20
+            shadow-2xl shadow-emerald-500/10
             modal-content
+            rounded-t-2xl sm:rounded-2xl
           "
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="border-b border-[#2a2a2a] p-4 sm:p-6">
+          <div className="border-b border-white/10 p-4 sm:p-6">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-3">
                   <span className="text-3xl">{typeConfig.icon}</span>
                   <span 
-                    className={`text-xs font-medium px-2 py-1 rounded uppercase tracking-wide ${typeConfig.bgColor}`}
+                    className={`text-xs font-medium px-2 py-1 rounded-lg uppercase tracking-wide ${typeConfig.bgColor}`}
                     style={{ color: typeConfig.color }}
                   >
                     {typeConfig.label}
                   </span>
                 </div>
-                <h2 className="text-xl sm:text-2xl font-bold text-[#ededed]">
+                <h2 className="text-xl sm:text-2xl font-bold text-foreground">
                   {document.title}
                 </h2>
               </div>
@@ -179,10 +180,10 @@ function DocumentDetailModal({ document, isOpen, onClose, linkedTask, createdByA
               <button
                 onClick={onClose}
                 className="
-                  text-[#888] hover:text-[#ededed]
+                  text-foreground-muted hover:text-foreground
                   text-2xl leading-none
                   w-11 h-11 flex items-center justify-center
-                  hover:bg-[#2a2a2a] rounded-lg
+                  hover:bg-white/10 rounded-xl
                   transition-colors
                 "
                 aria-label="Close document"
@@ -192,27 +193,27 @@ function DocumentDetailModal({ document, isOpen, onClose, linkedTask, createdByA
             </div>
 
             {/* Metadata */}
-            <div className="flex flex-wrap items-center gap-4 mt-4 text-xs text-[#666]">
+            <div className="flex flex-wrap items-center gap-4 mt-4 text-xs text-foreground-muted">
               {createdByAgent && (
                 <div className="flex items-center gap-1.5">
                   <span>Created by:</span>
-                  <span className="text-[#888]">{createdByAgent.emoji} {createdByAgent.name}</span>
+                  <span className="text-foreground-secondary">{createdByAgent.emoji} {createdByAgent.name}</span>
                 </div>
               )}
               <div className="flex items-center gap-1.5">
                 <span>Created:</span>
-                <span className="text-[#888]">{formatRelativeTime(document.createdAt)}</span>
+                <span className="text-foreground-secondary">{formatRelativeTime(document.createdAt)}</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <span>Updated:</span>
-                <span className="text-[#888]">{formatRelativeTime(document.updatedAt)}</span>
+                <span className="text-foreground-secondary">{formatRelativeTime(document.updatedAt)}</span>
               </div>
               {linkedTask && (
                 <div className="flex items-center gap-1.5">
                   <span>Linked task:</span>
                   <Link
                     href={`/tasks?task=${linkedTask.id}`}
-                    className="text-[#d4a574] hover:underline"
+                    className="text-emerald-400 hover:underline"
                   >
                     {linkedTask.title}
                   </Link>
@@ -227,37 +228,37 @@ function DocumentDetailModal({ document, isOpen, onClose, linkedTask, createdByA
               <div 
                 className="
                   prose prose-invert prose-sm max-w-none
-                  text-[#ededed]
-                  bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg
+                  text-foreground
+                  bg-white/5 border border-white/10 rounded-xl
                   p-6
                 "
               >
                 <ReactMarkdown
                   components={{
-                    h1: (props) => <h1 className="text-2xl font-bold text-[#ededed] mb-4 pb-2 border-b border-[#2a2a2a]" {...props} />,
-                    h2: (props) => <h2 className="text-xl font-bold text-[#ededed] mb-3 mt-6" {...props} />,
-                    h3: (props) => <h3 className="text-lg font-bold text-[#ededed] mb-2 mt-4" {...props} />,
-                    h4: (props) => <h4 className="text-base font-bold text-[#ededed] mb-2 mt-4" {...props} />,
-                    p: (props) => <p className="text-[#ededed] mb-4 leading-relaxed" {...props} />,
-                    a: (props) => <a className="text-[#d4a574] hover:underline" {...props} />,
-                    code: (props) => <code className="bg-[#0a0a0a] text-[#d4a574] px-1.5 py-0.5 rounded text-sm" {...props} />,
-                    pre: (props) => <pre className="bg-[#0a0a0a] p-4 rounded-lg overflow-x-auto mb-4" {...props} />,
+                    h1: (props) => <h1 className="text-2xl font-bold text-foreground mb-4 pb-2 border-b border-white/10" {...props} />,
+                    h2: (props) => <h2 className="text-xl font-bold text-foreground mb-3 mt-6" {...props} />,
+                    h3: (props) => <h3 className="text-lg font-bold text-foreground mb-2 mt-4" {...props} />,
+                    h4: (props) => <h4 className="text-base font-bold text-foreground mb-2 mt-4" {...props} />,
+                    p: (props) => <p className="text-foreground mb-4 leading-relaxed" {...props} />,
+                    a: (props) => <a className="text-emerald-400 hover:underline" {...props} />,
+                    code: (props) => <code className="bg-white/10 text-emerald-400 px-1.5 py-0.5 rounded text-sm" {...props} />,
+                    pre: (props) => <pre className="bg-white/5 p-4 rounded-xl overflow-x-auto mb-4 border border-white/10" {...props} />,
                     ul: (props) => <ul className="list-disc list-inside mb-4 space-y-1" {...props} />,
                     ol: (props) => <ol className="list-decimal list-inside mb-4 space-y-1" {...props} />,
-                    li: (props) => <li className="text-[#ededed]" {...props} />,
-                    blockquote: (props) => <blockquote className="border-l-4 border-[#d4a574] pl-4 italic text-[#888] my-4" {...props} />,
-                    hr: (props) => <hr className="border-[#2a2a2a] my-6" {...props} />,
+                    li: (props) => <li className="text-foreground" {...props} />,
+                    blockquote: (props) => <blockquote className="border-l-4 border-emerald-500 pl-4 italic text-foreground-secondary my-4" {...props} />,
+                    hr: (props) => <hr className="border-white/10 my-6" {...props} />,
                     table: (props) => <table className="w-full border-collapse mb-4" {...props} />,
-                    thead: (props) => <thead className="bg-[#0a0a0a]" {...props} />,
-                    th: (props) => <th className="border border-[#2a2a2a] px-4 py-2 text-left text-[#ededed] font-semibold" {...props} />,
-                    td: (props) => <td className="border border-[#2a2a2a] px-4 py-2 text-[#ededed]" {...props} />,
+                    thead: (props) => <thead className="bg-white/5" {...props} />,
+                    th: (props) => <th className="border border-white/10 px-4 py-2 text-left text-foreground font-semibold" {...props} />,
+                    td: (props) => <td className="border border-white/10 px-4 py-2 text-foreground" {...props} />,
                   }}
                 >
                   {document.content}
                 </ReactMarkdown>
               </div>
             ) : (
-              <div className="text-center py-12 text-[#666]">
+              <div className="text-center py-12 text-foreground-muted">
                 <div className="text-4xl mb-3">📝</div>
                 <p>This document has no content yet.</p>
               </div>
@@ -302,24 +303,22 @@ export default function DocumentsPage() {
     return grouped;
   }, [filteredDocuments]);
 
-  // Helper to get linked task
   const getLinkedTask = (taskId: string | null): Task | undefined => {
     if (!taskId) return undefined;
     return tasks.find(t => t.id === taskId);
   };
 
-  // Helper to get created by agent
   const getCreatedByAgent = (agentId: string): Agent | undefined => {
     return agents.find(a => a.id === agentId);
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] p-8">
+      <div className="min-h-screen p-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-center h-64">
-            <div className="text-[#666]">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#d4a574] mx-auto mb-4"></div>
+            <div className="text-foreground-muted">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
               <p>Loading documents...</p>
             </div>
           </div>
@@ -330,12 +329,12 @@ export default function DocumentsPage() {
 
   if (documentsError) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] p-8">
+      <div className="min-h-screen p-8">
         <div className="max-w-7xl mx-auto">
-          <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-6 text-center">
+          <div className="glass-card p-6 text-center border-red-500/30">
             <div className="text-4xl mb-3">⚠️</div>
             <h2 className="text-xl font-semibold text-red-400 mb-2">Error Loading Documents</h2>
-            <p className="text-sm text-[#888]">{documentsError.message}</p>
+            <p className="text-sm text-foreground-muted">{documentsError.message}</p>
           </div>
         </div>
       </div>
@@ -343,12 +342,12 @@ export default function DocumentsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen p-4 sm:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl sm:text-4xl font-bold text-[#ededed] mb-3">📄 Documents</h1>
-          <p className="text-[#888]">
+          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-3">📄 Documents</h1>
+          <p className="text-foreground-secondary">
             {documents.length} {documents.length === 1 ? 'document' : 'documents'} in the system
           </p>
         </div>
@@ -359,10 +358,10 @@ export default function DocumentsPage() {
             <button
               onClick={() => setSelectedType('all')}
               className={`
-                px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                px-4 py-2 rounded-xl text-sm font-medium transition-all
                 ${selectedType === 'all'
-                  ? 'bg-[#d4a574] text-[#0a0a0a]'
-                  : 'bg-[#1a1a1a] text-[#888] border border-[#2a2a2a] hover:border-[#d4a574]/50'
+                  ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20'
+                  : 'glass-card text-foreground-secondary hover:border-emerald-500/30'
                 }
               `}
             >
@@ -373,10 +372,10 @@ export default function DocumentsPage() {
                 key={type.id}
                 onClick={() => setSelectedType(type.id)}
                 className={`
-                  px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2
+                  px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2
                   ${selectedType === type.id
-                    ? 'bg-[#d4a574] text-[#0a0a0a]'
-                    : 'bg-[#1a1a1a] text-[#888] border border-[#2a2a2a] hover:border-[#d4a574]/50'
+                    ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20'
+                    : 'glass-card text-foreground-secondary hover:border-emerald-500/30'
                   }
                 `}
               >
@@ -390,10 +389,10 @@ export default function DocumentsPage() {
 
         {/* Empty State */}
         {documents.length === 0 && (
-          <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-12 text-center">
+          <div className="glass-card p-12 text-center">
             <div className="text-6xl mb-4">📂</div>
-            <h2 className="text-2xl font-semibold text-[#ededed] mb-2">No Documents Yet</h2>
-            <p className="text-[#888]">
+            <h2 className="text-2xl font-semibold text-foreground mb-2">No Documents Yet</h2>
+            <p className="text-foreground-secondary">
               Documents will appear here once they&apos;re created in the system.
             </p>
           </div>
@@ -401,15 +400,15 @@ export default function DocumentsPage() {
 
         {/* Filtered Empty State */}
         {documents.length > 0 && filteredDocuments.length === 0 && (
-          <div className="bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg p-12 text-center">
+          <div className="glass-card p-12 text-center">
             <div className="text-5xl mb-4">🔍</div>
-            <h2 className="text-xl font-semibold text-[#ededed] mb-2">No Documents Found</h2>
-            <p className="text-[#888] mb-4">
+            <h2 className="text-xl font-semibold text-foreground mb-2">No Documents Found</h2>
+            <p className="text-foreground-secondary mb-4">
               No documents match the selected filter.
             </p>
             <button
               onClick={() => setSelectedType('all')}
-              className="px-4 py-2 bg-[#d4a574] text-[#0a0a0a] rounded-lg hover:bg-[#c9996a] transition-colors"
+              className="px-4 py-2 bg-emerald-500 text-white rounded-xl hover:bg-emerald-400 transition-colors"
             >
               Show All Documents
             </button>
@@ -429,8 +428,8 @@ export default function DocumentsPage() {
                 <div key={type.id}>
                   <div className="flex items-center gap-3 mb-4">
                     <span className="text-2xl">{type.icon}</span>
-                    <h2 className="text-xl font-semibold text-[#ededed]">{type.label}</h2>
-                    <span className="text-sm text-[#666]">({typeDocuments.length})</span>
+                    <h2 className="text-xl font-semibold text-foreground">{type.label}</h2>
+                    <span className="text-sm text-foreground-muted">({typeDocuments.length})</span>
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -172,7 +172,7 @@ export default function TaskComments({
           return (
             <span 
               key={index} 
-              className="text-[#d4a574] font-medium bg-[#d4a574]/10 px-1 rounded"
+              className="text-emerald-400 font-medium bg-emerald-500/10 px-1 rounded"
             >
               @{name}
             </span>
@@ -186,7 +186,7 @@ export default function TaskComments({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-8" role="status" aria-label="Loading comments">
-        <div className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-solid border-[#d4a574] border-r-transparent" aria-hidden="true" />
+        <div className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-solid border-emerald-500 border-r-transparent" aria-hidden="true" />
         <span className="sr-only">Loading comments...</span>
       </div>
     );
@@ -198,7 +198,7 @@ export default function TaskComments({
         <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-6 text-center">
           <div className="text-3xl mb-3">⚠️</div>
           <h3 className="text-lg font-semibold text-red-400 mb-2">Failed to Load Comments</h3>
-          <p className="text-sm text-[#888] mb-4">{error.message}</p>
+          <p className="text-sm text-foreground-secondary mb-4">{error.message}</p>
         </div>
       </div>
     );
@@ -209,7 +209,7 @@ export default function TaskComments({
       {/* Messages List */}
       <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
         {messages.length === 0 ? (
-          <div className="text-center py-8 text-[#666]">
+          <div className="text-center py-8 text-foreground-muted">
             <div className="text-3xl mb-2">💬</div>
             <p>No comments yet</p>
             <p className="text-sm mt-1">Be the first to start the conversation</p>
@@ -225,8 +225,8 @@ export default function TaskComments({
                 className={`
                   rounded-lg p-4
                   ${isCurrentUser 
-                    ? 'bg-[#d4a574]/10 border border-[#d4a574]/30 ml-8' 
-                    : 'bg-[#1a1a1a] border border-[#2a2a2a] mr-8'
+                    ? 'bg-emerald-500/10 border border-emerald-500/30 ml-8' 
+                    : 'bg-white/5 border border-white/10 mr-8'
                   }
                 `}
               >
@@ -234,26 +234,26 @@ export default function TaskComments({
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-lg">{author?.emoji || '👤'}</span>
                   <div className="flex-1">
-                    <span className="text-sm font-medium text-[#ededed]">
+                    <span className="text-sm font-medium text-foreground">
                       {author?.name || 'Unknown'}
                     </span>
                     {author?.role && (
-                      <span className="text-xs text-[#666] ml-2">
+                      <span className="text-xs text-foreground-muted ml-2">
                         {author.role}
                       </span>
                     )}
                   </div>
-                  <span className="text-xs text-[#666]">
+                  <span className="text-xs text-foreground-muted">
                     {formatTimestamp(message.createdAt)}
                   </span>
                 </div>
 
                 {/* Comment Content */}
-                <div className="text-sm text-[#ededed] pl-8 prose prose-invert prose-sm max-w-none">
+                <div className="text-sm text-foreground pl-8 prose prose-invert prose-sm max-w-none">
                   <ReactMarkdown
                     components={{
                       p: ({ children }) => (
-                        <p className="text-[#ededed] mb-2 last:mb-0">
+                        <p className="text-foreground mb-2 last:mb-0">
                           {typeof children === 'string' 
                             ? renderMessageContent(children) 
                             : children
@@ -261,12 +261,12 @@ export default function TaskComments({
                         </p>
                       ),
                       code: ({ children }) => (
-                        <code className="bg-[#0a0a0a] text-[#d4a574] px-1 rounded text-xs">
+                        <code className="bg-background text-emerald-400 px-1 rounded text-xs">
                           {children}
                         </code>
                       ),
                       pre: ({ children }) => (
-                        <pre className="bg-[#0a0a0a] p-2 rounded overflow-x-auto text-xs">
+                        <pre className="bg-background p-2 rounded overflow-x-auto text-xs">
                           {children}
                         </pre>
                       ),
@@ -284,7 +284,7 @@ export default function TaskComments({
                       return mentionedAgent ? (
                         <span
                           key={mentionId}
-                          className="text-xs px-2 py-0.5 rounded bg-[#d4a574]/20 text-[#d4a574]"
+                          className="text-xs px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400"
                         >
                           @{mentionedAgent.name}
                         </span>
@@ -299,7 +299,7 @@ export default function TaskComments({
                     {message.attachments.map((attachment, index) => (
                       <span
                         key={index}
-                        className="text-xs px-2 py-1 rounded bg-[#0a0a0a] text-[#d4a574] border border-[#2a2a2a]"
+                        className="text-xs px-2 py-1 rounded bg-background text-emerald-400 border border-white/10"
                       >
                         📎 {attachment}
                       </span>
@@ -314,10 +314,10 @@ export default function TaskComments({
       </div>
 
       {/* Comment Input */}
-      <div className="border-t border-[#2a2a2a] pt-4">
+      <div className="border-t border-white/10 pt-4">
         {/* Toolbar */}
         <div className="flex items-center justify-between mb-2 px-1">
-          <div className="flex items-center gap-2 text-xs text-[#666]">
+          <div className="flex items-center gap-2 text-xs text-foreground-muted">
             <span>💬 Markdown supported</span>
             <span>•</span>
             <span>@ to mention agents</span>
@@ -328,8 +328,8 @@ export default function TaskComments({
               onClick={() => setShowPreview(!showPreview)}
               className={`text-xs px-2 py-1 rounded transition-colors ${
                 showPreview
-                  ? 'bg-[#d4a574] text-[#0a0a0a]'
-                  : 'text-[#666] hover:text-[#ededed]'
+                  ? 'bg-emerald-500 text-white'
+                  : 'text-foreground-muted hover:text-foreground'
               }`}
             >
               {showPreview ? '✏️ Edit' : '👁️ Preview'}
@@ -339,13 +339,13 @@ export default function TaskComments({
 
         {/* Input or Preview */}
         {showPreview ? (
-          <div className="min-h-[100px] max-h-[200px] overflow-y-auto px-4 py-3 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg">
+          <div className="min-h-[100px] max-h-[200px] overflow-y-auto px-4 py-3 bg-white/5 border border-white/10 rounded-lg">
             {content.trim() ? (
               <div className="prose prose-invert prose-sm max-w-none">
                 <ReactMarkdown>{content}</ReactMarkdown>
               </div>
             ) : (
-              <p className="text-[#666] italic">Nothing to preview...</p>
+              <p className="text-foreground-muted italic">Nothing to preview...</p>
             )}
           </div>
         ) : (
@@ -357,12 +357,12 @@ export default function TaskComments({
               onKeyDown={handleKeyDown}
               placeholder="Write a comment... Use @ to mention agents"
               disabled={sending}
-              className="w-full min-h-[100px] max-h-[200px] px-4 py-3 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg text-[#ededed] placeholder-[#666] focus:outline-none focus:border-[#d4a574] resize-y transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full min-h-[100px] max-h-[200px] px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-foreground placeholder-foreground-muted focus:outline-none focus:border-emerald-500 resize-y transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             />
 
             {/* @mention autocomplete dropdown */}
             {showMentions && filteredAgents.length > 0 && (
-              <div className="absolute bottom-full left-0 mb-2 w-64 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg shadow-xl max-h-48 overflow-y-auto z-50">
+              <div className="absolute bottom-full left-0 mb-2 w-64 bg-white/5 border border-white/10 rounded-lg shadow-xl max-h-48 overflow-y-auto z-50">
                 {filteredAgents.map((agent, index) => (
                   <button
                     key={agent.id}
@@ -370,23 +370,23 @@ export default function TaskComments({
                     onClick={() => insertMention(agent)}
                     className={`w-full text-left px-3 py-2 flex items-center gap-2 transition-colors ${
                       index === selectedMentionIndex
-                        ? 'bg-[#d4a574] text-[#0a0a0a]'
-                        : 'hover:bg-[#2a2a2a] text-[#ededed]'
+                        ? 'bg-emerald-500 text-white'
+                        : 'hover:bg-white/10 text-foreground'
                     }`}
                   >
                     <span className="text-lg">{agent.emoji}</span>
                     <div className="flex-1 min-w-0">
                       <div className="font-medium truncate">{agent.name}</div>
                       <div className={`text-xs truncate ${
-                        index === selectedMentionIndex ? 'text-[#0a0a0a]/70' : 'text-[#666]'
+                        index === selectedMentionIndex ? 'text-white/70' : 'text-foreground-muted'
                       }`}>
                         {agent.role}
                       </div>
                     </div>
                     <div className={`text-xs px-1.5 py-0.5 rounded ${
                       index === selectedMentionIndex
-                        ? 'bg-[#0a0a0a]/20 text-[#0a0a0a]'
-                        : 'bg-[#2a2a2a] text-[#888]'
+                        ? 'bg-background/20 text-white'
+                        : 'bg-white/10 text-foreground-secondary'
                     }`}>
                       {agent.status}
                     </div>
@@ -400,7 +400,7 @@ export default function TaskComments({
         {/* Bottom toolbar with actions */}
         <div className="flex items-center justify-between mt-2 px-1">
           <div className="flex items-center gap-2">
-            <span className="text-xs text-[#666]">
+            <span className="text-xs text-foreground-muted">
               {content.length > 0 && `${content.length} chars`}
             </span>
           </div>
@@ -410,11 +410,11 @@ export default function TaskComments({
               type="button"
               onClick={handleSubmit}
               disabled={!content.trim() || sending}
-              className="px-4 py-2 bg-[#d4a574] text-[#0a0a0a] font-medium rounded-lg hover:bg-[#c9996a] transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center gap-2"
+              className="px-4 py-2 bg-emerald-500 text-white font-medium rounded-lg hover:bg-emerald-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm flex items-center gap-2"
             >
               {sending ? (
                 <>
-                  <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-[#0a0a0a] border-r-transparent" />
+                  <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-solid border-white border-r-transparent" />
                   Sending...
                 </>
               ) : (
@@ -428,8 +428,8 @@ export default function TaskComments({
         </div>
 
         {/* Keyboard shortcuts hint */}
-        <div className="mt-2 text-xs text-[#666] px-1">
-          <kbd className="px-1 py-0.5 bg-[#2a2a2a] rounded">⌘/Ctrl</kbd> + <kbd className="px-1 py-0.5 bg-[#2a2a2a] rounded">Enter</kbd> to send
+        <div className="mt-2 text-xs text-foreground-muted px-1">
+          <kbd className="px-1 py-0.5 bg-white/10 rounded">⌘/Ctrl</kbd> + <kbd className="px-1 py-0.5 bg-white/10 rounded">Enter</kbd> to send
         </div>
       </div>
     </div>

@@ -57,7 +57,7 @@ function formatWeekRange(weekStart: Date): string {
 }
 
 // ============================================================================
-// Cron schedule parser — compute occurrences for a given week
+// Cron schedule parser
 // ============================================================================
 
 interface ScheduleOccurrence {
@@ -148,15 +148,11 @@ export default function CalendarView() {
   );
   const [disabledCollapsed, setDisabledCollapsed] = useState(true);
 
-  // ---- Category filter helpers ----
   const toggleCategory = (cat: CronJobCategory) => {
     setEnabledCategories(prev => {
       const next = new Set(prev);
-      if (next.has(cat)) {
-        next.delete(cat);
-      } else {
-        next.add(cat);
-      }
+      if (next.has(cat)) next.delete(cat);
+      else next.add(cat);
       return next;
     });
   };
@@ -171,7 +167,6 @@ export default function CalendarView() {
     return start;
   }, [weekOffset]);
 
-  // Compute all occurrences for this week, filtered by enabled categories
   const occurrences = useMemo(() => {
     if (!cronJobs.length) return [];
     const all: ScheduleOccurrence[] = [];
@@ -184,7 +179,6 @@ export default function CalendarView() {
     return all;
   }, [cronJobs, weekStart, enabledCategories]);
 
-  // Build a lookup: [dayIndex][hour] => occurrences
   const grid = useMemo(() => {
     const g: Record<string, ScheduleOccurrence[]> = {};
     occurrences.forEach(occ => {
@@ -199,13 +193,12 @@ export default function CalendarView() {
   const enabledJobs = cronJobs.filter(j => j.enabled && enabledCategories.has(j.category));
   const allFiltered = enabledCategories.size === 0;
 
-  // Loading
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64" role="status">
         <div className="text-center">
-          <div className="w-8 h-8 border-2 border-[#d4a574] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-          <p className="text-sm text-[#888]">Loading schedule...</p>
+          <div className="w-8 h-8 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-sm text-foreground-muted">Loading schedule...</p>
         </div>
       </div>
     );
@@ -217,7 +210,7 @@ export default function CalendarView() {
         <div className="text-center">
           <div className="text-4xl mb-3">⚠️</div>
           <p className="text-sm text-red-400 mb-1">Failed to load schedule</p>
-          <p className="text-xs text-[#666]">{error.message}</p>
+          <p className="text-xs text-foreground-muted">{error.message}</p>
         </div>
       </div>
     );
@@ -226,48 +219,48 @@ export default function CalendarView() {
   return (
     <div className="space-y-6">
       {/* ── Navigation Header ── */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 rounded-xl bg-[#1a1a1a]/70 backdrop-blur-md border border-[#2a2a2a]/60 px-4 sm:px-5 py-3">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3 glass-card px-4 sm:px-5 py-3">
         <div className="flex items-center gap-2">
           <button
             onClick={() => setWeekOffset(w => w - 1)}
-            className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg bg-[#0a0a0a]/60 border border-[#2a2a2a] hover:border-[#d4a574]/60 hover:bg-[#d4a574]/10 text-[#ccc] hover:text-[#d4a574] text-sm transition-all duration-200"
+            className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-white/5 border border-white/10 hover:border-emerald-500/40 hover:bg-emerald-500/10 text-foreground-secondary hover:text-emerald-400 text-sm transition-all duration-200"
             aria-label="Previous week"
           >
             ← Prev
           </button>
           <button
             onClick={() => setWeekOffset(0)}
-            className="px-4 py-2 min-h-[44px] rounded-lg bg-[#d4a574]/10 border border-[#d4a574]/30 hover:bg-[#d4a574]/20 text-[#d4a574] text-sm font-semibold transition-all duration-200"
+            className="px-4 py-2 min-h-[44px] rounded-xl bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/20 text-emerald-400 text-sm font-semibold transition-all duration-200"
           >
             Today
           </button>
           <button
             onClick={() => setWeekOffset(w => w + 1)}
-            className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg bg-[#0a0a0a]/60 border border-[#2a2a2a] hover:border-[#d4a574]/60 hover:bg-[#d4a574]/10 text-[#ccc] hover:text-[#d4a574] text-sm transition-all duration-200"
+            className="p-2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-white/5 border border-white/10 hover:border-emerald-500/40 hover:bg-emerald-500/10 text-foreground-secondary hover:text-emerald-400 text-sm transition-all duration-200"
             aria-label="Next week"
           >
             Next →
           </button>
         </div>
-        <h2 className="text-base sm:text-lg font-bold tracking-tight text-[#ededed]">
+        <h2 className="text-base sm:text-lg font-bold tracking-tight text-foreground">
           {formatWeekRange(weekStart)}
         </h2>
       </div>
 
       {/* ── Category Filter Chips ── */}
-      <div className="rounded-xl bg-[#1a1a1a]/50 backdrop-blur-sm border border-[#2a2a2a]/50 px-5 py-4">
+      <div className="glass-card px-5 py-4">
         <div className="flex items-center justify-between mb-3">
-          <span className="text-xs font-semibold uppercase tracking-wider text-[#888]">Categories</span>
+          <span className="text-xs font-semibold uppercase tracking-wider text-foreground-muted">Categories</span>
           <div className="flex items-center gap-2">
             <button
               onClick={enableAll}
-              className="text-[11px] font-semibold uppercase tracking-wider px-3 py-1.5 min-h-[36px] rounded-md bg-[#d4a574]/10 text-[#d4a574] hover:bg-[#d4a574]/20 border border-[#d4a574]/20 transition-all duration-200"
+              className="text-[11px] font-semibold uppercase tracking-wider px-3 py-1.5 min-h-[36px] rounded-lg bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20 transition-all duration-200"
             >
               All
             </button>
             <button
               onClick={disableAll}
-              className="text-[11px] font-semibold uppercase tracking-wider px-3 py-1.5 min-h-[36px] rounded-md bg-[#2a2a2a]/60 text-[#888] hover:bg-[#2a2a2a] hover:text-[#ccc] border border-[#2a2a2a] transition-all duration-200"
+              className="text-[11px] font-semibold uppercase tracking-wider px-3 py-1.5 min-h-[36px] rounded-lg bg-white/5 text-foreground-muted hover:bg-white/10 hover:text-foreground-secondary border border-white/10 transition-all duration-200"
             >
               None
             </button>
@@ -286,12 +279,12 @@ export default function CalendarView() {
                   border transition-all duration-200 select-none
                   ${active
                     ? `${colors.bg} ${colors.border} ${colors.text} shadow-sm`
-                    : 'bg-[#1a1a1a]/40 border-[#2a2a2a]/40 text-[#555] opacity-60 hover:opacity-80'
+                    : 'bg-white/5 border-white/10 text-foreground-muted opacity-60 hover:opacity-80'
                   }
                 `}
                 aria-pressed={active}
               >
-                <span className={`w-2.5 h-2.5 rounded-full transition-colors duration-200 ${active ? colors.dot : 'bg-[#444]'}`} />
+                <span className={`w-2.5 h-2.5 rounded-full transition-colors duration-200 ${active ? colors.dot : 'bg-foreground-muted'}`} />
                 <span className="capitalize">{cat}</span>
               </button>
             );
@@ -301,13 +294,13 @@ export default function CalendarView() {
 
       {/* ── Empty State ── */}
       {allFiltered && (
-        <div className="flex flex-col items-center justify-center py-16 rounded-xl border border-dashed border-[#2a2a2a] bg-[#0a0a0a]/40">
+        <div className="flex flex-col items-center justify-center py-16 rounded-2xl border border-dashed border-white/10 bg-white/[0.02]">
           <div className="text-4xl mb-3">🔍</div>
-          <p className="text-sm text-[#888] mb-1">No categories selected</p>
-          <p className="text-xs text-[#666] mb-4">Toggle some categories above to see scheduled jobs</p>
+          <p className="text-sm text-foreground-muted mb-1">No categories selected</p>
+          <p className="text-xs text-foreground-muted mb-4">Toggle some categories above to see scheduled jobs</p>
           <button
             onClick={enableAll}
-            className="text-xs font-semibold px-4 py-2 rounded-lg bg-[#d4a574]/15 text-[#d4a574] hover:bg-[#d4a574]/25 border border-[#d4a574]/30 transition-all duration-200"
+            className="text-xs font-semibold px-4 py-2 rounded-xl bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/25 border border-emerald-500/30 transition-all duration-200"
           >
             Show All Categories
           </button>
@@ -317,15 +310,13 @@ export default function CalendarView() {
       {/* ── Calendar Grid ── */}
       {!allFiltered && (
         <>
-        {/* Mobile scroll hint */}
-        <p className="sm:hidden text-xs text-[#555] text-center mb-2">← Swipe to view full calendar →</p>
-        <div className="border border-[#2a2a2a]/70 rounded-xl overflow-hidden shadow-lg">
-          {/* Horizontal scroll wrapper for mobile */}
+        <p className="sm:hidden text-xs text-foreground-muted text-center mb-2">← Swipe to view full calendar →</p>
+        <div className="glass-card overflow-hidden">
           <div className="overflow-x-auto -mx-0">
           <div className="min-w-[640px]">
           {/* Day headers */}
-          <div className="grid grid-cols-[48px_repeat(7,1fr)] sm:grid-cols-[64px_repeat(7,1fr)] bg-[#111]/80 backdrop-blur-sm">
-            <div className="p-3 border-b border-r border-[#2a2a2a]/50" />
+          <div className="grid grid-cols-[48px_repeat(7,1fr)] sm:grid-cols-[64px_repeat(7,1fr)] bg-white/[0.03] backdrop-blur-sm">
+            <div className="p-3 border-b border-r border-white/10" />
             {DAYS.map((day, i) => {
               const date = new Date(weekStart);
               date.setUTCDate(date.getUTCDate() + i);
@@ -333,18 +324,18 @@ export default function CalendarView() {
               return (
                 <div
                   key={day}
-                  className={`p-3 text-center border-b border-r border-[#2a2a2a]/50 last:border-r-0 transition-colors duration-200 ${
-                    isToday ? 'bg-[#d4a574]/15' : ''
+                  className={`p-3 text-center border-b border-r border-white/10 last:border-r-0 transition-colors duration-200 ${
+                    isToday ? 'bg-emerald-500/10' : ''
                   }`}
                 >
-                  <div className={`text-xs font-bold tracking-wide ${isToday ? 'text-[#d4a574]' : 'text-[#999]'}`}>
+                  <div className={`text-xs font-bold tracking-wide ${isToday ? 'text-emerald-400' : 'text-foreground-secondary'}`}>
                     {day}
                   </div>
-                  <div className={`text-[11px] mt-1 font-medium ${isToday ? 'text-[#d4a574]' : 'text-[#555]'}`}>
+                  <div className={`text-[11px] mt-1 font-medium ${isToday ? 'text-emerald-400' : 'text-foreground-muted'}`}>
                     {formatDateShort(date)}
                   </div>
                   {isToday && (
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#d4a574] mx-auto mt-1.5 animate-pulse" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mx-auto mt-1.5 animate-pulse" />
                   )}
                 </div>
               );
@@ -360,7 +351,7 @@ export default function CalendarView() {
               return (
                 <div key={hour} className="grid grid-cols-[48px_repeat(7,1fr)] sm:grid-cols-[64px_repeat(7,1fr)] group/row">
                   {/* Hour label */}
-                  <div className="p-1 px-1.5 sm:p-1.5 sm:px-2 text-[11px] text-[#555] font-mono border-r border-b border-[#2a2a2a]/40 flex items-start justify-end group-hover/row:text-[#888] transition-colors duration-150">
+                  <div className="p-1 px-1.5 sm:p-1.5 sm:px-2 text-[11px] text-foreground-muted font-mono border-r border-b border-white/[0.06] flex items-start justify-end group-hover/row:text-foreground-secondary transition-colors duration-150">
                     {formatHour(hour)}
                   </div>
 
@@ -375,8 +366,8 @@ export default function CalendarView() {
                     return (
                       <div
                         key={key}
-                        className={`min-h-[48px] p-1 border-r border-b border-[#2a2a2a]/30 last:border-r-0 transition-colors duration-150 hover:bg-[#1a1a1a]/50 ${
-                          isToday ? 'bg-[#d4a574]/[0.03]' : ''
+                        className={`min-h-[48px] p-1 border-r border-b border-white/[0.04] last:border-r-0 transition-colors duration-150 hover:bg-white/[0.03] ${
+                          isToday ? 'bg-emerald-500/[0.03]' : ''
                         }`}
                       >
                         {cellOccurrences.map((occ, i) => {
@@ -403,23 +394,23 @@ export default function CalendarView() {
               );
             })}
           </div>
-          </div>{/* end min-w-[640px] */}
-          </div>{/* end overflow-x-auto */}
+          </div>
+          </div>
         </div>
         </>
       )}
 
       {/* ── Disabled Jobs Accordion ── */}
       {disabledJobs.length > 0 && (
-        <div className="rounded-xl border border-[#2a2a2a]/50 bg-[#0a0a0a]/40 overflow-hidden">
+        <div className="glass-card overflow-hidden">
           <button
             onClick={() => setDisabledCollapsed(prev => !prev)}
-            className="w-full flex items-center justify-between px-5 py-3 hover:bg-[#1a1a1a]/40 transition-colors duration-200"
+            className="w-full flex items-center justify-between px-5 py-3 hover:bg-white/5 transition-colors duration-200"
           >
-            <span className="text-xs font-semibold text-[#888] uppercase tracking-wider">
+            <span className="text-xs font-semibold text-foreground-muted uppercase tracking-wider">
               Disabled Jobs ({disabledJobs.length})
             </span>
-            <span className={`text-[#666] text-sm transition-transform duration-200 ${disabledCollapsed ? '' : 'rotate-180'}`}>
+            <span className={`text-foreground-muted text-sm transition-transform duration-200 ${disabledCollapsed ? '' : 'rotate-180'}`}>
               ▼
             </span>
           </button>
@@ -432,10 +423,10 @@ export default function CalendarView() {
               {disabledJobs.map(job => {
                 const colors = CATEGORY_COLORS[job.category] || CATEGORY_COLORS.maintenance;
                 return (
-                  <div key={job.id} className="text-xs text-[#666] flex items-center gap-2.5 py-1">
+                  <div key={job.id} className="text-xs text-foreground-muted flex items-center gap-2.5 py-1">
                     <span className={`w-2 h-2 rounded-full opacity-40 ${colors.dot}`} />
                     <span className="line-through opacity-70">{job.name}</span>
-                    <span className="text-[#555]">— {job.schedule}</span>
+                    <span className="text-foreground-muted">— {job.schedule}</span>
                   </div>
                 );
               })}
@@ -453,9 +444,8 @@ export default function CalendarView() {
               <div
                 key={job.id}
                 className={`
-                  group p-4 rounded-xl border backdrop-blur-sm
+                  group p-4 rounded-2xl border backdrop-blur-sm
                   ${colors.border} ${colors.bg}
-                  bg-gradient-to-br from-transparent to-[#0a0a0a]/30
                   hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/20
                   transition-all duration-250 cursor-default
                 `}
@@ -466,7 +456,7 @@ export default function CalendarView() {
                     <div className={`text-sm font-semibold ${colors.text} truncate group-hover:brightness-110`}>
                       {job.name}
                     </div>
-                    <div className="text-[11px] text-[#777] mt-1.5 leading-snug">{job.schedule}</div>
+                    <div className="text-[11px] text-foreground-muted mt-1.5 leading-snug">{job.schedule}</div>
                   </div>
                 </div>
               </div>
