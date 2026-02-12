@@ -184,3 +184,6 @@ export default function Icon({ name, size = 16, className = '', color, title, st
 
 // Re-export for direct usage when needed
 export { ICON_MAP };
+
+// Type for valid icon names (string since ICON_MAP uses Record<string, ...>)
+export type IconName = string;

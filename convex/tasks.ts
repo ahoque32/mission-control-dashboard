@@ -48,10 +48,47 @@ export const updateStatus = mutation({
     status: v.string(),
   },
   handler: async (ctx, args) => {
-    await ctx.db.patch(args.id, {
+    const now = Date.now();
+    const updates: Record<string, unknown> = {
       status: args.status,
-      updatedAt: Date.now(),
-    });
+      updatedAt: now,
+    };
+    
+    // Track when task moves to "done" for auto-cleanup
+    if (args.status === "done") {
+      updates.completedAt = now;
+    }
+    
+    await ctx.db.patch(args.id, updates);
+  },
+});
+
+// Cleanup tasks that have been "done" for more than 8 hours
+export const cleanupOldDoneTasks = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const eightHoursAgo = Date.now() - 8 * 60 * 60 * 1000;
+    
+    // Get all done tasks
+    const doneTasks = await ctx.db
+      .query("tasks")
+      .withIndex("by_status", (q) => q.eq("status", "done"))
+      .collect();
+    
+    let deletedCount = 0;
+    const deletedTitles: string[] = [];
+    
+    for (const task of doneTasks) {
+      // Check if completedAt exists and is older than 8 hours
+      const completedAt = task.completedAt ?? task.updatedAt;
+      if (completedAt < eightHoursAgo) {
+        await ctx.db.delete(task._id);
+        deletedCount++;
+        deletedTitles.push(task.title);
+      }
+    }
+    
+    return { deletedCount, deletedTitles };
   },
 });
 

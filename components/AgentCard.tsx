@@ -99,7 +99,7 @@ export default function AgentCard({ agent, currentTask }: AgentCardProps) {
   const isActive = useMemo(() => {
     if (!activities.length) return false;
     const fiveMinutesAgo = Date.now() - 5 * 60 * 1000;
-    return activities.some(a => getMs(a.createdAt) > fiveMinutesAgo);
+    return activities.some((a: any) => getMs(a.createdAt) > fiveMinutesAgo);
   }, [activities]);
 
   const recentActivity = activities.length > 0 ? activities[0] : null;
