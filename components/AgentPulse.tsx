@@ -4,7 +4,7 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import Icon from "./ui/Icon";
 
-const statusConfig = {
+const statusConfig: Record<string, { color: string; ring: string; label: string; emoji: string }> = {
   active: {
     color: "bg-emerald-500",
     ring: "ring-emerald-500/30",
@@ -55,7 +55,8 @@ export function AgentPulse() {
     );
   }
 
-  const agents = Object.entries(agentPulse).sort(([, a], [, b]) => {
+  type AgentPulseEntry = { status: string; lastActivity: number; currentTask: string | null; recentTasks: number; recentFailed: number; lastSeen: number };
+  const agents = (Object.entries(agentPulse) as [string, AgentPulseEntry][]).sort(([, a], [, b]) => {
     // Active first, then by last activity
     if (a.status === "active" && b.status !== "active") return -1;
     if (b.status === "active" && a.status !== "active") return 1;
@@ -133,10 +134,10 @@ export function AgentPulseCompact() {
   if (!agentPulse) return null;
 
   const activeCount = Object.values(agentPulse).filter(
-    (a) => a.status === "active"
+    (a: any) => a.status === "active"
   ).length;
   const failedCount = Object.values(agentPulse).filter(
-    (a) => a.status === "failed"
+    (a: any) => a.status === "failed"
   ).length;
 
   return (
