@@ -77,6 +77,84 @@ export default defineSchema({
     createdAt: v.number(),
   }).index("by_createdAt", ["createdAt"]),
 
+  // Agent-to-Agent Coordination (JHawk <-> Anton)
+  agent_tasks: defineTable({
+    taskId: v.string(),
+    type: v.string(), // "heavy-compute" | "large-context" | "batch" | "analysis" | "research"
+    status: v.string(), // "pending" | "claimed" | "in_progress" | "completed" | "failed"
+    priority: v.string(), // "low" | "normal" | "high" | "urgent"
+    assignedTo: v.string(), // "jhawk" | "anton"
+    delegatedBy: v.string(), // "jhawk" | "anton"
+    prompt: v.string(),
+    context: v.optional(v.string()),
+    files: v.optional(v.array(v.string())),
+    result: v.optional(v.string()),
+    error: v.optional(v.string()),
+    timeoutMs: v.optional(v.number()),
+    createdAt: v.number(),
+    claimedAt: v.optional(v.number()),
+    completedAt: v.optional(v.number()),
+  })
+    .index("by_assignedTo_status", ["assignedTo", "status"])
+    .index("by_taskId", ["taskId"])
+    .index("by_createdAt", ["createdAt"]),
+
+  agent_state: defineTable({
+    agentId: v.string(), // "jhawk" | "anton"
+    status: v.string(), // "online" | "busy" | "offline"
+    currentTaskId: v.optional(v.string()),
+    lastHeartbeat: v.number(),
+    metadata: v.optional(v.any()),
+  }).index("by_agentId", ["agentId"]),
+
+  // Agent-to-Agent direct messages (bidirectional, rate-limited)
+  agent_messages: defineTable({
+    from: v.string(), // "jhawk" | "anton"
+    to: v.string(), // "jhawk" | "anton"
+    message: v.string(),
+    read: v.boolean(),
+    createdAt: v.number(),
+  })
+    .index("by_to_read", ["to", "read"])
+    .index("by_createdAt", ["createdAt"])
+    .index("by_from_createdAt", ["from", "createdAt"]),
+
+  // Rate limit tracking
+  agent_rate_limits: defineTable({
+    agentId: v.string(),
+    windowStart: v.number(), // start of 5-min window
+    count: v.number(), // messages sent in this window
+  }).index("by_agentId", ["agentId"]),
+
+  // Agent Communications Log (JHawk <-> Anton)
+  agent_comms: defineTable({
+    from: v.string(),            // "jhawk" | "anton" | "ralph" | etc.
+    to: v.string(),              // "jhawk" | "anton" | "ralph" | etc.
+    channel: v.string(),         // "convex_msg" | "webhook" | "git_push" | "brain_prime_sync"
+    message: v.string(),
+    metadata: v.optional(v.any()), // commit hash, file paths, payload summary, etc.
+    timestamp: v.number(),
+    direction: v.string(),       // "jhawk_to_anton" | "anton_to_jhawk"
+  })
+    .index("by_timestamp", ["timestamp"])
+    .index("by_channel", ["channel"])
+    .index("by_direction", ["direction"])
+    .index("by_channel_timestamp", ["channel", "timestamp"]),
+
+  // Agent Communications Tracking (JHawk ↔ Anton cross-system comms)
+  agent_comms: defineTable({
+    from: v.string(), // "jhawk" | "anton" | agent name
+    to: v.string(), // "jhawk" | "anton" | agent name
+    channel: v.string(), // "convex_msg" | "webhook" | "git_push" | "brain_prime_sync"
+    message: v.string(),
+    metadata: v.any(), // commit hash, file paths, webhook payload summary, etc.
+    direction: v.string(), // "jhawk_to_anton" | "anton_to_jhawk" | "internal"
+    timestamp: v.number(),
+  })
+    .index("by_timestamp", ["timestamp"])
+    .index("by_channel", ["channel"])
+    .index("by_direction", ["direction"]),
+
   cron_jobs: defineTable({
     name: v.string(),
     schedule: v.string(),
