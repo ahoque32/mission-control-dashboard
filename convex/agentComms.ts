@@ -46,39 +46,24 @@ export const list = query({
   handler: async (ctx, args) => {
     const lim = args.limit ?? 100;
 
-    let results;
-    if (args.channel) {
-      results = await ctx.db
-        .query("agent_comms")
-        .withIndex("by_channel_timestamp", (q) => {
-          let query = q.eq("channel", args.channel!);
-          if (args.startTime !== undefined) {
-            query = query.gte("timestamp", args.startTime);
-          }
-          if (args.endTime !== undefined) {
-            query = query.lte("timestamp", args.endTime);
-          }
-          return query;
-        })
-        .order("desc")
-        .take(lim);
-    } else {
-      results = await ctx.db
-        .query("agent_comms")
-        .withIndex("by_timestamp")
-        .order("desc")
-        .take(lim * 2);
-    }
+    // Fetch recent comms, then filter client-side for simplicity
+    const results = await ctx.db
+      .query("agent_comms")
+      .withIndex("by_timestamp")
+      .order("desc")
+      .take(lim * 3);
 
-    // Apply remaining filters
     let filtered = results;
+    if (args.channel) {
+      filtered = filtered.filter((r) => r.channel === args.channel);
+    }
     if (args.direction) {
       filtered = filtered.filter((r) => r.direction === args.direction);
     }
-    if (!args.channel && args.startTime !== undefined) {
+    if (args.startTime !== undefined) {
       filtered = filtered.filter((r) => r.timestamp >= args.startTime!);
     }
-    if (!args.channel && args.endTime !== undefined) {
+    if (args.endTime !== undefined) {
       filtered = filtered.filter((r) => r.timestamp <= args.endTime!);
     }
 
