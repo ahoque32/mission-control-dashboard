@@ -497,7 +497,7 @@ export default function FinancePage() {
                 </tr>
               </thead>
               <tbody>
-                {recentPayouts.map((p) => (
+                {recentPayouts.map((p: any) => (
                   <tr key={p._id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                     <td className="py-2 pr-4 text-foreground-muted">
                       {new Date(p.createdAt).toLocaleDateString('en-US', {

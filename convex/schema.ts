@@ -141,20 +141,6 @@ export default defineSchema({
     .index("by_direction", ["direction"])
     .index("by_channel_timestamp", ["channel", "timestamp"]),
 
-  // Agent Communications Tracking (JHawk ↔ Anton cross-system comms)
-  agent_comms: defineTable({
-    from: v.string(), // "jhawk" | "anton" | agent name
-    to: v.string(), // "jhawk" | "anton" | agent name
-    channel: v.string(), // "convex_msg" | "webhook" | "git_push" | "brain_prime_sync"
-    message: v.string(),
-    metadata: v.any(), // commit hash, file paths, webhook payload summary, etc.
-    direction: v.string(), // "jhawk_to_anton" | "anton_to_jhawk" | "internal"
-    timestamp: v.number(),
-  })
-    .index("by_timestamp", ["timestamp"])
-    .index("by_channel", ["channel"])
-    .index("by_direction", ["direction"]),
-
   cron_jobs: defineTable({
     name: v.string(),
     schedule: v.string(),

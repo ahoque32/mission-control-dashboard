@@ -3,12 +3,7 @@ import { v } from "convex/values";
 
 /**
  * Agent Communications Module
- *
- * NOTE: This module requires the `agent_comms` table in schema.ts.
- * Until deployed with `npx convex deploy`, communications are stored
- * in the `activities` table with type="agent_comm" and full metadata.
- *
- * Once deployed, switch scripts to use agentComms:log mutation directly.
+ * Tracks all JHawk↔Anton agent communications across channels.
  */
 
 // Log a communication event
@@ -19,18 +14,22 @@ export const log = mutation({
     channel: v.string(), // 'convex_msg' | 'webhook' | 'git_push' | 'brain_prime_sync'
     message: v.string(),
     metadata: v.optional(v.any()), // commit hash, file paths, webhook payload summary
-    direction: v.string(), // 'jhawk_to_anton' | 'anton_to_jhawk' | 'internal'
+    direction: v.optional(v.string()), // 'jhawk_to_anton' | 'anton_to_jhawk' — auto-derived if omitted
     timestamp: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    const ts = args.timestamp ?? Date.now();
+    const direction =
+      args.direction ?? `${args.from.toLowerCase()}_to_${args.to.toLowerCase()}`;
+
     return await ctx.db.insert("agent_comms", {
       from: args.from,
       to: args.to,
       channel: args.channel,
       message: args.message,
-      metadata: args.metadata ?? {},
-      direction: args.direction,
-      timestamp: args.timestamp ?? Date.now(),
+      metadata: args.metadata ?? null,
+      direction,
+      timestamp: ts,
     });
   },
 });
@@ -41,29 +40,59 @@ export const list = query({
     limit: v.optional(v.number()),
     channel: v.optional(v.string()),
     direction: v.optional(v.string()),
-    since: v.optional(v.number()), // timestamp - only return comms after this time
+    startTime: v.optional(v.number()),
+    endTime: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const lim = args.limit ?? 100;
 
-    let results = await ctx.db
-      .query("agent_comms")
-      .withIndex("by_timestamp")
-      .order("desc")
-      .take(500);
-
-    // Apply filters
+    let results;
     if (args.channel) {
-      results = results.filter((r) => r.channel === args.channel);
-    }
-    if (args.direction) {
-      results = results.filter((r) => r.direction === args.direction);
-    }
-    if (args.since) {
-      results = results.filter((r) => r.timestamp >= args.since!);
+      results = await ctx.db
+        .query("agent_comms")
+        .withIndex("by_channel_timestamp", (q) => {
+          let query = q.eq("channel", args.channel!);
+          if (args.startTime !== undefined) {
+            query = query.gte("timestamp", args.startTime);
+          }
+          if (args.endTime !== undefined) {
+            query = query.lte("timestamp", args.endTime);
+          }
+          return query;
+        })
+        .order("desc")
+        .take(lim);
+    } else {
+      results = await ctx.db
+        .query("agent_comms")
+        .withIndex("by_timestamp")
+        .order("desc")
+        .take(lim * 2);
     }
 
-    return results.slice(0, lim);
+    // Apply remaining filters
+    let filtered = results;
+    if (args.direction) {
+      filtered = filtered.filter((r) => r.direction === args.direction);
+    }
+    if (!args.channel && args.startTime !== undefined) {
+      filtered = filtered.filter((r) => r.timestamp >= args.startTime!);
+    }
+    if (!args.channel && args.endTime !== undefined) {
+      filtered = filtered.filter((r) => r.timestamp <= args.endTime!);
+    }
+
+    return filtered.slice(0, lim);
+  },
+});
+
+// Get a single communication entry by ID
+export const get = query({
+  args: {
+    id: v.id("agent_comms"),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.id);
   },
 });
 
