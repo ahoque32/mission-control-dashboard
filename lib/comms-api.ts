@@ -76,9 +76,10 @@ export async function fetchComms(opts?: {
   const json = await res.json();
   const activities = json.value || json || [];
 
-  // Filter to agent_comm type and transform
+  // Filter to agent_comm or communication type and transform
+  const COMM_TYPES = ['agent_comm', 'communication'];
   let comms: AgentComm[] = activities
-    .filter((a: any) => a.type === 'agent_comm')
+    .filter((a: any) => COMM_TYPES.includes(a.type))
     .map((a: any) => ({
       id: a._id,
       from: a.metadata?.from || a.agentId || 'unknown',
