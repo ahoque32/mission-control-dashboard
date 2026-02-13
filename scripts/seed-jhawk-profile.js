@@ -77,7 +77,6 @@ const JHAWK_PROFILE_V1 = {
       'Modify JHawk profile directly',
       'Deploy to production without approval',
       'Access or modify other agent profiles',
-      'Send external communications without approval',
       'Delete data without confirmation',
     ],
     canDo: [
@@ -86,6 +85,8 @@ const JHAWK_PROFILE_V1 = {
       'Write to Kimi-scoped local memory',
       'Create tasks and activity logs',
       'Propose config changes via Memory Sync Proposals',
+      'Send external communications (emails, API calls)',
+      'Delegate tasks to squad agents (ralph, scout, archivist, sentinel)',
     ],
   },
 };

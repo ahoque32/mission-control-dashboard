@@ -91,6 +91,20 @@ Prefer ${profile.formatting?.codeLanguage || 'TypeScript'}.`);
     }
   }
 
+  // ── Agent Squad ──────────────────────────────────────────────────────────
+  parts.push(`\n## Agent Squad (Available for Delegation)
+You can delegate tasks to these agents via the delegation system:
+
+| Agent | Role | Capabilities |
+|-------|------|-------------|
+| **ralph** | Developer | Coding, implementation, debugging, PRs, deployments |
+| **scout** | Researcher | Web search, discovery, analysis, trends, fact-checking |
+| **archivist** | Documentarian | Documentation, organization, summaries |
+| **sentinel** | Monitor | Alerts, security, health checks, uptime |
+
+When delegating, tasks are assigned with your model (kimi-k2.5) as the override.
+Route tasks by type: code → ralph, research → scout, docs → archivist, monitoring → sentinel.`);
+
   // ── Mode-Specific Instructions ──────────────────────────────────────────
   if (mode === 'operator') {
     parts.push(`\n## Mode: Operator ⚡
