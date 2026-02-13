@@ -11,6 +11,7 @@ import KimiDelegationPanel from '../../components/kimi/KimiDelegationPanel';
 import type { KimiMode, KimiDelegation } from '../../lib/kimi/kimi.types';
 
 const CONVO_ID_KEY = 'kimi-conversation-id';
+const SESSION_ID_KEY = 'kimi-active-session-id';
 
 function getOrCreateConversationId(): string {
   if (typeof window === 'undefined') return `convo-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -52,10 +53,30 @@ export default function KimiPortalPage() {
     }
   }, [isStale, conversationId, clearOldMessages]);
 
-  // Create session on mount
+  // Resume or create session on mount
   useEffect(() => {
     async function initSession() {
       try {
+        // Try to resume existing session from localStorage
+        const savedSessionId = typeof window !== 'undefined'
+          ? localStorage.getItem(SESSION_ID_KEY)
+          : null;
+
+        if (savedSessionId) {
+          // Verify it's still active
+          const checkRes = await fetch(`/api/kimi/sessions?owner=kimi&status=active`);
+          if (checkRes.ok) {
+            const { sessions } = await checkRes.json();
+            const active = sessions?.find((s: { sessionId: string }) => s.sessionId === savedSessionId);
+            if (active) {
+              setSessionId(savedSessionId);
+              setMessageCount(active.messageCount || 0);
+              return;
+            }
+          }
+        }
+
+        // No valid session — create a new one
         const res = await fetch('/api/kimi/sessions', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -64,13 +85,14 @@ export default function KimiPortalPage() {
         if (res.ok) {
           const data = await res.json();
           setSessionId(data.sessionId);
+          localStorage.setItem(SESSION_ID_KEY, data.sessionId);
         }
       } catch (err) {
-        console.error('Failed to create session:', err);
+        console.error('Failed to init session:', err);
       }
     }
     initSession();
-    // Only create session on mount
+    // Only init session on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -107,6 +129,12 @@ export default function KimiPortalPage() {
       setSessionId(null);
       setMessageCount(0);
       setDelegations([]);
+      localStorage.removeItem(SESSION_ID_KEY);
+
+      // Rotate conversation ID (fresh chat)
+      const newConvoId = `convo-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      localStorage.setItem(CONVO_ID_KEY, newConvoId);
+      setConversationId(newConvoId);
 
       // Create a new session
       const res = await fetch('/api/kimi/sessions', {
@@ -117,6 +145,7 @@ export default function KimiPortalPage() {
       if (res.ok) {
         const data = await res.json();
         setSessionId(data.sessionId);
+        localStorage.setItem(SESSION_ID_KEY, data.sessionId);
       }
     } catch (err) {
       console.error('Failed to end session:', err);
