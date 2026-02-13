@@ -63,31 +63,31 @@ export const updateStatus = mutation({
   },
 });
 
-// Cleanup tasks that have been "done" for more than 8 hours
+// Cleanup tasks that have been "done" for more than 3 days
 export const cleanupOldDoneTasks = mutation({
   args: {},
   handler: async (ctx) => {
-    const eightHoursAgo = Date.now() - 8 * 60 * 60 * 1000;
-    
+    const threeDaysAgo = Date.now() - 3 * 24 * 60 * 60 * 1000;
+
     // Get all done tasks
     const doneTasks = await ctx.db
       .query("tasks")
       .withIndex("by_status", (q) => q.eq("status", "done"))
       .collect();
-    
+
     let deletedCount = 0;
     const deletedTitles: string[] = [];
-    
+
     for (const task of doneTasks) {
-      // Check if completedAt exists and is older than 8 hours
+      // Check if completedAt exists and is older than 3 days
       const completedAt = task.completedAt ?? task.updatedAt;
-      if (completedAt < eightHoursAgo) {
+      if (completedAt < threeDaysAgo) {
         await ctx.db.delete(task._id);
         deletedCount++;
         deletedTitles.push(task.title);
       }
     }
-    
+
     return { deletedCount, deletedTitles };
   },
 });

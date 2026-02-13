@@ -98,6 +98,15 @@ const ACTIVITY_STYLES: Record<string, ActivityStyle> = {
   kimi_permission_denied: { icon: 'shield-x', bgColor: 'bg-red-500/10', textColor: 'text-red-400', borderColor: 'border-red-500/20', label: 'Permission Denied' },
   kimi_escalation_created: { icon: 'exclamation-diamond', bgColor: 'bg-orange-500/10', textColor: 'text-orange-400', borderColor: 'border-orange-500/20', label: 'Escalation' },
   kimi_memory_write: { icon: 'database', bgColor: 'bg-teal-500/10', textColor: 'text-teal-400', borderColor: 'border-teal-500/20', label: 'Memory Write' },
+  // Katana & Dante Agent Types
+  katana_task_completed: { icon: 'check-circle-fill', bgColor: 'bg-red-500/10', textColor: 'text-red-400', borderColor: 'border-red-500/20', label: 'Katana Task Done' },
+  katana_task_started: { icon: 'play-fill', bgColor: 'bg-red-500/10', textColor: 'text-red-400', borderColor: 'border-red-500/20', label: 'Katana Started' },
+  katana_web_search: { icon: 'search', bgColor: 'bg-red-500/10', textColor: 'text-red-400', borderColor: 'border-red-500/20', label: 'Katana Search' },
+  katana_code_generated: { icon: 'code-slash', bgColor: 'bg-red-500/10', textColor: 'text-red-400', borderColor: 'border-red-500/20', label: 'Katana Code' },
+  dante_task_completed: { icon: 'check-circle-fill', bgColor: 'bg-orange-500/10', textColor: 'text-orange-400', borderColor: 'border-orange-500/20', label: 'Dante Task Done' },
+  dante_task_started: { icon: 'play-fill', bgColor: 'bg-orange-500/10', textColor: 'text-orange-400', borderColor: 'border-orange-500/20', label: 'Dante Started' },
+  dante_research: { icon: 'journal-text', bgColor: 'bg-orange-500/10', textColor: 'text-orange-400', borderColor: 'border-orange-500/20', label: 'Dante Research' },
+  dante_analysis: { icon: 'bar-chart', bgColor: 'bg-orange-500/10', textColor: 'text-orange-400', borderColor: 'border-orange-500/20', label: 'Dante Analysis' },
   // Legacy types
   agent_task_completed: { icon: 'check-circle-fill', bgColor: 'bg-green-500/10', textColor: 'text-green-400', borderColor: 'border-green-500/20', label: 'Task Completed' },
   agent_task_started: { icon: 'rocket-takeoff', bgColor: 'bg-blue-500/10', textColor: 'text-blue-400', borderColor: 'border-blue-500/20', label: 'Task Started' },
@@ -152,6 +161,15 @@ const FILTER_TYPES: { value: string; label: string }[] = [
   { value: 'kimi_permission_denied', label: 'Permission Denied' },
   { value: 'kimi_escalation_created', label: 'Escalation' },
   { value: 'kimi_memory_write', label: 'Kimi Memory' },
+  // Katana & Dante Agent Types
+  { value: 'katana_task_completed', label: 'Katana Task Done' },
+  { value: 'katana_task_started', label: 'Katana Started' },
+  { value: 'katana_web_search', label: 'Katana Search' },
+  { value: 'katana_code_generated', label: 'Katana Code' },
+  { value: 'dante_task_completed', label: 'Dante Task Done' },
+  { value: 'dante_task_started', label: 'Dante Started' },
+  { value: 'dante_research', label: 'Dante Research' },
+  { value: 'dante_analysis', label: 'Dante Analysis' },
 ];
 
 // ============================================================================
