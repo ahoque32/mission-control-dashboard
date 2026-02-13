@@ -153,4 +153,99 @@ export default defineSchema({
     createdAt: v.number(),
     updatedAt: v.number(),
   }).index("by_name", ["name"]),
+
+  // ═══════════════════════════════════════════════════════
+  // Kimi Portal Tables
+  // ═══════════════════════════════════════════════════════
+
+  // Agent Profiles (JHawk Profile for Kimi inheritance)
+  agent_profiles: defineTable({
+    profileId: v.string(),
+    version: v.string(),
+    lastUpdatedBy: v.string(),
+    lastUpdatedAt: v.number(),
+    identity: v.any(),
+    operatingRules: v.any(),
+    sops: v.any(),
+    formatting: v.any(),
+    boundaries: v.any(),
+  }).index("by_profileId", ["profileId"]),
+
+  // Kimi Local Memory (Tier 2)
+  kimi_memory: defineTable({
+    key: v.string(),
+    value: v.string(),
+    category: v.string(),
+    status: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_status", ["status"])
+    .index("by_key", ["key"])
+    .index("by_category_status", ["category", "status"]),
+
+  // Kimi Escalation Packets
+  kimi_escalations: defineTable({
+    conversationId: v.string(),
+    trigger: v.string(),
+    severity: v.string(),
+    summary: v.string(),
+    context: v.any(),
+    actions: v.any(),
+    risks: v.array(v.string()),
+    nextSteps: v.array(v.string()),
+    kimiMemorySnapshot: v.any(),
+    userNotes: v.optional(v.string()),
+    status: v.string(),
+    resolvedBy: v.optional(v.string()),
+    resolvedAt: v.optional(v.number()),
+    resolution: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_status", ["status"])
+    .index("by_createdAt", ["createdAt"]),
+
+  // Kimi Execution Logs
+  kimi_logs: defineTable({
+    sessionId: v.string(),
+    timestamp: v.number(),
+    level: v.string(),
+    category: v.string(),
+    message: v.string(),
+    metadata: v.optional(v.any()),
+  })
+    .index("by_sessionId", ["sessionId"])
+    .index("by_timestamp", ["timestamp"]),
+
+  // Config Update Requests (Kimi -> JHawk)
+  config_update_requests: defineTable({
+    requestedBy: v.string(),
+    targetProfile: v.string(),
+    targetPath: v.string(),
+    currentValue: v.any(),
+    proposedValue: v.any(),
+    rationale: v.string(),
+    status: v.string(),
+    reviewedBy: v.optional(v.string()),
+    reviewedAt: v.optional(v.number()),
+    createdAt: v.number(),
+  })
+    .index("by_status", ["status"])
+    .index("by_createdAt", ["createdAt"]),
+
+  // Memory Sync Proposals
+  memory_sync_proposals: defineTable({
+    proposedBy: v.string(),
+    type: v.string(),
+    targetSection: v.string(),
+    description: v.string(),
+    currentState: v.string(),
+    proposedState: v.string(),
+    evidence: v.array(v.string()),
+    status: v.string(),
+    jhawkResponse: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_status", ["status"])
+    .index("by_createdAt", ["createdAt"]),
 });
