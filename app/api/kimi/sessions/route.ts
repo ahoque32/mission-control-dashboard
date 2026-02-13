@@ -1,10 +1,11 @@
 /**
  * Kimi Portal v2 — Sessions API Route
- * POST /api/kimi/sessions — Create a new session
- * GET  /api/kimi/sessions — List sessions (filtered by owner)
+ * POST  /api/kimi/sessions — Create a new session
+ * GET   /api/kimi/sessions — List sessions (filtered by owner)
+ * PATCH /api/kimi/sessions — Close a session
  */
 
-import { createSession, listSessions } from '../../../../lib/kimi/kimi.sessions';
+import { createSession, closeSession, listSessions } from '../../../../lib/kimi/kimi.sessions';
 import { checkPermission } from '../../../../lib/kimi/kimi.permissions';
 import type { KimiMode } from '../../../../lib/kimi/kimi.types';
 
@@ -78,6 +79,35 @@ export async function GET(request: Request) {
     console.error('[Kimi Sessions] List error:', error);
     return Response.json(
       { error: error instanceof Error ? error.message : 'Failed to list sessions' },
+      { status: 500 },
+    );
+  }
+}
+
+export async function PATCH(request: Request) {
+  try {
+    const body = await request.json();
+    const { sessionId, action } = body;
+
+    if (!sessionId) {
+      return Response.json({ error: 'sessionId is required' }, { status: 400 });
+    }
+
+    if (action === 'close') {
+      await closeSession(sessionId);
+
+      await logActivity('kimi_session_closed', `Kimi session closed`, {
+        sessionId,
+      });
+
+      return Response.json({ success: true });
+    }
+
+    return Response.json({ error: `Unknown action: ${action}` }, { status: 400 });
+  } catch (error) {
+    console.error('[Kimi Sessions] Patch error:', error);
+    return Response.json(
+      { error: error instanceof Error ? error.message : 'Failed to update session' },
       { status: 500 },
     );
   }

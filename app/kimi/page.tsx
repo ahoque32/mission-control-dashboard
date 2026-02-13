@@ -62,8 +62,14 @@ export default function KimiPortalPage() {
   const handleEndSession = useCallback(async () => {
     if (!sessionId) return;
     try {
-      // Close session via the sessions API (we'd need a close endpoint, but for now
-      // we reset the client state and create a new session)
+      // Close the current session in the database
+      await fetch('/api/kimi/sessions', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, action: 'close' }),
+      });
+
+      // Reset client state
       setSessionId(null);
       setMessageCount(0);
       setDelegations([]);

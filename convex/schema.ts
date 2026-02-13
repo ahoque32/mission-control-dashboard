@@ -268,6 +268,7 @@ export default defineSchema({
     error: v.optional(v.string()),
     createdAt: v.number(),
     claimedAt: v.optional(v.number()),
+    claimedBy: v.optional(v.string()),
     completedAt: v.optional(v.number()),
   })
     .index("by_delegationId", ["delegationId"])

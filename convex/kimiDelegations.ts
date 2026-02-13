@@ -130,9 +130,18 @@ export const listRecent = query({
 
 /**
  * Claim a delegation (worker picks it up).
+ *
+ * Note: Convex mutations run in serializable isolation — concurrent claims
+ * on the same document will be serialized automatically. The status check
+ * below is sufficient; if two workers race, one will succeed and the other
+ * will either see "in_progress" (and get rejected) or Convex will retry
+ * the losing transaction against the updated state.
  */
 export const claim = mutation({
-  args: { delegationId: v.string() },
+  args: {
+    delegationId: v.string(),
+    claimedBy: v.optional(v.string()),
+  },
   handler: async (ctx, args) => {
     const delegation = await ctx.db
       .query("kimi_delegations")
@@ -144,13 +153,14 @@ export const claim = mutation({
     if (!delegation) throw new Error(`Delegation ${args.delegationId} not found`);
     if (delegation.status !== "pending") {
       throw new Error(
-        `Delegation ${args.delegationId} is ${delegation.status}, not pending`
+        `Delegation ${args.delegationId} is already ${delegation.status} — cannot claim`
       );
     }
 
     await ctx.db.patch(delegation._id, {
       status: "in_progress",
       claimedAt: Date.now(),
+      ...(args.claimedBy ? { claimedBy: args.claimedBy } : {}),
     });
 
     return delegation;
