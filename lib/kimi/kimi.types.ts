@@ -6,7 +6,7 @@
 // Mode & Core Types
 // ============================================================================
 
-export type KimiMode = 'operator' | 'advisor';
+export type KimiMode = 'operator' | 'advisor' | 'katana';
 
 export type EscalationTrigger =
   | 'financial_threshold'

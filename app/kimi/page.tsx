@@ -201,7 +201,7 @@ export default function KimiPortalPage() {
         </div>
         <div className="flex flex-wrap items-center gap-3 mb-3">
           <span className="text-sm text-foreground-secondary">
-            Kimi K2.5
+            {mode === 'katana' ? '⚔️ Katana Agent' : 'Kimi K2.5'}
           </span>
           <span className="text-foreground-muted">·</span>
           <KimiModeSelector mode={mode} onModeChange={setMode} />

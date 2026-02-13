@@ -30,6 +30,16 @@ export default function KimiModeSelector({ mode, onModeChange }: KimiModeSelecto
       >
         💡 Advisor
       </button>
+      <button
+        onClick={() => onModeChange('katana')}
+        className={`px-3 py-1.5 text-xs font-medium rounded transition-all ${
+          mode === 'katana'
+            ? 'bg-violet-600 text-white shadow-sm shadow-violet-500/30'
+            : 'text-foreground-secondary hover:text-foreground hover:bg-background-tertiary'
+        }`}
+      >
+        ⚔️ Katana
+      </button>
     </div>
   );
 }

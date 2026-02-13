@@ -18,12 +18,14 @@ import {
 import { validateAttachments, buildUserMessageContent } from '../../../../lib/kimi/kimi.attachments';
 import { MAX_CONTEXT_MESSAGES } from '../../../../lib/kimi/kimi.config';
 import { incrementMessageCount } from '../../../../lib/kimi/kimi.sessions';
+import { sendToKatana } from '../../../../lib/kimi/kimi.katana';
 import type { KimiChatRequest, KimiChatMessage, KimiSSEEvent } from '../../../../lib/kimi/kimi.types';
 
 const CONVEX_URL = process.env.NEXT_PUBLIC_CONVEX_URL;
 
-async function logChatActivity(sessionId: string | undefined, message: string) {
+async function logChatActivity(sessionId: string | undefined, message: string, chatMode: string = 'operator') {
   if (!CONVEX_URL) return;
+  const label = chatMode === 'katana' ? 'Katana' : 'Kimi';
   try {
     await fetch(`${CONVEX_URL}/api/mutation`, {
       method: 'POST',
@@ -32,10 +34,10 @@ async function logChatActivity(sessionId: string | undefined, message: string) {
         path: 'activities:create',
         args: {
           type: 'kimi_chat_message',
-          agentId: 'kimi',
+          agentId: chatMode === 'katana' ? 'katana' : 'kimi',
           taskId: null,
-          message: `Kimi chat: ${message.slice(0, 120)}${message.length > 120 ? '...' : ''}`,
-          metadata: { sessionId, agentName: 'Kimi', messagePreview: message.slice(0, 200) },
+          message: `${label} chat: ${message.slice(0, 120)}${message.length > 120 ? '...' : ''}`,
+          metadata: { sessionId, agentName: label, mode: chatMode, messagePreview: message.slice(0, 200) },
         },
         format: 'json',
       }),
@@ -56,6 +58,100 @@ export async function POST(request: Request) {
     if (!message || typeof message !== 'string' || message.trim().length === 0) {
       return Response.json({ error: 'Message is required' }, { status: 400 });
     }
+
+    // Track session message count + log activity
+    if (sessionId) {
+      incrementMessageCount(sessionId).catch(() => {});
+    }
+    logChatActivity(sessionId, message, mode).catch(() => {});
+
+    // =========================================================================
+    // KATANA MODE — route through OpenClaw gateway instead of Moonshot
+    // =========================================================================
+    if (mode === 'katana') {
+      // Validate gateway config
+      if (!process.env.OPENCLAW_GATEWAY_URL || !process.env.OPENCLAW_GATEWAY_TOKEN) {
+        console.error('[Katana] OPENCLAW_GATEWAY_URL or OPENCLAW_GATEWAY_TOKEN not set');
+        return Response.json({ error: 'Katana agent not configured' }, { status: 500 });
+      }
+
+      // Check for escalation triggers (still works in katana mode)
+      const escalationTrigger = checkEscalationTriggers(message, mode);
+
+      const encoder = new TextEncoder();
+      const stream = new ReadableStream({
+        async start(controller) {
+          try {
+            // Send meta event
+            controller.enqueue(encoder.encode(sseEncode({
+              type: 'meta',
+              profileVersion: 'katana',
+              memoryEntries: 0,
+              mode,
+            })));
+
+            controller.enqueue(encoder.encode(sseEncode({
+              type: 'log',
+              timestamp: Date.now(),
+              message: 'Routing to Katana agent via OpenClaw gateway...',
+            })));
+
+            // Send escalation advisory if detected
+            if (escalationTrigger) {
+              controller.enqueue(encoder.encode(sseEncode({
+                type: 'escalation',
+                trigger: escalationTrigger,
+                severity: getSeverity(escalationTrigger),
+              })));
+            }
+
+            // Call Katana via OpenClaw gateway
+            const apiStart = Date.now();
+            const katanaReply = await sendToKatana(message.trim());
+            const apiTime = Date.now() - apiStart;
+
+            // Emit the full response as token events (chunked for smooth rendering)
+            const CHUNK_SIZE = 20;
+            for (let i = 0; i < katanaReply.length; i += CHUNK_SIZE) {
+              controller.enqueue(encoder.encode(sseEncode({
+                type: 'token',
+                content: katanaReply.slice(i, i + CHUNK_SIZE),
+              })));
+            }
+
+            // Completion log
+            controller.enqueue(encoder.encode(sseEncode({
+              type: 'log',
+              timestamp: Date.now(),
+              message: `Katana responded (${(apiTime / 1000).toFixed(1)}s)`,
+            })));
+
+            controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+            controller.close();
+          } catch (error) {
+            console.error('[Katana] Error:', error);
+            controller.enqueue(encoder.encode(sseEncode({
+              type: 'error',
+              message: error instanceof Error ? error.message : 'Katana agent error',
+            })));
+            controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+            controller.close();
+          }
+        },
+      });
+
+      return new Response(stream, {
+        headers: {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive',
+        },
+      });
+    }
+
+    // =========================================================================
+    // OPERATOR / ADVISOR MODE — Moonshot API (existing behavior)
+    // =========================================================================
 
     // Validate API key
     if (!process.env.MOONSHOT_API_KEY) {
@@ -99,12 +195,6 @@ export async function POST(request: Request) {
     // Build current user message with attachments
     const userContent = buildUserMessageContent(message.trim(), attachments);
     messages.push({ role: 'user', content: userContent });
-
-    // Track session message count + log activity
-    if (sessionId) {
-      incrementMessageCount(sessionId).catch(() => {});
-    }
-    logChatActivity(sessionId, message).catch(() => {});
 
     // Stream response
     const encoder = new TextEncoder();

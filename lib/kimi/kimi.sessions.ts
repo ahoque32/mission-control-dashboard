@@ -23,7 +23,7 @@ export interface KimiSession {
  */
 export async function createSession(
   owner: 'jhawk' | 'kimi',
-  mode: 'operator' | 'advisor',
+  mode: 'operator' | 'advisor' | 'katana',
   metadata?: Record<string, unknown>,
 ): Promise<{ sessionId: string }> {
   if (!CONVEX_URL) throw new Error('CONVEX_URL not configured');
