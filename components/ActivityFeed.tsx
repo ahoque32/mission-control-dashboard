@@ -83,6 +83,21 @@ const ACTIVITY_STYLES: Record<string, ActivityStyle> = {
   spawn_completed: { icon: 'tree', bgColor: 'bg-emerald-500/10', textColor: 'text-emerald-400', borderColor: 'border-emerald-500/20', label: 'Spawn Completed' },
   spawn_failed: { icon: 'exclamation-triangle-fill', bgColor: 'bg-red-500/10', textColor: 'text-red-400', borderColor: 'border-red-500/20', label: 'Spawn Failed' },
   general: { icon: 'pencil-square', bgColor: 'bg-emerald-500/10', textColor: 'text-emerald-400', borderColor: 'border-emerald-500/20', label: 'General' },
+  // Kimi Portal v2 types
+  kimi_session_started: { icon: 'play-circle', bgColor: 'bg-teal-500/10', textColor: 'text-teal-400', borderColor: 'border-teal-500/20', label: 'Kimi Session' },
+  kimi_session_closed: { icon: 'stop-circle', bgColor: 'bg-teal-500/10', textColor: 'text-teal-400', borderColor: 'border-teal-500/20', label: 'Session Closed' },
+  kimi_chat_message: { icon: 'chat-dots', bgColor: 'bg-teal-500/10', textColor: 'text-teal-400', borderColor: 'border-teal-500/20', label: 'Kimi Chat' },
+  kimi_delegation_created: { icon: 'share', bgColor: 'bg-indigo-500/10', textColor: 'text-indigo-400', borderColor: 'border-indigo-500/20', label: 'Delegation' },
+  kimi_delegation_completed: { icon: 'check2-all', bgColor: 'bg-indigo-500/10', textColor: 'text-indigo-400', borderColor: 'border-indigo-500/20', label: 'Delegation Done' },
+  kimi_delegation_failed: { icon: 'x-circle', bgColor: 'bg-red-500/10', textColor: 'text-red-400', borderColor: 'border-red-500/20', label: 'Delegation Failed' },
+  kimi_model_override: { icon: 'cpu', bgColor: 'bg-cyan-500/10', textColor: 'text-cyan-400', borderColor: 'border-cyan-500/20', label: 'Model Override' },
+  kimi_github_branch: { icon: 'diagram-3', bgColor: 'bg-violet-500/10', textColor: 'text-violet-400', borderColor: 'border-violet-500/20', label: 'Branch Created' },
+  kimi_github_commit: { icon: 'file-diff', bgColor: 'bg-violet-500/10', textColor: 'text-violet-400', borderColor: 'border-violet-500/20', label: 'Commit' },
+  kimi_github_push: { icon: 'cloud-upload', bgColor: 'bg-violet-500/10', textColor: 'text-violet-400', borderColor: 'border-violet-500/20', label: 'Push' },
+  kimi_github_pr: { icon: 'box-arrow-up-right', bgColor: 'bg-violet-500/10', textColor: 'text-violet-400', borderColor: 'border-violet-500/20', label: 'Pull Request' },
+  kimi_permission_denied: { icon: 'shield-x', bgColor: 'bg-red-500/10', textColor: 'text-red-400', borderColor: 'border-red-500/20', label: 'Permission Denied' },
+  kimi_escalation_created: { icon: 'exclamation-diamond', bgColor: 'bg-orange-500/10', textColor: 'text-orange-400', borderColor: 'border-orange-500/20', label: 'Escalation' },
+  kimi_memory_write: { icon: 'database', bgColor: 'bg-teal-500/10', textColor: 'text-teal-400', borderColor: 'border-teal-500/20', label: 'Memory Write' },
   // Legacy types
   agent_task_completed: { icon: 'check-circle-fill', bgColor: 'bg-green-500/10', textColor: 'text-green-400', borderColor: 'border-green-500/20', label: 'Task Completed' },
   agent_task_started: { icon: 'rocket-takeoff', bgColor: 'bg-blue-500/10', textColor: 'text-blue-400', borderColor: 'border-blue-500/20', label: 'Task Started' },
@@ -125,6 +140,18 @@ const FILTER_TYPES: { value: string; label: string }[] = [
   { value: 'agent_task_failed', label: 'Agent Task Failed' },
   { value: 'agent_run_started', label: 'Agent Run Started' },
   { value: 'agent_run_completed', label: 'Agent Run Completed' },
+  // Kimi Portal v2
+  { value: 'kimi_session_started', label: 'Kimi Session' },
+  { value: 'kimi_chat_message', label: 'Kimi Chat' },
+  { value: 'kimi_delegation_created', label: 'Kimi Delegation' },
+  { value: 'kimi_delegation_completed', label: 'Delegation Done' },
+  { value: 'kimi_delegation_failed', label: 'Delegation Failed' },
+  { value: 'kimi_model_override', label: 'Model Override' },
+  { value: 'kimi_github_branch', label: 'GitHub Branch' },
+  { value: 'kimi_github_pr', label: 'GitHub PR' },
+  { value: 'kimi_permission_denied', label: 'Permission Denied' },
+  { value: 'kimi_escalation_created', label: 'Escalation' },
+  { value: 'kimi_memory_write', label: 'Kimi Memory' },
 ];
 
 // ============================================================================

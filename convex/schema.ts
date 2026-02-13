@@ -177,6 +177,7 @@ export default defineSchema({
     value: v.string(),
     category: v.string(),
     status: v.string(),
+    owner: v.optional(v.string()), // "jhawk" | "kimi" — session isolation
     createdAt: v.number(),
     updatedAt: v.number(),
   })
@@ -232,6 +233,62 @@ export default defineSchema({
   })
     .index("by_status", ["status"])
     .index("by_createdAt", ["createdAt"]),
+
+  // ═══════════════════════════════════════════════════════
+  // Kimi Portal v2 — Agent Integration Tables
+  // ═══════════════════════════════════════════════════════
+
+  // Kimi Sessions — Isolated session tracking
+  kimi_sessions: defineTable({
+    sessionId: v.string(),
+    owner: v.string(),              // "jhawk" | "kimi"
+    status: v.string(),             // "active" | "closed" | "suspended"
+    mode: v.string(),               // "operator" | "advisor"
+    messageCount: v.number(),
+    metadata: v.optional(v.any()),
+    createdAt: v.number(),
+    closedAt: v.optional(v.number()),
+  })
+    .index("by_sessionId", ["sessionId"])
+    .index("by_owner_status", ["owner", "status"])
+    .index("by_createdAt", ["createdAt"]),
+
+  // Kimi Delegations — Task delegation from Kimi to worker agents
+  kimi_delegations: defineTable({
+    delegationId: v.string(),
+    sessionId: v.string(),
+    callerAgent: v.string(),        // "kimi"
+    targetAgent: v.string(),        // "ralph" | "scout" | etc.
+    taskDescription: v.string(),
+    modelOverride: v.string(),      // "kimi-k2.5"
+    modelOverrideScope: v.string(), // Always "task"
+    context: v.optional(v.string()),
+    status: v.string(),             // "pending" | "claimed" | "in_progress" | "completed" | "failed"
+    result: v.optional(v.string()),
+    error: v.optional(v.string()),
+    createdAt: v.number(),
+    claimedAt: v.optional(v.number()),
+    claimedBy: v.optional(v.string()),
+    completedAt: v.optional(v.number()),
+  })
+    .index("by_delegationId", ["delegationId"])
+    .index("by_sessionId", ["sessionId"])
+    .index("by_targetAgent_status", ["targetAgent", "status"])
+    .index("by_createdAt", ["createdAt"]),
+
+  // Kimi Permissions Log — Audit trail for permission checks
+  kimi_permissions_log: defineTable({
+    callerAgent: v.string(),
+    action: v.string(),
+    resource: v.string(),
+    allowed: v.boolean(),
+    reason: v.optional(v.string()),
+    sessionId: v.optional(v.string()),
+    timestamp: v.number(),
+  })
+    .index("by_callerAgent", ["callerAgent"])
+    .index("by_timestamp", ["timestamp"])
+    .index("by_allowed", ["allowed"]),
 
   // Memory Sync Proposals
   memory_sync_proposals: defineTable({
