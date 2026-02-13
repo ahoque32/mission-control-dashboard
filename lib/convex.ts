@@ -337,3 +337,67 @@ export function useCreateTask() {
 export function useCreateMessage() {
   return useMutation(api.messages.create);
 }
+
+// ============================================================================
+// Kimi Portal Hooks
+// ============================================================================
+
+function mapKimiMemory(doc: any): any {
+  return {
+    id: doc._id,
+    key: doc.key,
+    value: doc.value,
+    category: doc.category,
+    status: doc.status,
+    createdAt: tsShim(doc.createdAt),
+    updatedAt: tsShim(doc.updatedAt),
+  };
+}
+
+function mapKimiEscalation(doc: any): any {
+  return {
+    id: doc._id,
+    conversationId: doc.conversationId,
+    trigger: doc.trigger,
+    severity: doc.severity,
+    summary: doc.summary,
+    status: doc.status,
+    createdAt: tsShim(doc.createdAt),
+  };
+}
+
+function mapKimiLog(doc: any): any {
+  return {
+    id: doc._id,
+    sessionId: doc.sessionId,
+    timestamp: tsShim(doc.timestamp),
+    level: doc.level,
+    category: doc.category,
+    message: doc.message,
+    metadata: doc.metadata,
+  };
+}
+
+export function useKimiMemory() {
+  const raw = useQuery(api.kimiMemory.getActive);
+  const data = useMemo(() => (raw ?? []).map(mapKimiMemory), [raw]);
+  const loading = raw === undefined;
+  return { data, loading, error: null };
+}
+
+export function useKimiEscalations() {
+  const raw = useQuery(api.kimiEscalations.listPending);
+  const data = useMemo(() => (raw ?? []).map(mapKimiEscalation), [raw]);
+  const loading = raw === undefined;
+  return { data, loading, error: null };
+}
+
+export function useKimiLogs(sessionId: string | null) {
+  const raw = useQuery(
+    api.kimiLogs.listBySession,
+    sessionId ? { sessionId } : 'skip'
+  );
+  const data = useMemo(() => (raw ?? []).map(mapKimiLog), [raw]);
+  const loading = raw === undefined;
+  return { data, loading, error: null };
+}
