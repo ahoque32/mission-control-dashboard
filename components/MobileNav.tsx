@@ -29,6 +29,7 @@ const navItems: NavItem[] = [
   { label: 'Tasks', href: '/tasks', icon: 'kanban' },
   { label: 'Agents', href: '/agents', icon: 'cpu' },
   { label: 'Kimi Portal', href: '/kimi', icon: 'robot' },
+  { label: 'Kimi Anton', href: '/kimi-anton', icon: 'robot' },
   { label: 'Activity', href: '/activity', icon: 'broadcast' },
   { label: 'Documents', href: '/documents', icon: 'file-text' },
   { label: 'Calendar', href: '/calendar', icon: 'calendar3' },
