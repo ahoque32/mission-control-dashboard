@@ -167,3 +167,73 @@ export interface SearchResult {
   url: string;
   metadata?: Record<string, any>;
 }
+
+// ============================================================================
+// Kimi Portal Types
+// ============================================================================
+
+export type KimiMode = 'operator' | 'advisor';
+
+export interface KimiUIMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: number;
+  mode: KimiMode;
+  escalationTriggered?: boolean;
+  attachments?: KimiUIAttachment[];
+}
+
+export type AttachmentType = 'image' | 'document' | 'code';
+export type AttachmentStatus = 'processing' | 'ready' | 'error';
+
+export interface KimiUIAttachment {
+  id: string;
+  file: File;
+  type: AttachmentType;
+  status: AttachmentStatus;
+  preview: string | null;
+  textContent: string | null;
+  base64: string | null;
+  error: string | null;
+  sizeBytes: number;
+}
+
+export interface ProcessedUIAttachment {
+  type: AttachmentType;
+  filename: string;
+  mimeType: string;
+  sizeBytes: number;
+  base64?: string;
+  textContent?: string;
+}
+
+export interface KimiMemoryEntry {
+  id: string;
+  key: string;
+  value: string;
+  category: string;
+  status: 'active' | 'archived' | 'purged';
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+}
+
+export interface KimiEscalation {
+  id: string;
+  conversationId: string;
+  trigger: string;
+  severity: 'low' | 'medium' | 'high' | 'critical';
+  summary: string;
+  status: 'pending' | 'acknowledged' | 'resolved' | 'dismissed';
+  createdAt: Timestamp;
+}
+
+export interface KimiLog {
+  id: string;
+  sessionId: string;
+  timestamp: number;
+  level: 'info' | 'warn' | 'error';
+  category: string;
+  message: string;
+  metadata?: Record<string, any>;
+}
