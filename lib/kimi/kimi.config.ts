@@ -34,6 +34,15 @@ export const CODE_EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.py', '.sh', '.ya
 // MIME type validation
 export const ALLOWED_MIME_PREFIXES = ['image/', 'text/', 'application/pdf', 'application/json'];
 
+// Delegation limits (v2)
+export const MAX_DELEGATIONS_PER_SESSION = 20;
+export const MAX_PENDING_DELEGATIONS = 5;
+export const DELEGATION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
+
+// GitHub integration (v2)
+export const GITHUB_DEFAULT_REPO = 'ahoque32/mission-control-dashboard';
+export const GITHUB_PROTECTED_BRANCHES = ['main', 'production'];
+
 // Escalation trigger keywords
 export const FINANCIAL_KEYWORDS = ['payment', 'transfer', 'transaction', 'invoice', 'billing', 'charge', 'refund', 'payout'];
 export const INFRASTRUCTURE_KEYWORDS = ['deploy', 'production', 'rollback', 'migration', 'database', 'server', 'cloud run', 'docker'];

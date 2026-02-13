@@ -17,7 +17,31 @@ import {
 } from '../../../../lib/kimi/chiefOperator.controller';
 import { validateAttachments, buildUserMessageContent } from '../../../../lib/kimi/kimi.attachments';
 import { MAX_CONTEXT_MESSAGES } from '../../../../lib/kimi/kimi.config';
+import { incrementMessageCount } from '../../../../lib/kimi/kimi.sessions';
 import type { KimiChatRequest, KimiChatMessage, KimiSSEEvent } from '../../../../lib/kimi/kimi.types';
+
+const CONVEX_URL = process.env.NEXT_PUBLIC_CONVEX_URL;
+
+async function logChatActivity(sessionId: string | undefined, message: string) {
+  if (!CONVEX_URL) return;
+  try {
+    await fetch(`${CONVEX_URL}/api/mutation`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        path: 'activities:create',
+        args: {
+          type: 'kimi_chat_message',
+          agentId: 'kimi',
+          taskId: null,
+          message: `Kimi chat: ${message.slice(0, 120)}${message.length > 120 ? '...' : ''}`,
+          metadata: { sessionId, agentName: 'Kimi', messagePreview: message.slice(0, 200) },
+        },
+        format: 'json',
+      }),
+    });
+  } catch { /* best-effort */ }
+}
 
 function sseEncode(event: KimiSSEEvent | string): string {
   if (typeof event === 'string') return `data: ${event}\n\n`;
@@ -26,8 +50,8 @@ function sseEncode(event: KimiSSEEvent | string): string {
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as KimiChatRequest;
-    const { message, mode = 'operator', attachments, conversationHistory = [] } = body;
+    const body = (await request.json()) as KimiChatRequest & { sessionId?: string };
+    const { message, mode = 'operator', attachments, conversationHistory = [], sessionId } = body;
 
     if (!message || typeof message !== 'string' || message.trim().length === 0) {
       return Response.json({ error: 'Message is required' }, { status: 400 });
@@ -75,6 +99,12 @@ export async function POST(request: Request) {
     // Build current user message with attachments
     const userContent = buildUserMessageContent(message.trim(), attachments);
     messages.push({ role: 'user', content: userContent });
+
+    // Track session message count + log activity
+    if (sessionId) {
+      incrementMessageCount(sessionId).catch(() => {});
+    }
+    logChatActivity(sessionId, message).catch(() => {});
 
     // Stream response
     const encoder = new TextEncoder();

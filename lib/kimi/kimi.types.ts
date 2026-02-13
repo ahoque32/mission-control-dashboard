@@ -129,6 +129,78 @@ export interface JHawkProfile {
 }
 
 // ============================================================================
+// Session Types (v2)
+// ============================================================================
+
+export type SessionOwner = 'jhawk' | 'kimi';
+export type SessionStatus = 'active' | 'closed' | 'suspended';
+
+export interface KimiSessionInfo {
+  sessionId: string;
+  owner: SessionOwner;
+  status: SessionStatus;
+  mode: KimiMode;
+  messageCount: number;
+  metadata?: Record<string, unknown>;
+  createdAt: number;
+  closedAt?: number;
+}
+
+// ============================================================================
+// Delegation Types (v2)
+// ============================================================================
+
+export type DelegationStatus = 'pending' | 'claimed' | 'in_progress' | 'completed' | 'failed';
+
+export interface KimiDelegation {
+  delegationId: string;
+  sessionId: string;
+  callerAgent: string;
+  targetAgent: string;
+  taskDescription: string;
+  modelOverride: string;
+  modelOverrideScope: 'task'; // Always task-scoped
+  context?: string;
+  status: DelegationStatus;
+  result?: string;
+  error?: string;
+  createdAt: number;
+  claimedAt?: number;
+  completedAt?: number;
+}
+
+// ============================================================================
+// Permission Types (v2)
+// ============================================================================
+
+export interface PermissionCheckResult {
+  allowed: boolean;
+  reason: string;
+  callerAgent: string;
+  action: string;
+}
+
+// ============================================================================
+// Activity Types (v2 additions)
+// ============================================================================
+
+export type KimiActivityType =
+  | 'kimi_session_started'
+  | 'kimi_session_closed'
+  | 'kimi_chat_message'
+  | 'kimi_delegation_created'
+  | 'kimi_delegation_completed'
+  | 'kimi_delegation_failed'
+  | 'kimi_model_override'
+  | 'kimi_github_branch'
+  | 'kimi_github_commit'
+  | 'kimi_github_push'
+  | 'kimi_github_pr'
+  | 'kimi_permission_denied'
+  | 'kimi_escalation_created'
+  | 'kimi_memory_write';
+
+// ============================================================================
 // Handoff Packet
 // ============================================================================
 

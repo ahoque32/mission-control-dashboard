@@ -25,12 +25,13 @@ import type {
 
 interface KimiChatProps {
   mode: KimiMode;
+  sessionId?: string | null;
   onMetaUpdate: (meta: Extract<KimiSSEEvent, { type: 'meta' }>) => void;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function KimiChat({ mode, onMetaUpdate }: KimiChatProps) {
+export default function KimiChat({ mode, sessionId, onMetaUpdate }: KimiChatProps) {
   const [messages, setMessages] = useState<KimiUIMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -102,6 +103,7 @@ export default function KimiChat({ mode, onMetaUpdate }: KimiChatProps) {
           body: JSON.stringify({
             message: trimmed,
             mode,
+            sessionId: sessionId || undefined,
             attachments: readyAttachments.map(a => a.processed!),
             conversationHistory: messages.map(m => ({
               role: m.role,
@@ -167,7 +169,7 @@ export default function KimiChat({ mode, onMetaUpdate }: KimiChatProps) {
         setIsLoading(false);
       }
     },
-    [attachments, isLoading, mode, messages, onMetaUpdate]
+    [attachments, isLoading, mode, sessionId, messages, onMetaUpdate]
   );
 
   const handleSubmit = (e: React.FormEvent) => {
