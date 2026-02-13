@@ -79,7 +79,8 @@ export const isConversationStale = query({
       .order("desc")
       .take(1);
 
-    if (messages.length === 0) return true;
+    // Empty conversation = NOT stale (it's new, nothing to clean up)
+    if (messages.length === 0) return false;
 
     const latestMessage = messages[0];
     return Date.now() - latestMessage.createdAt > FIVE_DAYS_MS;

@@ -60,11 +60,16 @@ export default function KimiChat({ mode, sessionId, conversationId, onMetaUpdate
 
   // ─── Effects ──────────────────────────────────────────────────────────────
 
-  // Load persisted messages on mount (once)
+  // Reset loaded flag when conversationId changes
+  useEffect(() => {
+    setHasLoadedHistory(false);
+  }, [conversationId]);
+
+  // Load persisted messages when available
   useEffect(() => {
     if (savedMessages && !hasLoadedHistory) {
       if (savedMessages.length > 0) {
-        const restored: KimiUIMessage[] = savedMessages.map((msg, i) => ({
+        const restored: KimiUIMessage[] = savedMessages.map((msg) => ({
           id: `restored-${msg._id}`,
           role: msg.role as 'user' | 'assistant',
           content: msg.content,
@@ -77,6 +82,8 @@ export default function KimiChat({ mode, sessionId, conversationId, onMetaUpdate
           })),
         }));
         setMessages(restored);
+      } else {
+        setMessages([]);
       }
       setHasLoadedHistory(true);
     }
