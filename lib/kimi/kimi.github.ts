@@ -202,6 +202,168 @@ export async function openPR(
   }
 }
 
+// ── File Operations ─────────────────────────────────────────────────────────
+
+/**
+ * Read a file's content from a GitHub repository.
+ * Returns the decoded UTF-8 content and SHA (needed for updates).
+ */
+export async function readFile(
+  owner: string,
+  repo: string,
+  path: string,
+  branch?: string,
+): Promise<GitHubResponse<{ content: string; sha: string; size: number }>> {
+  const repoPath = `${owner}/${repo}`;
+  const query = branch ? `?ref=${encodeURIComponent(branch)}` : '';
+
+  try {
+    const res = await githubAPI(
+      `/repos/${repoPath}/contents/${encodeURIComponent(path)}${query}`,
+    );
+
+    if (!res.ok) {
+      if (res.status === 404) {
+        return { success: false, error: `File not found: ${path}` };
+      }
+      const errBody = await res.text();
+      return { success: false, error: `Failed to read file: ${errBody}` };
+    }
+
+    const data = await res.json();
+
+    // GitHub returns base64-encoded content for files
+    if (data.type !== 'file') {
+      return { success: false, error: `Path is not a file: ${path} (type: ${data.type})` };
+    }
+
+    const content = Buffer.from(data.content, 'base64').toString('utf-8');
+
+    return {
+      success: true,
+      data: { content, sha: data.sha, size: data.size },
+    };
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : 'Unknown error';
+    return { success: false, error: msg };
+  }
+}
+
+/**
+ * Create or update a file in a GitHub repository.
+ * If the file exists, its current SHA must be provided for the update.
+ * If the file doesn't exist, omit the SHA to create it.
+ */
+export async function createOrUpdateFile(
+  owner: string,
+  repo: string,
+  path: string,
+  content: string,
+  message: string,
+  branch: string,
+  sha?: string,
+): Promise<GitHubResponse<{ path: string; sha: string }>> {
+  const repoPath = `${owner}/${repo}`;
+  const encoded = Buffer.from(content, 'utf-8').toString('base64');
+
+  try {
+    const body: Record<string, unknown> = {
+      message,
+      content: encoded,
+      branch,
+    };
+
+    // If SHA is provided, this is an update; otherwise it's a create
+    if (sha) {
+      body.sha = sha;
+    }
+
+    const res = await githubAPI(
+      `/repos/${repoPath}/contents/${encodeURIComponent(path)}`,
+      'PUT',
+      body,
+    );
+
+    if (!res.ok) {
+      const errBody = await res.text();
+      return { success: false, error: `Failed to write file: ${errBody}` };
+    }
+
+    const data = await res.json();
+
+    await logActivity('kimi_github_commit', `${sha ? 'Updated' : 'Created'} file: ${path}`, {
+      repo: repoPath,
+      path,
+      branch,
+      sha: data.content.sha,
+      action: sha ? 'update' : 'create',
+    });
+
+    return {
+      success: true,
+      data: { path: data.content.path, sha: data.content.sha },
+    };
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : 'Unknown error';
+    return { success: false, error: msg };
+  }
+}
+
+/**
+ * List files in a directory of a GitHub repository.
+ * Returns name, path, type (file/dir), and size for each entry.
+ */
+export async function listFiles(
+  owner: string,
+  repo: string,
+  path?: string,
+  branch?: string,
+): Promise<
+  GitHubResponse<Array<{ name: string; path: string; type: string; size: number }>>
+> {
+  const repoPath = `${owner}/${repo}`;
+  const filePath = path ? `/${encodeURIComponent(path)}` : '';
+  const query = branch ? `?ref=${encodeURIComponent(branch)}` : '';
+
+  try {
+    const res = await githubAPI(
+      `/repos/${repoPath}/contents${filePath}${query}`,
+    );
+
+    if (!res.ok) {
+      if (res.status === 404) {
+        return { success: false, error: `Path not found: ${path || '/'}` };
+      }
+      const errBody = await res.text();
+      return { success: false, error: `Failed to list files: ${errBody}` };
+    }
+
+    const data = await res.json();
+
+    // If it's a single file (not a directory), wrap it
+    if (!Array.isArray(data)) {
+      return {
+        success: true,
+        data: [{ name: data.name, path: data.path, type: data.type, size: data.size || 0 }],
+      };
+    }
+
+    const files = data.map(
+      (item: { name: string; path: string; type: string; size?: number }) => ({
+        name: item.name,
+        path: item.path,
+        type: item.type,
+        size: item.size || 0,
+      }),
+    );
+
+    return { success: true, data: files };
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : 'Unknown error';
+    return { success: false, error: msg };
+  }
+}
+
 /**
  * List repository branches.
  */
