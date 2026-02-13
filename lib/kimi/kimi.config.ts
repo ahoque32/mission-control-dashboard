@@ -15,7 +15,7 @@ export const MAX_CONVERSATION_MESSAGES = 100;
 export const MAX_CONTEXT_MESSAGES = 20; // Messages sent to API per request
 
 // Token limits
-export const DEFAULT_TEMPERATURE = 0.7;
+export const DEFAULT_TEMPERATURE = 1; // Kimi K2.5 only accepts temperature=1
 export const DEFAULT_MAX_TOKENS = 4096;
 
 // Attachment limits
