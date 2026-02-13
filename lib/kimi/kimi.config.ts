@@ -2,7 +2,7 @@
  * Kimi Portal — Configuration Constants
  */
 
-export const MOONSHOT_BASE_URL = 'https://api.moonshot.cn/v1';
+export const MOONSHOT_BASE_URL = 'https://api.moonshot.ai/v1';
 export const KIMI_MODEL = 'kimi-k2.5';
 
 // Rate limits
