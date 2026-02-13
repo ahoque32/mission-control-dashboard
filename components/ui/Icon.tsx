@@ -75,6 +75,8 @@ import {
   Circle,
   QuestionCircle,
   PersonX,
+  Paperclip,
+  ArrowUp,
 } from 'react-bootstrap-icons';
 import type { Icon as IconType } from 'react-bootstrap-icons';
 
@@ -143,6 +145,8 @@ const ICON_MAP: Record<string, IconType> = {
   'circle': Circle,
   'question-circle': QuestionCircle,
   'person-x': PersonX,
+  'paperclip': Paperclip,
+  'arrow-up': ArrowUp,
 };
 
 interface IconProps {

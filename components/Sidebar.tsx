@@ -32,6 +32,7 @@ const navItems: NavItem[] = [
   { label: 'Calendar', href: '/calendar', icon: 'calendar3' },
   { label: 'Search', href: '/search', icon: 'search' },
   { label: 'Finance', href: '/finance', icon: 'wallet2' },
+  { label: 'Kimi Portal', href: '/kimi', icon: 'robot' },
 ];
 
 export default function Sidebar() {
