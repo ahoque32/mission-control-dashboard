@@ -290,6 +290,21 @@ export default defineSchema({
     .index("by_timestamp", ["timestamp"])
     .index("by_allowed", ["allowed"]),
 
+  // Kimi Chat Messages — Persistent chat history
+  kimi_chat_messages: defineTable({
+    sessionId: v.string(),            // conversation group ID (NOT kimi_sessions ID)
+    role: v.string(),                 // "user" | "assistant"
+    content: v.string(),
+    attachments: v.optional(v.array(v.object({
+      filename: v.string(),
+      type: v.string(),
+      sizeBytes: v.number(),
+    }))),
+    createdAt: v.number(),
+  })
+    .index("by_sessionId_createdAt", ["sessionId", "createdAt"])
+    .index("by_createdAt", ["createdAt"]),
+
   // Memory Sync Proposals
   memory_sync_proposals: defineTable({
     proposedBy: v.string(),

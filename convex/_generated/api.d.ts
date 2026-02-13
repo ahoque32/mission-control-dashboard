@@ -19,6 +19,7 @@ import type * as configUpdateRequests from "../configUpdateRequests.js";
 import type * as cronJobs from "../cronJobs.js";
 import type * as documents from "../documents.js";
 import type * as http from "../http.js";
+import type * as kimiChatMessages from "../kimiChatMessages.js";
 import type * as kimiDelegations from "../kimiDelegations.js";
 import type * as kimiEscalations from "../kimiEscalations.js";
 import type * as kimiLogs from "../kimiLogs.js";
@@ -48,6 +49,7 @@ declare const fullApi: ApiFromModules<{
   cronJobs: typeof cronJobs;
   documents: typeof documents;
   http: typeof http;
+  kimiChatMessages: typeof kimiChatMessages;
   kimiDelegations: typeof kimiDelegations;
   kimiEscalations: typeof kimiEscalations;
   kimiLogs: typeof kimiLogs;

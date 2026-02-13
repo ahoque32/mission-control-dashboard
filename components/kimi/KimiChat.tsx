@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 import Icon from '../ui/Icon';
 import KimiMessageBubble from './KimiMessageBubble';
 import KimiStarterChips from './KimiStarterChips';
@@ -26,17 +28,19 @@ import type {
 interface KimiChatProps {
   mode: KimiMode;
   sessionId?: string | null;
+  conversationId: string;
   onMetaUpdate: (meta: Extract<KimiSSEEvent, { type: 'meta' }>) => void;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function KimiChat({ mode, sessionId, onMetaUpdate }: KimiChatProps) {
+export default function KimiChat({ mode, sessionId, conversationId, onMetaUpdate }: KimiChatProps) {
   const [messages, setMessages] = useState<KimiUIMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [logs, setLogs] = useState<{ timestamp: number; message: string }[]>([]);
+  const [hasLoadedHistory, setHasLoadedHistory] = useState(false);
   
   // Escalation state
   const [isEscalationModalOpen, setIsEscalationModalOpen] = useState(false);
@@ -47,10 +51,36 @@ export default function KimiChat({ mode, sessionId, onMetaUpdate }: KimiChatProp
   const [attachments, setAttachments] = useState<AttachmentState[]>([]);
   const [isDragActive, setIsDragActive] = useState(false);
 
+  // Convex persistence
+  const savedMessages = useQuery(api.kimiChatMessages.getConversation, { sessionId: conversationId });
+  const saveMessage = useMutation(api.kimiChatMessages.saveMessage);
+
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // ─── Effects ──────────────────────────────────────────────────────────────
+
+  // Load persisted messages on mount (once)
+  useEffect(() => {
+    if (savedMessages && !hasLoadedHistory) {
+      if (savedMessages.length > 0) {
+        const restored: KimiUIMessage[] = savedMessages.map((msg, i) => ({
+          id: `restored-${msg._id}`,
+          role: msg.role as 'user' | 'assistant',
+          content: msg.content,
+          // Attachment metadata only (no base64/content)
+          attachments: msg.attachments?.map(a => ({
+            type: a.type as 'image' | 'document' | 'code',
+            filename: a.filename,
+            mimeType: '',
+            sizeBytes: a.sizeBytes,
+          })),
+        }));
+        setMessages(restored);
+      }
+      setHasLoadedHistory(true);
+    }
+  }, [savedMessages, hasLoadedHistory]);
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
@@ -90,11 +120,27 @@ export default function KimiChat({ mode, sessionId, onMetaUpdate }: KimiChatProp
       setMessages((prev) => [...prev, userMsg]);
       setIsLoading(true);
 
+      // Save user message to Convex (metadata only for attachments)
+      saveMessage({
+        sessionId: conversationId,
+        role: 'user',
+        content: trimmed,
+        attachments: readyAttachments.length > 0
+          ? readyAttachments.map(a => ({
+              filename: a.processed!.filename,
+              type: a.processed!.type,
+              sizeBytes: a.processed!.sizeBytes,
+            }))
+          : undefined,
+      }).catch(() => { /* non-critical — chat still works without persistence */ });
+
       const assistantMsgId = `assistant-${Date.now()}`;
       setMessages((prev) => [
         ...prev,
         { id: assistantMsgId, role: 'assistant', content: '' },
       ]);
+
+      let fullAssistantContent = '';
 
       try {
         const res = await fetch('/api/kimi/chat', {
@@ -140,6 +186,7 @@ export default function KimiChat({ mode, sessionId, onMetaUpdate }: KimiChatProp
                     onMetaUpdate(event);
                     break;
                   case 'token':
+                    fullAssistantContent += event.content;
                     setMessages((prev) =>
                       prev.map((msg) =>
                         msg.id === assistantMsgId
@@ -163,13 +210,22 @@ export default function KimiChat({ mode, sessionId, onMetaUpdate }: KimiChatProp
             }
           }
         }
+
+        // Save complete assistant message to Convex after streaming finishes
+        if (fullAssistantContent.trim()) {
+          saveMessage({
+            sessionId: conversationId,
+            role: 'assistant',
+            content: fullAssistantContent,
+          }).catch(() => { /* non-critical */ });
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to get a response');
       } finally {
         setIsLoading(false);
       }
     },
-    [attachments, isLoading, mode, sessionId, messages, onMetaUpdate]
+    [attachments, isLoading, mode, sessionId, conversationId, messages, onMetaUpdate, saveMessage]
   );
 
   const handleSubmit = (e: React.FormEvent) => {

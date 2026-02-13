@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 import KimiChat from '../../components/kimi/KimiChat';
 import KimiModeSelector from '../../components/kimi/KimiModeSelector';
 import KimiMemoryIndicator from '../../components/kimi/KimiMemoryIndicator';
@@ -8,15 +10,47 @@ import KimiSessionIndicator from '../../components/kimi/KimiSessionIndicator';
 import KimiDelegationPanel from '../../components/kimi/KimiDelegationPanel';
 import type { KimiMode, KimiDelegation } from '../../lib/kimi/kimi.types';
 
+const CONVO_ID_KEY = 'kimi-conversation-id';
+
+function getOrCreateConversationId(): string {
+  if (typeof window === 'undefined') return `convo-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const existing = localStorage.getItem(CONVO_ID_KEY);
+  if (existing) return existing;
+  const id = `convo-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  localStorage.setItem(CONVO_ID_KEY, id);
+  return id;
+}
+
 export default function KimiPortalPage() {
   const [mode, setMode] = useState<KimiMode>('operator');
   const [profileVersion, setProfileVersion] = useState<string | null>(null);
   const [memoryCount, setMemoryCount] = useState<number>(0);
+  const [conversationId, setConversationId] = useState<string>(() => getOrCreateConversationId());
 
   // Session state (v2)
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [messageCount, setMessageCount] = useState(0);
   const [delegations, setDelegations] = useState<KimiDelegation[]>([]);
+
+  // Check if conversation is stale (>5 days) and rotate if needed
+  const isStale = useQuery(api.kimiChatMessages.isConversationStale, { sessionId: conversationId });
+  const clearOldMessages = useMutation(api.kimiChatMessages.clearOldMessages);
+  const clearAllStale = useMutation(api.kimiChatMessages.clearAllStaleConversations);
+
+  useEffect(() => {
+    // Run global stale cleanup on mount
+    clearAllStale({}).catch(() => {});
+  }, [clearAllStale]);
+
+  useEffect(() => {
+    if (isStale === true) {
+      // Clear old messages and rotate conversation ID
+      clearOldMessages({ sessionId: conversationId }).catch(() => {});
+      const newId = `convo-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      localStorage.setItem(CONVO_ID_KEY, newId);
+      setConversationId(newId);
+    }
+  }, [isStale, conversationId, clearOldMessages]);
 
   // Create session on mount
   useEffect(() => {
@@ -147,6 +181,7 @@ export default function KimiPortalPage() {
       <KimiChat
         mode={mode}
         sessionId={sessionId}
+        conversationId={conversationId}
         onMetaUpdate={(meta: { profileVersion: string; memoryEntries: number }) => {
           setProfileVersion(meta.profileVersion);
           setMemoryCount(meta.memoryEntries);
