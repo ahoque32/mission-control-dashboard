@@ -18,7 +18,7 @@ import {
 import { validateAttachments, buildUserMessageContent } from '../../../../lib/kimi/kimi.attachments';
 import { MAX_CONTEXT_MESSAGES } from '../../../../lib/kimi/kimi.config';
 import { incrementMessageCount } from '../../../../lib/kimi/kimi.sessions';
-import { sendToKatana } from '../../../../lib/kimi/kimi.katana';
+import { callKatana, parseKimiStream as parseKatanaStream } from '../../../../lib/kimi/kimi.katana';
 import type { KimiChatRequest, KimiChatMessage, KimiSSEEvent } from '../../../../lib/kimi/kimi.types';
 
 const CONVEX_URL = process.env.NEXT_PUBLIC_CONVEX_URL;
@@ -69,9 +69,9 @@ export async function POST(request: Request) {
     // KATANA MODE — route through OpenClaw gateway instead of Moonshot
     // =========================================================================
     if (mode === 'katana') {
-      // Validate gateway config
-      if (!process.env.OPENCLAW_GATEWAY_URL || !process.env.OPENCLAW_GATEWAY_TOKEN) {
-        console.error('[Katana] OPENCLAW_GATEWAY_URL or OPENCLAW_GATEWAY_TOKEN not set');
+      // Validate Moonshot API key (Katana uses Moonshot directly)
+      if (!process.env.MOONSHOT_API_KEY) {
+        console.error('[Katana] MOONSHOT_API_KEY not set');
         return Response.json({ error: 'Katana agent not configured' }, { status: 500 });
       }
 
@@ -93,7 +93,7 @@ export async function POST(request: Request) {
             controller.enqueue(encoder.encode(sseEncode({
               type: 'log',
               timestamp: Date.now(),
-              message: 'Routing to Katana agent via OpenClaw gateway...',
+              message: 'Katana agent active (Kimi K2.5)...',
             })));
 
             // Send escalation advisory if detected
@@ -105,19 +105,31 @@ export async function POST(request: Request) {
               })));
             }
 
-            // Call Katana via OpenClaw gateway
+            // Call Katana via Moonshot API directly
             const apiStart = Date.now();
-            const katanaReply = await sendToKatana(message.trim());
-            const apiTime = Date.now() - apiStart;
+            const response = await callKatana(message.trim(), conversationHistory);
 
-            // Emit the full response as token events (chunked for smooth rendering)
-            const CHUNK_SIZE = 20;
-            for (let i = 0; i < katanaReply.length; i += CHUNK_SIZE) {
+            if (!response.ok) {
+              const errorBody = await response.text();
+              console.error('[Katana] Moonshot API error:', response.status, errorBody);
+              controller.enqueue(encoder.encode(sseEncode({
+                type: 'error',
+                message: 'Katana AI service error. Please try again.',
+              })));
+              controller.enqueue(encoder.encode('data: [DONE]\n\n'));
+              controller.close();
+              return;
+            }
+
+            // Stream tokens from Moonshot
+            for await (const token of parseKatanaStream(response)) {
               controller.enqueue(encoder.encode(sseEncode({
                 type: 'token',
-                content: katanaReply.slice(i, i + CHUNK_SIZE),
+                content: token,
               })));
             }
+
+            const apiTime = Date.now() - apiStart;
 
             // Completion log
             controller.enqueue(encoder.encode(sseEncode({

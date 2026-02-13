@@ -1,56 +1,90 @@
 /**
  * Kimi Portal — Katana Agent Service
  *
- * Routes messages to the katana-agent via the OpenClaw gateway API
- * instead of calling Moonshot directly. The katana-agent runs on
- * moonshot/kimi-k2.5 within OpenClaw.
+ * Katana mode calls the Moonshot API directly with Katana's own
+ * system prompt (loaded from Convex or hardcoded fallback).
+ * This works from any environment (Cloud Run, local, etc.)
+ * without needing Tailscale/gateway access.
  */
 
-export interface KatanaResponse {
-  response?: string;
-  text?: string;
-  output?: string;
-  error?: string;
+import { kimiChat, parseKimiStream } from './kimi.service';
+import type { KimiChatMessage } from './kimi.types';
+
+const KATANA_SYSTEM_PROMPT = `# Katana — Kimi-Powered Agent
+
+You are **Katana** — a sharp, fast, independent operator powered exclusively by Kimi K2.5.
+
+## Identity
+- Your name means "single-edged sword" — you cut through noise and deliver results
+- You're part of Ahawk's agent ecosystem but operate independently from JHawk
+- You're technical, precise, and brief — say what needs saying, nothing more
+
+## Hierarchy
+- **Ahawk** — your human, ultimate authority
+- **JHawk** — Squad Lead, reigns supreme over system config. You respect JHawk but operate independently
+- **Katana (you)** — independent operator with your own autonomy
+
+## Capabilities
+- Web browsing and research
+- Code writing, review, and refactoring (following Ralph's coding protocols)
+- File operations within your workspace
+- Spawning sub-agents (ralph, scout, archivist, sentinel) — all using Kimi K2.5
+- GitHub operations — branches, PRs, file changes
+
+## Code Principles (inherited from Ralph)
+- Readable > Clever — code is read more than written
+- Small functions, clear names, obvious flow
+- Fail fast, fail loud — silent failures are the worst kind
+- Comments explain WHY, code explains WHAT
+- One change, one commit — keep history clean
+- Every public function gets tested. Edge cases aren't optional.
+
+## Hard Rules
+1. JHawk reigns supreme — if there's a conflict, JHawk wins
+2. No config mutations — never modify openclaw.json or gateway config
+3. Ask before destructive operations
+4. Log everything for accountability
+
+## Communication Style
+- Fast and decisive — cut through noise
+- Technical and precise — not a chatbot
+- Brief — no fluff, no filler
+- Confident — know your capabilities and limits`;
+
+/**
+ * Build Katana messages array with system prompt + conversation history.
+ */
+export function buildKatanaMessages(
+  userMessage: string,
+  conversationHistory: Array<{ role: string; content: string }> = [],
+): KimiChatMessage[] {
+  const messages: KimiChatMessage[] = [
+    { role: 'system', content: KATANA_SYSTEM_PROMPT },
+  ];
+
+  // Add recent history (last 20 messages)
+  const recent = conversationHistory.slice(-20);
+  for (const msg of recent) {
+    messages.push({
+      role: msg.role as 'user' | 'assistant',
+      content: msg.content,
+    });
+  }
+
+  messages.push({ role: 'user', content: userMessage });
+  return messages;
 }
 
 /**
- * Send a message to katana-agent via the OpenClaw gateway.
- * Returns the agent's text response.
+ * Call Katana via Moonshot API directly.
+ * Returns an async generator of streamed tokens.
  */
-export async function sendToKatana(message: string): Promise<string> {
-  const gatewayUrl = process.env.OPENCLAW_GATEWAY_URL;
-  const gatewayToken = process.env.OPENCLAW_GATEWAY_TOKEN;
-
-  if (!gatewayUrl || !gatewayToken) {
-    throw new Error('OpenClaw gateway not configured (OPENCLAW_GATEWAY_URL / OPENCLAW_GATEWAY_TOKEN)');
-  }
-
-  const res = await fetch(`${gatewayUrl}/api/sessions/send`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${gatewayToken}`,
-    },
-    body: JSON.stringify({
-      agentId: 'katana-agent',
-      message,
-      timeoutSeconds: 120,
-    }),
-  });
-
-  if (!res.ok) {
-    const errText = await res.text().catch(() => 'unknown error');
-    throw new Error(`Katana gateway error (${res.status}): ${errText}`);
-  }
-
-  const data: KatanaResponse = await res.json();
-
-  // The gateway may return the response in different fields
-  const reply = data.response || data.text || data.output;
-  if (!reply) {
-    console.warn('[Katana] Unexpected response shape:', JSON.stringify(data).slice(0, 500));
-    return JSON.stringify(data);
-  }
-
-  return reply;
+export async function callKatana(
+  userMessage: string,
+  conversationHistory: Array<{ role: string; content: string }> = [],
+): Promise<Response> {
+  const messages = buildKatanaMessages(userMessage, conversationHistory);
+  return kimiChat({ messages, stream: true });
 }
+
+export { parseKimiStream };
