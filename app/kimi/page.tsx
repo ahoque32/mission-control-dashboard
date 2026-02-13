@@ -8,6 +8,7 @@ import KimiModeSelector from '../../components/kimi/KimiModeSelector';
 import KimiMemoryIndicator from '../../components/kimi/KimiMemoryIndicator';
 import KimiSessionIndicator from '../../components/kimi/KimiSessionIndicator';
 import KimiDelegationPanel from '../../components/kimi/KimiDelegationPanel';
+import Icon from '../../components/ui/Icon';
 import type { KimiMode, KimiDelegation } from '../../lib/kimi/kimi.types';
 
 const CONVO_ID_KEY = 'kimi-conversation-id';
@@ -182,9 +183,22 @@ export default function KimiPortalPage() {
     <div className="p-4 sm:p-6 max-w-4xl mx-auto">
       {/* Header */}
       <div className="mb-6 sm:mb-8">
-        <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-2">
-          Kimi Portal — Chief Operator
-        </h1>
+        <div className="flex items-center gap-3 mb-2">
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground">
+            Kimi Portal — Chief Operator
+          </h1>
+          <button
+            onClick={handleEndSession}
+            title="New Chat"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium
+                       bg-white/5 border border-white/10 rounded-lg
+                       hover:bg-white/10 hover:border-white/20 transition-all
+                       text-foreground-secondary hover:text-foreground"
+          >
+            <Icon name="pencil-square" size={14} />
+            New Chat
+          </button>
+        </div>
         <div className="flex flex-wrap items-center gap-3 mb-3">
           <span className="text-sm text-foreground-secondary">
             Kimi K2.5
