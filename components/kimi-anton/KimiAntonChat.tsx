@@ -1,0 +1,347 @@
+'use client';
+
+import { useState, useRef, useEffect, useCallback } from 'react';
+import Icon from '../ui/Icon';
+import KimiMessageBubble from '../kimi/KimiMessageBubble';
+import KimiAntonStarterChips from './KimiAntonStarterChips';
+import KimiExecutionLogs from '../kimi/KimiExecutionLogs';
+import KimiAntonEscalationModal from './KimiAntonEscalationModal';
+import KimiAttachmentPreview from '../kimi/KimiAttachmentPreview';
+import KimiAttachmentDropZone from '../kimi/KimiAttachmentDropZone';
+import {
+  classifyFile,
+  validateFile,
+  processFile,
+} from '../../lib/kimi/kimi.attachments';
+import { MAX_ATTACHMENTS } from '../../lib/kimi/kimi.config';
+import type { KimiUIMessage, AttachmentState } from '../kimi/kimi.types';
+import type {
+  KimiMode,
+  KimiSSEEvent,
+  EscalationTrigger,
+  EscalationSeverity,
+} from '../../lib/kimi/kimi.types';
+
+interface KimiAntonChatProps {
+  mode: KimiMode;
+  sessionId?: string | null;
+  onMetaUpdate: (meta: Extract<KimiSSEEvent, { type: 'meta' }>) => void;
+}
+
+export default function KimiAntonChat({ mode, sessionId, onMetaUpdate }: KimiAntonChatProps) {
+  const [messages, setMessages] = useState<KimiUIMessage[]>([]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [logs, setLogs] = useState<{ timestamp: number; message: string }[]>([]);
+  
+  const [isEscalationModalOpen, setIsEscalationModalOpen] = useState(false);
+  const [escalationTrigger, setEscalationTrigger] = useState<EscalationTrigger | null>(null);
+  const [escalationSeverity, setEscalationSeverity] = useState<EscalationSeverity | null>(null);
+
+  const [attachments, setAttachments] = useState<AttachmentState[]>([]);
+  const [isDragActive, setIsDragActive] = useState(false);
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages, isLoading]);
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height =
+        Math.min(textareaRef.current.scrollHeight, 150) + 'px';
+    }
+  }, [input]);
+
+  const sendMessage = useCallback(
+    async (content: string) => {
+      const trimmed = content.trim();
+      const readyAttachments = attachments.filter((a) => a.status === 'ready' && a.processed);
+
+      if ((!trimmed && readyAttachments.length === 0) || isLoading) return;
+
+      setError(null);
+      setInput('');
+      setAttachments([]);
+
+      const userMsg: KimiUIMessage = {
+        id: `user-${Date.now()}`,
+        role: 'user',
+        content: trimmed,
+        attachments: readyAttachments.map(a => a.processed!),
+      };
+      setMessages((prev) => [...prev, userMsg]);
+      setIsLoading(true);
+
+      const assistantMsgId = `assistant-${Date.now()}`;
+      setMessages((prev) => [
+        ...prev,
+        { id: assistantMsgId, role: 'assistant', content: '' },
+      ]);
+
+      try {
+        const res = await fetch('/api/kimi-anton/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: trimmed,
+            mode,
+            sessionId: sessionId || undefined,
+            attachments: readyAttachments.map(a => a.processed!),
+            conversationHistory: messages.map(m => ({
+              role: m.role,
+              content: m.content,
+              timestamp: Date.now()
+            })),
+          }),
+        });
+
+        if (!res.ok || !res.body) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || `Request failed (${res.status})`);
+        }
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value);
+          const lines = chunk.split('\n');
+
+          for (const line of lines) {
+            if (line.trim().startsWith('data: ')) {
+              const data = line.slice(6);
+              if (data === '[DONE]') break;
+              
+              try {
+                const event = JSON.parse(data) as KimiSSEEvent;
+                switch (event.type) {
+                  case 'meta':
+                    onMetaUpdate(event);
+                    break;
+                  case 'token':
+                    setMessages((prev) =>
+                      prev.map((msg) =>
+                        msg.id === assistantMsgId
+                          ? { ...msg, content: msg.content + event.content }
+                          : msg
+                      )
+                    );
+                    break;
+                  case 'log':
+                    setLogs((prev) => [...prev, { timestamp: event.timestamp, message: event.message }]);
+                    break;
+                  case 'escalation':
+                    setEscalationTrigger(event.trigger);
+                    setEscalationSeverity(event.severity);
+                    break;
+                  case 'error':
+                    setError(event.message);
+                    break;
+                }
+              } catch (e) { /* ignore malformed json */ }
+            }
+          }
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to get a response');
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [attachments, isLoading, mode, sessionId, messages, onMetaUpdate]
+  );
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    sendMessage(input);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage(input);
+    }
+  };
+
+  const handleFileSelect = (files: FileList | null) => {
+    if (!files) return;
+
+    const newAttachments = Array.from(files).slice(0, MAX_ATTACHMENTS - attachments.length);
+
+    for (const file of newAttachments) {
+      const validation = validateFile(file);
+      const id = crypto.randomUUID();
+      const type = classifyFile(file.name);
+
+      if (!validation.valid || !type) {
+        setAttachments(prev => [...prev, {
+          id, file, type: type || 'document', status: 'error',
+          preview: null, sizeBytes: file.size, error: validation.error || 'Invalid type'
+        }]);
+        continue;
+      }
+
+      setAttachments(prev => [...prev, {
+        id, file, type, status: 'processing', preview: null,
+        sizeBytes: file.size, error: null
+      }]);
+
+      processFile(file).then(processed => {
+        const preview = (processed.type === 'image' && processed.base64) ? processed.base64 : null;
+        setAttachments(prev => prev.map(a => a.id === id ? {
+          ...a, status: 'ready', preview, processed
+        } : a));
+      }).catch(err => {
+        setAttachments(prev => prev.map(a => a.id === id ? {
+          ...a, status: 'error', error: err.message
+        } : a));
+      });
+    }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent) => {
+    handleFileSelect(e.clipboardData?.files);
+  };
+
+  const handleDragEvents = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setIsDragActive(true);
+    } else if (e.type === 'dragleave') {
+      setIsDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    handleDragEvents(e);
+    setIsDragActive(false);
+    if (e.dataTransfer.files?.[0]) {
+      handleFileSelect(e.dataTransfer.files);
+    }
+  };
+
+  return (
+    <>
+      <div
+        className="glass-card flex flex-col relative"
+        style={{ height: 'calc(100vh - 220px)', minHeight: '400px' }}
+        onDragEnter={handleDragEvents}
+        onDragOver={handleDragEvents}
+        onDragLeave={handleDragEvents}
+        onDrop={handleDrop}
+      >
+        <KimiAttachmentDropZone isActive={isDragActive} />
+        
+        <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+          {messages.length === 0 && !isLoading && (
+            <KimiAntonStarterChips onSelect={sendMessage} />
+          )}
+
+          {messages.map((msg) => (
+            <KimiMessageBubble key={msg.id} role={msg.role} content={msg.content} attachments={msg.attachments} />
+          ))}
+
+          {isLoading && messages[messages.length - 1]?.role === 'assistant' && (
+            <div className="flex justify-start">
+              <div className="bg-white/5 border border-white/10 rounded-2xl rounded-bl-sm px-4 py-3">
+                <div className="flex gap-1.5">
+                  <div className="w-2 h-2 bg-foreground-muted rounded-full animate-bounce [animation-delay:-0.3s]" />
+                  <div className="w-2 h-2 bg-foreground-muted rounded-full animate-bounce [animation-delay:-0.15s]" />
+                  <div className="w-2 h-2 bg-foreground-muted rounded-full animate-bounce" />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {error && (
+            <div className="flex justify-center">
+              <div className="bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2 flex items-center gap-2">
+                <p className="text-red-400 text-xs">{error}</p>
+              </div>
+            </div>
+          )}
+        </div>
+        
+        <KimiAttachmentPreview
+          attachments={attachments}
+          onRemove={(id) => setAttachments(prev => prev.filter(a => a.id !== id))}
+        />
+
+        <div className="border-t border-white/10 px-4 py-3">
+          <form onSubmit={handleSubmit} className="flex gap-2 items-end">
+            <textarea
+              ref={textareaRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              onPaste={handlePaste}
+              placeholder="Type a message or drop files..."
+              disabled={isLoading}
+              rows={1}
+              className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm
+                         text-foreground placeholder:text-foreground-muted focus:outline-none
+                         focus:ring-2 focus:ring-emerald-500/50 resize-none disabled:opacity-50"
+            />
+            <label className="cursor-pointer p-3 rounded-xl hover:bg-white/5 transition-colors
+              text-foreground-secondary hover:text-foreground shrink-0">
+              <Icon name="paperclip" size={18} />
+              <input
+                type="file"
+                multiple
+                accept=".png,.jpg,.jpeg,.gif,.webp,.svg,.pdf,.txt,.md,.csv,.json,.ts,.tsx,.js,.jsx,.py,.sh,.yaml,.toml"
+                className="hidden"
+                onChange={(e) => handleFileSelect(e.target.files)}
+                disabled={isLoading}
+              />
+            </label>
+            <button
+              type="submit"
+              disabled={isLoading || (!input.trim() && attachments.length === 0)}
+              className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:hover:bg-emerald-600
+                         rounded-xl px-4 py-3 text-sm font-medium text-white transition-colors shrink-0"
+            >
+              <Icon name="arrow-up" size={18} />
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div className="mt-4 flex justify-between items-center">
+        <button
+          onClick={() => setIsEscalationModalOpen(true)}
+          className="flex items-center gap-2 px-4 py-2 text-sm bg-orange-500/15 text-orange-400
+                     border border-orange-500/20 rounded-xl hover:bg-orange-500/25 transition-all"
+        >
+          <Icon name="rocket-takeoff" size={16} />
+          Escalate to Anton / JHawk
+        </button>
+        <KimiExecutionLogs logs={logs} />
+      </div>
+
+      <KimiAntonEscalationModal
+        isOpen={isEscalationModalOpen}
+        onClose={() => setIsEscalationModalOpen(false)}
+        trigger={escalationTrigger}
+        severity={escalationSeverity}
+        autoSummary={messages.findLast(m => m.role === 'user')?.content || ''}
+        conversationId={`conv-${Date.now()}`}
+        conversationHistory={messages.map(m => ({
+          role: m.role,
+          content: m.content,
+          timestamp: Date.now()
+        }))}
+      />
+    </>
+  );
+}

@@ -33,6 +33,7 @@ const navItems: NavItem[] = [
   { label: 'Search', href: '/search', icon: 'search' },
   { label: 'Finance', href: '/finance', icon: 'wallet2' },
   { label: 'Kimi Portal', href: '/kimi', icon: 'robot' },
+  { label: 'Kimi Anton', href: '/kimi-anton', icon: 'robot' },
 ];
 
 export default function Sidebar() {
