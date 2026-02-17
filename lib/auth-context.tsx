@@ -23,6 +23,7 @@ interface AuthContextValue {
   error: string | null;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
+  getIdToken: () => Promise<string | null>;
 }
 
 const AuthContext = createContext<AuthContextValue>({
@@ -31,6 +32,7 @@ const AuthContext = createContext<AuthContextValue>({
   error: null,
   signInWithGoogle: async () => {},
   signOut: async () => {},
+  getIdToken: async () => null,
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -83,6 +85,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const getIdToken = async (): Promise<string | null> => {
+    if (!user) return null;
+    try {
+      return await user.getIdToken();
+    } catch {
+      return null;
+    }
+  };
+
   const signOut = async () => {
     try {
       await firebaseSignOut(auth);
@@ -94,7 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, error, signInWithGoogle, signOut }}>
+    <AuthContext.Provider value={{ user, loading, error, signInWithGoogle, signOut, getIdToken }}>
       {children}
     </AuthContext.Provider>
   );
