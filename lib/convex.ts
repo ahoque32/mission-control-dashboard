@@ -256,13 +256,13 @@ export function useActivityPaginated(
     let result = allActivities;
     if (agentFilter) {
       result = result.filter(
-        (a) =>
+        (a: typeof result[0]) =>
           a.agentId === agentFilter ||
           a.metadata?.agentName === agentFilter,
       );
     }
     if (typeFilter) {
-      result = result.filter((a) => a.type === typeFilter);
+      result = result.filter((a: typeof result[0]) => a.type === typeFilter);
     }
     return result;
   }, [allActivities, agentFilter, typeFilter]);

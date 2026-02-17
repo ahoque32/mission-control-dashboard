@@ -69,12 +69,12 @@ export default function KimiChat({ mode, sessionId, conversationId, onMetaUpdate
   useEffect(() => {
     if (savedMessages && !hasLoadedHistory) {
       if (savedMessages.length > 0) {
-        const restored: KimiUIMessage[] = savedMessages.map((msg) => ({
+        const restored: KimiUIMessage[] = savedMessages.map((msg: typeof savedMessages[0]) => ({
           id: `restored-${msg._id}`,
           role: msg.role as 'user' | 'assistant',
           content: msg.content,
           // Attachment metadata only (no base64/content)
-          attachments: msg.attachments?.map(a => ({
+          attachments: msg.attachments?.map((a: typeof msg.attachments[0]) => ({
             type: a.type as 'image' | 'document' | 'code',
             filename: a.filename,
             mimeType: '',
