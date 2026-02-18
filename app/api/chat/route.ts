@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { agentId, message, sessionId = 'default' } = body;
 
-    console.log(`[chat] agentId=${agentId}, sessionId=${sessionId}, user=${user.email}`);
+    console.log(`[chat-route] agentId=${agentId}, sessionId=${sessionId}, user=${user.email}, model=openclaw:${agentId}`);
 
     // 3. Validate agent
     if (!agentId || !ALLOWED_AGENTS.includes(agentId)) {
@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
 
     if (!gatewayResponse.ok) {
       const errorText = await gatewayResponse.text().catch(() => 'Unknown error');
-      console.error('Gateway error:', gatewayResponse.status, errorText);
+      console.error(`Gateway error: status=${gatewayResponse.status}, agentId=${agentId}, url=${GATEWAY_URL}, body=${errorText}`);
       return Response.json(
         { error: 'Gateway request failed', details: errorText },
         { status: gatewayResponse.status }
