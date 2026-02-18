@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 6. Derive stable session key
-    const sessionKey = `mc:${user.uid}:${agentId}:${sessionId}`;
+    const sessionKey = `agent:${agentId}:mc:${user.uid}:${sessionId}`;
 
     // 7. Forward to Gateway
     const fetchFn = TS_PROXY ? undiciFetch : fetch;
