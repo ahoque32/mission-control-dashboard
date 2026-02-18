@@ -50,6 +50,8 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { agentId, message, sessionId = 'default' } = body;
 
+    console.log(`[chat] agentId=${agentId}, sessionId=${sessionId}, user=${user.email}`);
+
     // 3. Validate agent
     if (!agentId || !ALLOWED_AGENTS.includes(agentId)) {
       return Response.json({ error: `Invalid agent: ${agentId}` }, { status: 400 });

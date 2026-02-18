@@ -1,31 +1,46 @@
 // components/chat/ChatShell.tsx - Main chat container
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback } from 'react';
 import { useChat } from '@/hooks/useChat';
 import AgentSelector from './AgentSelector';
 import ChatMessages from './ChatMessages';
 import ChatInput from './ChatInput';
 
-export default function ChatShell() {
-  const [selectedAgentId, setSelectedAgentId] = useState('main');
-  const sessionIdRef = useRef(`s-${Date.now()}`);
+function ChatSession({ agentId }: { agentId: string }) {
   const { messages, isStreaming, error, sendMessage, abort, clearMessages } = useChat({
-    agentId: selectedAgentId,
-    sessionId: sessionIdRef.current,
+    agentId,
+    sessionId: `s-${agentId}-${Date.now()}`,
   });
 
-  const handleSend = useCallback((content: string) => {
-    sendMessage(content);
-  }, [sendMessage]);
+  return (
+    <>
+      {/* Clear button in a portal-ish way - pass via context if needed */}
+      <ChatMessages 
+        messages={messages} 
+        agentId={agentId}
+        error={error}
+      />
+      <ChatInput
+        onSend={sendMessage}
+        isStreaming={isStreaming}
+        onAbort={abort}
+        disabled={false}
+      />
+    </>
+  );
+}
+
+export default function ChatShell() {
+  const [selectedAgentId, setSelectedAgentId] = useState('main');
+  const [sessionKey, setSessionKey] = useState(() => `${Date.now()}`);
 
   const handleAgentChange = useCallback((newAgentId: string) => {
     if (newAgentId !== selectedAgentId) {
       setSelectedAgentId(newAgentId);
-      sessionIdRef.current = `s-${Date.now()}`;
-      clearMessages();
+      setSessionKey(`${Date.now()}`);
     }
-  }, [selectedAgentId, clearMessages]);
+  }, [selectedAgentId]);
 
   return (
     <div className="flex flex-col h-full bg-background">
@@ -40,39 +55,24 @@ export default function ChatShell() {
               </p>
             </div>
             
-            {messages.length > 0 && (
-              <button
-                onClick={clearMessages}
-                disabled={isStreaming}
-                className="px-3 py-1.5 text-sm text-foreground-secondary hover:text-foreground border border-border hover:border-foreground/30 rounded-lg transition-colors disabled:opacity-50"
-              >
-                Clear Chat
-              </button>
-            )}
+            <button
+              onClick={() => setSessionKey(`${Date.now()}`)}
+              className="px-3 py-1.5 text-sm text-foreground-secondary hover:text-foreground border border-border hover:border-foreground/30 rounded-lg transition-colors"
+            >
+              Clear Chat
+            </button>
           </div>
           
           <AgentSelector
             selectedAgentId={selectedAgentId}
             onSelectAgent={handleAgentChange}
-            disabled={isStreaming}
+            disabled={false}
           />
         </div>
       </div>
 
-      {/* Messages */}
-      <ChatMessages 
-        messages={messages} 
-        agentId={selectedAgentId}
-        error={error}
-      />
-
-      {/* Input */}
-      <ChatInput
-        onSend={handleSend}
-        isStreaming={isStreaming}
-        onAbort={abort}
-        disabled={false}
-      />
+      {/* Key forces full remount when agent or session changes */}
+      <ChatSession key={sessionKey} agentId={selectedAgentId} />
     </div>
   );
 }
