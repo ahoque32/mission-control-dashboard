@@ -1,11 +1,8 @@
 // app/api/chat/route.ts - Proxy route for OpenClaw Gateway chat completions
 import { NextRequest } from 'next/server';
 
-import { ProxyAgent } from 'undici';
-
 const GATEWAY_URL = process.env.OPENCLAW_GATEWAY_URL || 'http://100.114.7.2:3001';
 const GATEWAY_TOKEN = process.env.OPENCLAW_GATEWAY_TOKEN;
-const TS_PROXY = process.env.TS_PROXY_ADDR; // Tailscale outbound HTTP proxy
 
 const ALLOWED_AGENTS = ['main', 'dante-agent', 'dante-fast', 'vincent-agent'];
 
@@ -71,7 +68,7 @@ export async function POST(req: NextRequest) {
     const sessionKey = `mc:${user.uid}:${agentId}:${sessionId}`;
 
     // 7. Forward to Gateway
-    const fetchOptions: RequestInit & { dispatcher?: unknown } = {
+    const gatewayResponse = await fetch(`${GATEWAY_URL}/v1/chat/completions`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${GATEWAY_TOKEN}`,
@@ -85,14 +82,7 @@ export async function POST(req: NextRequest) {
         stream: true,
         user: sessionKey,
       }),
-    };
-
-    // Use Tailscale proxy if available (Cloud Run sidecar)
-    if (TS_PROXY) {
-      fetchOptions.dispatcher = new ProxyAgent(TS_PROXY);
-    }
-
-    const gatewayResponse = await fetch(`${GATEWAY_URL}/v1/chat/completions`, fetchOptions);
+    });
 
     if (!gatewayResponse.ok) {
       const errorText = await gatewayResponse.text().catch(() => 'Unknown error');
