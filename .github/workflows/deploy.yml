@@ -39,11 +39,8 @@ jobs:
           docker build -t $REGION-docker.pkg.dev/$PROJECT_ID/$AR_REPO/$SERVICE:${{ github.sha }} .
           docker push $REGION-docker.pkg.dev/$PROJECT_ID/$AR_REPO/$SERVICE:${{ github.sha }}
 
-      - name: Deploy to Cloud Run
+      - name: Deploy to Cloud Run (with Tailscale sidecar)
         run: |
-          gcloud run deploy $SERVICE \
-            --image $REGION-docker.pkg.dev/$PROJECT_ID/$AR_REPO/$SERVICE:${{ github.sha }} \
-            --region $REGION \
-            --platform managed \
-            --allow-unauthenticated \
-            --set-secrets="GEMINI_API_KEY=gemini-api-key:latest,PAYPAL_CLIENT_ID=paypal-client-id:latest,PAYPAL_CLIENT_SECRET=paypal-client-secret:latest,PLAID_CLIENT_ID=plaid-client-id:latest,PLAID_SECRET=plaid-secret:latest,PLAID_ACCESS_TOKEN=plaid-access-token:latest,MOONSHOT_API_KEY=moonshot-api-key:latest,OPENCLAW_GATEWAY_URL=openclaw-gateway-url:latest,OPENCLAW_GATEWAY_TOKEN=openclaw-gateway-token:latest"
+          IMAGE="${REGION}-docker.pkg.dev/${PROJECT_ID}/${AR_REPO}/${SERVICE}:${{ github.sha }}"
+          sed "s|IMAGE_PLACEHOLDER|${IMAGE}|g" .github/cloud-run-service.yaml > /tmp/service.yaml
+          gcloud run services replace /tmp/service.yaml --region $REGION

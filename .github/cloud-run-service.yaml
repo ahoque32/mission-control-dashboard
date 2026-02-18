@@ -1,0 +1,129 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  annotations:
+    run.googleapis.com/ingress: all
+    run.googleapis.com/maxScale: '3'
+    run.googleapis.com/launch-stage: BETA
+  labels:
+    cloud.googleapis.com/location: us-east1
+  name: mission-control-dashboard
+  namespace: '457623930004'
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/maxScale: '3'
+        run.googleapis.com/startup-cpu-boost: 'true'
+        run.googleapis.com/container-dependencies: '{"mission-control-dashboard":["tailscale-sidecar"]}'
+      labels:
+        run.googleapis.com/startupProbeType: Default
+    spec:
+      containerConcurrency: 80
+      containers:
+      - name: mission-control-dashboard
+        image: IMAGE_PLACEHOLDER
+        env:
+        - name: NEXT_PUBLIC_CONVEX_URL
+          value: https://courteous-quail-705.convex.cloud
+        - name: GEMINI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              key: latest
+              name: gemini-api-key
+        - name: PAYPAL_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              key: latest
+              name: paypal-client-id
+        - name: PAYPAL_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              key: latest
+              name: paypal-client-secret
+        - name: PLAID_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              key: latest
+              name: plaid-client-id
+        - name: PLAID_SECRET
+          valueFrom:
+            secretKeyRef:
+              key: latest
+              name: plaid-secret
+        - name: PLAID_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: latest
+              name: plaid-access-token
+        - name: MOONSHOT_API_KEY
+          valueFrom:
+            secretKeyRef:
+              key: latest
+              name: moonshot-api-key
+        - name: OPENCLAW_GATEWAY_URL
+          valueFrom:
+            secretKeyRef:
+              key: latest
+              name: openclaw-gateway-url
+        - name: OPENCLAW_GATEWAY_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: latest
+              name: openclaw-gateway-token
+        - name: HTTP_PROXY
+          value: http://localhost:1055
+        - name: http_proxy
+          value: http://localhost:1055
+        - name: NO_PROXY
+          value: "*.convex.cloud,*.googleapis.com,*.google.com,*.firebase.com,*.firebaseio.com,*.moonshot.ai,*.minimax.io"
+        - name: no_proxy
+          value: "*.convex.cloud,*.googleapis.com,*.google.com,*.firebase.com,*.firebaseio.com,*.moonshot.ai,*.minimax.io"
+        ports:
+        - containerPort: 8080
+          name: http1
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 512Mi
+        startupProbe:
+          failureThreshold: 1
+          periodSeconds: 240
+          tcpSocket:
+            port: 8080
+          timeoutSeconds: 240
+      - name: tailscale-sidecar
+        image: us-east1-docker.pkg.dev/reverberant-yew-486022-j6/ghcr-mirror/tailscale/tailscale:latest
+        env:
+        - name: TS_AUTHKEY
+          valueFrom:
+            secretKeyRef:
+              key: latest
+              name: tailscale-auth-key
+        - name: TS_STATE_DIR
+          value: /tmp/tailscale
+        - name: TS_USERSPACE
+          value: "true"
+        - name: TS_ENABLE_HEALTH_CHECK
+          value: "true"
+        - name: TS_LOCAL_ADDR_PORT
+          value: "0.0.0.0:9002"
+        - name: TS_OUTBOUND_HTTP_PROXY_LISTEN
+          value: "0.0.0.0:1055"
+        resources:
+          limits:
+            cpu: 500m
+            memory: 256Mi
+        startupProbe:
+          httpGet:
+            path: /healthz
+            port: 9002
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          failureThreshold: 20
+          timeoutSeconds: 3
+      serviceAccountName: 457623930004-compute@developer.gserviceaccount.com
+      timeoutSeconds: 300
+  traffic:
+  - latestRevision: true
+    percent: 100
