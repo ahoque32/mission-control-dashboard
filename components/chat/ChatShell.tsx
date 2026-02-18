@@ -1,7 +1,7 @@
 // components/chat/ChatShell.tsx - Main chat container
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { useChat } from '@/hooks/useChat';
 import AgentSelector from './AgentSelector';
 import ChatMessages from './ChatMessages';
@@ -9,9 +9,10 @@ import ChatInput from './ChatInput';
 
 export default function ChatShell() {
   const [selectedAgentId, setSelectedAgentId] = useState('main');
+  const sessionIdRef = useRef(`s-${Date.now()}`);
   const { messages, isStreaming, error, sendMessage, abort, clearMessages } = useChat({
     agentId: selectedAgentId,
-    sessionId: 'default',
+    sessionId: sessionIdRef.current,
   });
 
   const handleSend = useCallback((content: string) => {
@@ -21,6 +22,7 @@ export default function ChatShell() {
   const handleAgentChange = useCallback((newAgentId: string) => {
     if (newAgentId !== selectedAgentId) {
       setSelectedAgentId(newAgentId);
+      sessionIdRef.current = `s-${Date.now()}`;
       clearMessages();
     }
   }, [selectedAgentId, clearMessages]);
