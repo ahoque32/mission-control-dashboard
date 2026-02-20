@@ -38,6 +38,16 @@ const navItems: NavItem[] = [
   { label: 'Kimi Anton', href: '/kimi-anton', icon: 'robot' },
 ];
 
+const v2NavItems: NavItem[] = [
+  { label: 'V2 Dashboard', href: '/v2', icon: 'rocket' },
+  { label: 'Tasks Board', href: '/v2/tasks', icon: 'kanban-fill' },
+  { label: 'Calendar', href: '/v2/calendar', icon: 'calendar-week' },
+  { label: 'Memory', href: '/v2/memory', icon: 'journal-text' },
+  { label: 'Team', href: '/v2/team', icon: 'people-fill' },
+  { label: 'Content', href: '/v2/content', icon: 'collection-play' },
+  { label: 'Office', href: '/v2/office', icon: 'building' },
+];
+
 export default function Sidebar() {
   const pathname = usePathname();
   const { agents, loading } = useAgents();
@@ -68,7 +78,7 @@ export default function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-1" role="navigation" aria-label="Main navigation">
+      <nav className="flex-1 p-4 space-y-1 overflow-y-auto" role="navigation" aria-label="Main navigation">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           
@@ -103,6 +113,34 @@ export default function Sidebar() {
             </Link>
           );
         })}
+
+        {/* V2 Section */}
+        <div className="pt-4 mt-4 border-t border-border">
+          <div className="px-4 py-2 text-xs font-semibold text-emerald-400 uppercase tracking-wider">
+            Dashboard V2
+          </div>
+          {v2NavItems.map((item) => {
+            const isActive = pathname === item.href || pathname?.startsWith(item.href + '/');
+            
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`
+                  flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-sm
+                  ${isActive 
+                    ? 'bg-emerald-500/15 text-emerald-400 font-medium border border-emerald-500/20' 
+                    : 'text-foreground-secondary hover:bg-white/5 hover:text-foreground border border-transparent'
+                  }
+                `}
+                aria-current={isActive ? 'page' : undefined}
+              >
+                <Icon name={item.icon} size={18} className={isActive ? 'text-emerald-400' : ''} />
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
+        </div>
       </nav>
 
       {/* Agent Status Footer */}

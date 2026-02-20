@@ -401,3 +401,250 @@ export function useKimiLogs(sessionId: string | null) {
   const loading = raw === undefined;
   return { data, loading, error: null };
 }
+
+// Agent State Hook
+export function useAgentState() {
+  const raw = useQuery(api.agentState.all);
+  const agentStates = useMemo(() => raw ?? [], [raw]);
+  const loading = raw === undefined;
+  return { agentStates, loading };
+}
+
+// ============================================================================
+// MC Dashboard V2 Hooks
+// ============================================================================
+
+// Types for V2
+export interface MCTask {
+  id: string;
+  title: string;
+  description: string;
+  status: 'backlog' | 'in_progress' | 'review' | 'done';
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  column: string;
+  assigneeId?: string;
+  assigneeName?: string;
+  dueDate: number | null;
+  tags: string[];
+  createdBy: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface ScheduledTask {
+  id: string;
+  name: string;
+  description: string;
+  schedule: string;
+  agentId?: string;
+  agentName?: string;
+  category: string;
+  nextRun: number | null;
+  lastRun: number | null;
+  enabled: boolean;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface ContentItem {
+  id: string;
+  title: string;
+  stage: 'idea' | 'script' | 'thumbnail' | 'filming' | 'editing' | 'published';
+  script?: string;
+  thumbnail?: string;
+  description?: string;
+  agentId?: string;
+  agentName?: string;
+  tags: string[];
+  metadata?: any;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface MemoryEntry {
+  id: string;
+  agentId: string;
+  agentName: string;
+  filePath: string;
+  fileName: string;
+  content: string;
+  entryType: 'memory_md' | 'daily_note' | 'soul_md' | 'agents_md';
+  date?: string;
+  searchIndex: string[];
+  updatedAt: number;
+}
+
+// Mappers
+function mapMCTask(doc: any): MCTask {
+  return {
+    id: doc._id,
+    title: doc.title,
+    description: doc.description || '',
+    status: doc.status,
+    priority: doc.priority,
+    column: doc.column,
+    assigneeId: doc.assigneeId,
+    assigneeName: doc.assigneeName,
+    dueDate: doc.dueDate || null,
+    tags: doc.tags || [],
+    createdBy: doc.createdBy,
+    createdAt: doc.createdAt,
+    updatedAt: doc.updatedAt,
+  };
+}
+
+function mapScheduledTask(doc: any): ScheduledTask {
+  return {
+    id: doc._id,
+    name: doc.name,
+    description: doc.description || '',
+    schedule: doc.schedule,
+    agentId: doc.agentId,
+    agentName: doc.agentName,
+    category: doc.category || 'recurring',
+    nextRun: doc.nextRun || null,
+    lastRun: doc.lastRun || null,
+    enabled: doc.enabled,
+    createdAt: doc.createdAt,
+    updatedAt: doc.updatedAt,
+  };
+}
+
+function mapContentItem(doc: any): ContentItem {
+  return {
+    id: doc._id,
+    title: doc.title,
+    stage: doc.stage,
+    script: doc.script,
+    thumbnail: doc.thumbnail,
+    description: doc.description,
+    agentId: doc.agentId,
+    agentName: doc.agentName,
+    tags: doc.tags || [],
+    metadata: doc.metadata,
+    createdAt: doc.createdAt,
+    updatedAt: doc.updatedAt,
+  };
+}
+
+function mapMemoryEntry(doc: any): MemoryEntry {
+  return {
+    id: doc._id,
+    agentId: doc.agentId,
+    agentName: doc.agentName,
+    filePath: doc.filePath,
+    fileName: doc.fileName,
+    content: doc.content,
+    entryType: doc.entryType,
+    date: doc.date,
+    searchIndex: doc.searchIndex || [],
+    updatedAt: doc.updatedAt,
+  };
+}
+
+// MC Tasks Hooks
+export function useMCTasks(): { tasks: MCTask[]; loading: boolean } {
+  const raw = useQuery(api.mcTasks.list);
+  const tasks = useMemo(() => (raw ?? []).map(mapMCTask), [raw]);
+  const loading = raw === undefined;
+  return { tasks, loading };
+}
+
+export function useMCTasksByColumn(column: string): { tasks: MCTask[]; loading: boolean } {
+  const raw = useQuery(api.mcTasks.listByColumn, { column });
+  const tasks = useMemo(() => (raw ?? []).map(mapMCTask), [raw]);
+  const loading = raw === undefined;
+  return { tasks, loading };
+}
+
+export function useCreateMCTask() {
+  return useMutation(api.mcTasks.create);
+}
+
+export function useUpdateMCTaskColumn() {
+  return useMutation(api.mcTasks.updateColumn);
+}
+
+export function useUpdateMCTask() {
+  return useMutation(api.mcTasks.update);
+}
+
+export function useDeleteMCTask() {
+  return useMutation(api.mcTasks.remove);
+}
+
+// Scheduled Tasks Hooks
+export function useScheduledTasks(): { tasks: ScheduledTask[]; loading: boolean } {
+  const raw = useQuery(api.scheduledTasks.list);
+  const tasks = useMemo(() => (raw ?? []).map(mapScheduledTask), [raw]);
+  const loading = raw === undefined;
+  return { tasks, loading };
+}
+
+export function useCreateScheduledTask() {
+  return useMutation(api.scheduledTasks.create);
+}
+
+export function useUpdateScheduledTask() {
+  return useMutation(api.scheduledTasks.update);
+}
+
+export function useDeleteScheduledTask() {
+  return useMutation(api.scheduledTasks.remove);
+}
+
+// Content Items Hooks
+export function useContentItems(): { items: ContentItem[]; loading: boolean } {
+  const raw = useQuery(api.contentItems.list);
+  const items = useMemo(() => (raw ?? []).map(mapContentItem), [raw]);
+  const loading = raw === undefined;
+  return { items, loading };
+}
+
+export function useContentItemsByStage(stage: string): { items: ContentItem[]; loading: boolean } {
+  const raw = useQuery(api.contentItems.listByStage, { stage });
+  const items = useMemo(() => (raw ?? []).map(mapContentItem), [raw]);
+  const loading = raw === undefined;
+  return { items, loading };
+}
+
+export function useCreateContentItem() {
+  return useMutation(api.contentItems.create);
+}
+
+export function useUpdateContentItem() {
+  return useMutation(api.contentItems.update);
+}
+
+export function useMoveContentStage() {
+  return useMutation(api.contentItems.moveStage);
+}
+
+export function useDeleteContentItem() {
+  return useMutation(api.contentItems.remove);
+}
+
+// Memory Entries Hooks
+export function useMemoryEntries(): { entries: MemoryEntry[]; loading: boolean } {
+  const raw = useQuery(api.memoryEntries.list);
+  const entries = useMemo(() => (raw ?? []).map(mapMemoryEntry), [raw]);
+  const loading = raw === undefined;
+  return { entries, loading };
+}
+
+export function useMemoryEntriesByAgent(agentId: string): { entries: MemoryEntry[]; loading: boolean } {
+  const raw = useQuery(api.memoryEntries.listByAgent, { agentId });
+  const entries = useMemo(() => (raw ?? []).map(mapMemoryEntry), [raw]);
+  const loading = raw === undefined;
+  return { entries, loading };
+}
+
+export function useSearchMemoryEntries(query: string, agentId?: string, entryType?: string) {
+  const raw = useQuery(
+    api.memoryEntries.search,
+    query ? { query, agentId, entryType } : 'skip'
+  );
+  const entries = useMemo(() => (raw ?? []).map(mapMemoryEntry), [raw]);
+  const loading = raw === undefined;
+  return { entries, loading };
+}

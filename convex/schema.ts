@@ -320,4 +320,85 @@ export default defineSchema({
   })
     .index("by_status", ["status"])
     .index("by_createdAt", ["createdAt"]),
+
+  // ═══════════════════════════════════════════════════════
+  // MC Dashboard V2 Tables
+  // ═══════════════════════════════════════════════════════
+
+  // Enhanced agent_tasks for Kanban board
+  mc_tasks: defineTable({
+    title: v.string(),
+    description: v.string(),
+    status: v.string(), // "backlog" | "in_progress" | "review" | "done"
+    priority: v.string(), // "low" | "medium" | "high" | "urgent"
+    column: v.string(), // Kanban column: "backlog" | "in_progress" | "review" | "done"
+    assigneeId: v.optional(v.string()), // Agent ID
+    assigneeName: v.optional(v.string()),
+    dueDate: v.optional(v.number()),
+    tags: v.array(v.string()),
+    createdBy: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_status", ["status"])
+    .index("by_column", ["column"])
+    .index("by_assigneeId", ["assigneeId"])
+    .index("by_updatedAt", ["updatedAt"]),
+
+  // Scheduled tasks for Calendar view
+  scheduled_tasks: defineTable({
+    name: v.string(),
+    description: v.optional(v.string()),
+    schedule: v.string(), // Cron expression or human-readable schedule
+    agentId: v.optional(v.string()), // Assigned agent
+    agentName: v.optional(v.string()),
+    category: v.optional(v.string()), // "cron" | "one-time" | "recurring"
+    nextRun: v.optional(v.number()),
+    lastRun: v.optional(v.number()),
+    enabled: v.boolean(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_agentId", ["agentId"])
+    .index("by_nextRun", ["nextRun"])
+    .index("by_enabled", ["enabled"]),
+
+  // Content Pipeline items
+  content_items: defineTable({
+    title: v.string(),
+    stage: v.string(), // "idea" | "script" | "thumbnail" | "filming" | "editing" | "published"
+    script: v.optional(v.string()), // Rich text content
+    thumbnail: v.optional(v.string()), // URL or base64
+    description: v.optional(v.string()),
+    agentId: v.optional(v.string()), // Content owner
+    agentName: v.optional(v.string()),
+    tags: v.array(v.string()),
+    metadata: v.optional(v.any()), // Additional data like video URL, platform, etc.
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_stage", ["stage"])
+    .index("by_agentId", ["agentId"])
+    .index("by_updatedAt", ["updatedAt"]),
+
+  // Memory entries for Memory Browser
+  memory_entries: defineTable({
+    agentId: v.string(), // "ahawk" | "anton" | "dante" | "vincent"
+    agentName: v.string(),
+    filePath: v.string(), // Path to memory file
+    fileName: v.string(),
+    content: v.string(), // File content
+    entryType: v.string(), // "memory_md" | "daily_note" | "soul_md" | "agents_md"
+    date: v.optional(v.string()), // For daily notes: YYYY-MM-DD
+    searchIndex: v.array(v.string()), // Keywords for search
+    updatedAt: v.number(),
+  })
+    .index("by_agentId", ["agentId"])
+    .index("by_entryType", ["entryType"])
+    .index("by_date", ["date"])
+    .index("by_updatedAt", ["updatedAt"])
+    .searchIndex("search_content", {
+      searchField: "content",
+      filterFields: ["agentId", "entryType"],
+    }),
 });
