@@ -56,7 +56,7 @@ export default function Home() {
       const createdAt = typeof a.createdAt === 'number' 
         ? a.createdAt 
         : a.createdAt?.toMillis?.() || 0;
-      return (a.type === 'message' || a.type === 'communication') && createdAt > Date.now() - 24 * 60 * 60 * 1000;
+      return ((a.type as string) === 'message' || (a.type as string) === 'communication' || a.type === 'message_sent') && createdAt > Date.now() - 24 * 60 * 60 * 1000;
     }).length;
 
     return {

@@ -11,13 +11,16 @@ export const list = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    let q = ctx.db.query("call_logs_convex");
+    let results;
     
     if (args.agentId) {
-      q = q.withIndex("by_agentId", (q) => q.eq("agentId", args.agentId));
+      results = await ctx.db.query("call_logs_convex")
+        .withIndex("by_agentId", (q) => q.eq("agentId", args.agentId!))
+        .order("desc").collect();
+    } else {
+      results = await ctx.db.query("call_logs_convex")
+        .order("desc").collect();
     }
-    
-    let results = await q.order("desc").collect();
     
     if (args.limit) {
       results = results.slice(0, args.limit);

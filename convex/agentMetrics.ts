@@ -12,21 +12,26 @@ export const list = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    let q = ctx.db.query("agent_metrics");
+    let results;
     
     if (args.agentId && args.date) {
-      q = q.withIndex("by_agentId_date", (q) => 
-        q.eq("agentId", args.agentId).eq("date", args.date)
-      );
+      results = await ctx.db.query("agent_metrics")
+        .withIndex("by_agentId_date", (q) => 
+          q.eq("agentId", args.agentId!).eq("date", args.date!))
+        .order("desc").collect();
     } else if (args.agentId) {
-      q = q.withIndex("by_agentId_date", (q) => 
-        q.eq("agentId", args.agentId)
-      );
+      results = await ctx.db.query("agent_metrics")
+        .withIndex("by_agentId_date", (q) => 
+          q.eq("agentId", args.agentId!))
+        .order("desc").collect();
     } else if (args.date) {
-      q = q.withIndex("by_date", (q) => q.eq("date", args.date));
+      results = await ctx.db.query("agent_metrics")
+        .withIndex("by_date", (q) => q.eq("date", args.date!))
+        .order("desc").collect();
+    } else {
+      results = await ctx.db.query("agent_metrics")
+        .order("desc").collect();
     }
-    
-    let results = await q.order("desc").collect();
     
     if (args.limit) {
       results = results.slice(0, args.limit);

@@ -12,19 +12,22 @@ export const list = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    let q = ctx.db.query("notifications");
+    let results;
     
     if (args.recipientId !== undefined && args.read !== undefined) {
-      q = q.withIndex("by_recipientId_read", (q) =>
-        q.eq("recipientId", args.recipientId).eq("read", args.read)
-      );
+      results = await ctx.db.query("notifications")
+        .withIndex("by_recipientId_read", (q) =>
+          q.eq("recipientId", args.recipientId!).eq("read", args.read!))
+        .order("desc").collect();
     } else if (args.recipientId !== undefined) {
-      q = q.withIndex("by_recipientId_read", (q) =>
-        q.eq("recipientId", args.recipientId)
-      );
+      results = await ctx.db.query("notifications")
+        .withIndex("by_recipientId_read", (q) =>
+          q.eq("recipientId", args.recipientId!))
+        .order("desc").collect();
+    } else {
+      results = await ctx.db.query("notifications")
+        .order("desc").collect();
     }
-    
-    let results = await q.order("desc").collect();
     
     if (args.limit) {
       results = results.slice(0, args.limit);

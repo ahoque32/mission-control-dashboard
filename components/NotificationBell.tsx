@@ -152,7 +152,7 @@ export default function NotificationBell() {
               </div>
             ) : (
               <div className="divide-y divide-border">
-                {notifications.map((notification) => (
+                {notifications.map((notification: any) => (
                   <div
                     key={notification._id}
                     className={`p-4 hover:bg-white/5 transition-colors ${

@@ -12,15 +12,20 @@ export const list = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    let q = ctx.db.query("outbound_prospects");
+    let results;
     
     if (args.stage) {
-      q = q.withIndex("by_stage", (q) => q.eq("stage", args.stage));
+      results = await ctx.db.query("outbound_prospects")
+        .withIndex("by_stage", (q) => q.eq("stage", args.stage!))
+        .order("desc").collect();
     } else if (args.assignedTo) {
-      q = q.withIndex("by_assignedTo", (q) => q.eq("assignedTo", args.assignedTo));
+      results = await ctx.db.query("outbound_prospects")
+        .withIndex("by_assignedTo", (q) => q.eq("assignedTo", args.assignedTo!))
+        .order("desc").collect();
+    } else {
+      results = await ctx.db.query("outbound_prospects")
+        .order("desc").collect();
     }
-    
-    let results = await q.order("desc").collect();
     
     if (args.limit) {
       results = results.slice(0, args.limit);
