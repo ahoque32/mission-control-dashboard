@@ -1,10 +1,9 @@
-// @ts-nocheck
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 
 /**
  * Agent Communications Module
- * Tracks all JHawk↔Anton agent communications across channels.
+ * Tracks all agent-to-agent communications across channels.
  */
 
 // Log a communication event
@@ -12,16 +11,13 @@ export const log = mutation({
   args: {
     from: v.string(),
     to: v.string(),
-    channel: v.string(), // 'convex_msg' | 'webhook' | 'git_push' | 'brain_prime_sync'
+    channel: v.string(), // 'convex' | 'telegram' | 'spawn' | 'session'
     message: v.string(),
-    metadata: v.optional(v.any()), // commit hash, file paths, webhook payload summary
-    direction: v.optional(v.string()), // 'jhawk_to_anton' | 'anton_to_jhawk' — auto-derived if omitted
-    timestamp: v.optional(v.number()),
+    metadata: v.optional(v.any()), // commit hash, file paths, payload summary
+    createdAt: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    const ts = args.timestamp ?? Date.now();
-    const direction =
-      args.direction ?? `${args.from.toLowerCase()}_to_${args.to.toLowerCase()}`;
+    const ts = args.createdAt ?? Date.now();
 
     return await ctx.db.insert("agent_comms", {
       from: args.from,
@@ -29,8 +25,7 @@ export const log = mutation({
       channel: args.channel,
       message: args.message,
       metadata: args.metadata ?? null,
-      direction,
-      timestamp: ts,
+      createdAt: ts,
     });
   },
 });
@@ -40,7 +35,8 @@ export const list = query({
   args: {
     limit: v.optional(v.number()),
     channel: v.optional(v.string()),
-    direction: v.optional(v.string()),
+    from: v.optional(v.string()),
+    to: v.optional(v.string()),
     startTime: v.optional(v.number()),
     endTime: v.optional(v.number()),
   },
@@ -50,7 +46,7 @@ export const list = query({
     // Fetch recent comms, then filter client-side for simplicity
     const results = await ctx.db
       .query("agent_comms")
-      .withIndex("by_timestamp")
+      .withIndex("by_createdAt")
       .order("desc")
       .take(lim * 3);
 
@@ -58,14 +54,17 @@ export const list = query({
     if (args.channel) {
       filtered = filtered.filter((r) => r.channel === args.channel);
     }
-    if (args.direction) {
-      filtered = filtered.filter((r) => r.direction === args.direction);
+    if (args.from) {
+      filtered = filtered.filter((r) => r.from === args.from);
+    }
+    if (args.to) {
+      filtered = filtered.filter((r) => r.to === args.to);
     }
     if (args.startTime !== undefined) {
-      filtered = filtered.filter((r) => r.timestamp >= args.startTime!);
+      filtered = filtered.filter((r) => r.createdAt >= args.startTime!);
     }
     if (args.endTime !== undefined) {
-      filtered = filtered.filter((r) => r.timestamp <= args.endTime!);
+      filtered = filtered.filter((r) => r.createdAt <= args.endTime!);
     }
 
     return filtered.slice(0, lim);
@@ -88,22 +87,25 @@ export const stats = query({
   handler: async (ctx) => {
     const all = await ctx.db
       .query("agent_comms")
-      .withIndex("by_timestamp")
+      .withIndex("by_createdAt")
       .order("desc")
       .take(1000);
 
     const byChannel: Record<string, number> = {};
-    const byDirection: Record<string, number> = {};
+    const byFrom: Record<string, number> = {};
+    const byTo: Record<string, number> = {};
 
     all.forEach((c) => {
       byChannel[c.channel] = (byChannel[c.channel] || 0) + 1;
-      byDirection[c.direction] = (byDirection[c.direction] || 0) + 1;
+      byFrom[c.from] = (byFrom[c.from] || 0) + 1;
+      byTo[c.to] = (byTo[c.to] || 0) + 1;
     });
 
     return {
       total: all.length,
       byChannel,
-      byDirection,
+      byFrom,
+      byTo,
       latest: all[0] ?? null,
     };
   },

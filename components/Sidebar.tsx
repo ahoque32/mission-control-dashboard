@@ -34,8 +34,6 @@ const navItems: NavItem[] = [
   { label: 'Finance', href: '/finance', icon: 'wallet2' },
   { label: 'Agent Chat', href: '/chat', icon: 'chat-dots' },
   { label: 'Skills', href: '/skills', icon: 'lightning-charge' },
-  { label: 'Kimi Portal', href: '/kimi', icon: 'robot' },
-  { label: 'Kimi Anton', href: '/kimi-anton', icon: 'robot' },
 ];
 
 const v2NavItems: NavItem[] = [

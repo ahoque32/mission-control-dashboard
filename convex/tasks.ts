@@ -135,7 +135,7 @@ export const createSpawnTask = mutation({
       status: "in_progress", // Maps to kanban "In Progress" column
       priority: "medium",
       assigneeIds: [args.agentName],
-      createdBy: "jhawk-sys",
+      createdBy: "system",
       dueDate: null,
       tags: ["spawn", args.agentName.toLowerCase()],
       createdAt: now,
@@ -225,7 +225,7 @@ export const getAgentPulse = query({
       }
     > = {};
 
-    const knownAgents = ["Ralph", "Scout", "Archivist", "Sentinel", "JHawk"];
+    const knownAgents = ["Anton", "Echo", "Drago", "Dante", "Vincent", "Hunter", "Maestro"];
 
     // Initialize all known agents as idle
     for (const agent of knownAgents) {

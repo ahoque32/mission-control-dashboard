@@ -13,11 +13,10 @@ export interface AgentComm {
   id: string;
   from: string;
   to: string;
-  channel: 'convex_msg' | 'webhook' | 'git_push' | 'brain_prime_sync' | string;
+  channel: 'convex' | 'telegram' | 'spawn' | 'session' | string;
   message: string;
   metadata: Record<string, any>;
-  direction: 'jhawk_to_anton' | 'anton_to_jhawk' | 'internal' | string;
-  timestamp: number;
+  createdAt: number;
 }
 
 /**
@@ -38,11 +37,10 @@ export async function logComm(comm: Omit<AgentComm, 'id'>): Promise<void> {
           from: comm.from,
           to: comm.to,
           channel: comm.channel,
-          direction: comm.direction,
-          commTimestamp: comm.timestamp,
+          commTimestamp: comm.createdAt,
           ...comm.metadata,
         },
-        createdAt: comm.timestamp,
+        createdAt: comm.createdAt,
       },
     }),
   });
@@ -58,7 +56,8 @@ export async function logComm(comm: Omit<AgentComm, 'id'>): Promise<void> {
 export async function fetchComms(opts?: {
   limit?: number;
   channel?: string;
-  direction?: string;
+  from?: string;
+  to?: string;
 }): Promise<AgentComm[]> {
   const res = await fetch(`${CONVEX_URL}/api/query`, {
     method: 'POST',
@@ -87,16 +86,18 @@ export async function fetchComms(opts?: {
       channel: a.metadata?.channel || 'unknown',
       message: a.message,
       metadata: a.metadata || {},
-      direction: a.metadata?.direction || 'internal',
-      timestamp: a.metadata?.commTimestamp || a.createdAt,
+      createdAt: a.metadata?.commTimestamp || a.createdAt,
     }));
 
   // Apply client-side filters
   if (opts?.channel) {
     comms = comms.filter(c => c.channel === opts.channel);
   }
-  if (opts?.direction) {
-    comms = comms.filter(c => c.direction === opts.direction);
+  if (opts?.from) {
+    comms = comms.filter(c => c.from === opts.from);
+  }
+  if (opts?.to) {
+    comms = comms.filter(c => c.to === opts.to);
   }
   if (opts?.limit) {
     comms = comms.slice(0, opts.limit);
