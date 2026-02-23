@@ -1,5 +1,5 @@
-import ContentPipeline from '../../../components/ContentPipeline';
-import Icon from '../../../components/ui/Icon';
+import ContentPipeline from '../../components/ContentPipeline';
+import Icon from '../../components/ui/Icon';
 
 export default function ContentPage() {
   return (

@@ -1,5 +1,5 @@
-import MemoryBrowser from '../../../components/MemoryBrowser';
-import Icon from '../../../components/ui/Icon';
+import MemoryBrowser from '../../components/MemoryBrowser';
+import Icon from '../../components/ui/Icon';
 
 export default function MemoryPage() {
   return (

@@ -9,6 +9,7 @@
 import { useAgents } from '../lib/convex';
 import { useAuth } from '../lib/auth-context';
 import ThemeToggle from './ThemeToggle';
+import NotificationBell from './NotificationBell';
 
 export default function Header() {
   const { agents, loading } = useAgents();
@@ -53,6 +54,9 @@ export default function Header() {
               )}
             </div>
           </div>
+
+          {/* Notification Bell */}
+          <NotificationBell />
 
           {/* Theme Toggle */}
           <ThemeToggle />

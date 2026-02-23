@@ -182,6 +182,68 @@ export default defineSchema({
   }).index("by_name", ["name"]),
 
   // ═══════════════════════════════════════════════════════
+  // Agent Metrics & Analytics
+  // ═══════════════════════════════════════════════════════
+  agent_metrics: defineTable({
+    agentId: v.string(),
+    date: v.string(),
+    tasksCompleted: v.number(),
+    tasksFailed: v.number(),
+    avgResponseTimeMs: v.optional(v.number()),
+    tokensUsed: v.optional(v.number()),
+    uptimeMinutes: v.number(),
+    errors: v.optional(v.number()),
+  }).index("by_agentId_date", ["agentId", "date"]).index("by_date", ["date"]),
+
+  // ═══════════════════════════════════════════════════════
+  // Notifications System
+  // ═══════════════════════════════════════════════════════
+  notifications: defineTable({
+    recipientId: v.string(),
+    type: v.string(),
+    title: v.string(),
+    message: v.string(),
+    read: v.boolean(),
+    actionUrl: v.optional(v.string()),
+    metadata: v.optional(v.any()),
+    createdAt: v.number(),
+  }).index("by_recipientId_read", ["recipientId", "read"]).index("by_createdAt", ["createdAt"]),
+
+  // ═══════════════════════════════════════════════════════
+  // Call Logs
+  // ═══════════════════════════════════════════════════════
+  call_logs_convex: defineTable({
+    agentId: v.string(),
+    contactName: v.optional(v.string()),
+    phoneNumber: v.optional(v.string()),
+    direction: v.string(),
+    duration: v.number(),
+    status: v.string(),
+    transcript: v.optional(v.string()),
+    sentiment: v.optional(v.string()),
+    metadata: v.optional(v.any()),
+    createdAt: v.number(),
+  }).index("by_agentId", ["agentId"]).index("by_createdAt", ["createdAt"]),
+
+  // ═══════════════════════════════════════════════════════
+  // Outbound Prospects
+  // ═══════════════════════════════════════════════════════
+  outbound_prospects: defineTable({
+    companyName: v.string(),
+    contactName: v.string(),
+    contactEmail: v.string(),
+    stage: v.string(),
+    source: v.string(),
+    assignedTo: v.string(),
+    notes: v.optional(v.string()),
+    lastContactedAt: v.optional(v.number()),
+    nextFollowUpAt: v.optional(v.number()),
+    metadata: v.optional(v.any()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_stage", ["stage"]).index("by_assignedTo", ["assignedTo"]),
+
+  // ═══════════════════════════════════════════════════════
   // MC Dashboard V2 Tables
   // ═══════════════════════════════════════════════════════
 

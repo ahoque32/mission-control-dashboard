@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Agent, Activity } from '../types';
 import { useAgentRecentActivity } from '../lib/convex';
 import Icon, { IconName } from './ui/Icon';
@@ -54,6 +54,22 @@ function isOffline(lastHeartbeat: any): boolean {
   return diffMinutes > 5;
 }
 
+// Get heartbeat-based status for border coloring
+function getHeartbeatStatus(lastHeartbeat: any): 'active' | 'idle' | 'offline' {
+  const now = Date.now();
+  const then = getMs(lastHeartbeat);
+  const diffMinutes = Math.floor((now - then) / 60000);
+  if (diffMinutes <= 5) return 'active';
+  if (diffMinutes <= 30) return 'idle';
+  return 'offline';
+}
+
+const borderColorMap = {
+  active: 'border-emerald-500/50',
+  idle: 'border-amber-500/50',
+  offline: 'border-red-500/50',
+};
+
 // Get status color and label
 function getStatusDisplay(agent: Agent) {
   const offline = isOffline(agent.lastHeartbeat);
@@ -91,6 +107,8 @@ function getStatusDisplay(agent: Agent) {
 
 export default function AgentCard({ agent, currentTask }: AgentCardProps) {
   const statusDisplay = getStatusDisplay(agent);
+  const heartbeatStatus = getHeartbeatStatus(agent.lastHeartbeat);
+  const [showActions, setShowActions] = useState(false);
   const { activities, loading: activityLoading } = useAgentRecentActivity(agent.id);
 
   // Check if agent has recent activity (last 5 min)
@@ -104,7 +122,11 @@ export default function AgentCard({ agent, currentTask }: AgentCardProps) {
   const activeTaskName = recentActivity?.metadata?.taskName as string | undefined;
 
   return (
-    <div className="glass-card p-5 hover:border-emerald-500/30 transition-all card-hover">
+    <div
+      className={`glass-card p-5 border-l-4 ${borderColorMap[heartbeatStatus]} hover:border-emerald-500/30 transition-all card-hover relative`}
+      onMouseEnter={() => setShowActions(true)}
+      onMouseLeave={() => setShowActions(false)}
+    >
       {/* Header: Icon + Status */}
       <div className="flex items-start justify-between mb-4">
         <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center">
@@ -153,13 +175,39 @@ export default function AgentCard({ agent, currentTask }: AgentCardProps) {
         </div>
       )}
 
+      {/* Model Name */}
+      {(agent as any).model && (
+        <div className="flex items-center justify-between text-xs mb-2">
+          <span className="text-foreground-muted">Model:</span>
+          <span className="text-foreground-secondary font-mono text-[11px]">{(agent as any).model}</span>
+        </div>
+      )}
+
       {/* Last Heartbeat */}
       <div className="flex items-center justify-between text-xs">
-        <span className="text-foreground-muted">Last heartbeat:</span>
+        <span className="text-foreground-muted">Last seen:</span>
         <span className="text-foreground-secondary font-mono">
           {formatRelativeTime(agent.lastHeartbeat)}
         </span>
       </div>
+
+      {/* Quick Actions on Hover */}
+      {showActions && (
+        <div className="absolute bottom-3 right-3 flex gap-1.5 animate-fade-in">
+          <button
+            className="px-2.5 py-1 text-xs bg-emerald-500/20 text-emerald-400 rounded-lg hover:bg-emerald-500/30 transition-colors"
+            onClick={(e) => { e.stopPropagation(); }}
+          >
+            Assign Task
+          </button>
+          <button
+            className="px-2.5 py-1 text-xs bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition-colors"
+            onClick={(e) => { e.stopPropagation(); }}
+          >
+            Message
+          </button>
+        </div>
+      )}
     </div>
   );
 }
