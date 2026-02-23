@@ -8,8 +8,6 @@ import Icon, { IconName } from './ui/Icon';
 // Map agent emojis to Bootstrap Icons
 const emojiToIcon: Record<string, IconName> = {
   '📚': 'archive',
-  '🦞': 'cpu',        // JHawk - lobster → cpu (system)
-  '🦅': 'cpu',        // JHawk alt
   '🔍': 'search',     // LEO, Scout
   '🔨': 'tools',      // Ralph - hammer → tools
   '🤖': 'robot',      // Ralph alt

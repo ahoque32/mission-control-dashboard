@@ -19,7 +19,7 @@ export default function ActivityPage() {
         <p className="text-sm sm:text-base text-foreground-secondary">
           {activeTab === 'activity'
             ? 'Real-time timeline of all agent activity and operations'
-            : 'Cross-system communication log between JHawk, Anton, and squad agents'}
+            : 'Cross-system communication log between all squad agents'}
         </p>
       </div>
 

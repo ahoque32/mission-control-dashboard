@@ -14,27 +14,14 @@ import {
 const channelConfig: {
   [key: string]: { icon: React.ElementType; color: string; label: string };
 } = {
-  convex_msg: {
-    icon: MessageSquare,
-    color: 'bg-blue-500',
-    label: 'Convex Msg',
-  },
+  convex: { icon: MessageSquare, color: 'bg-blue-500', label: 'Convex' },
+  telegram: { icon: MessageSquare, color: 'bg-blue-400', label: 'Telegram' },
+  spawn: { icon: Webhook, color: 'bg-green-500', label: 'Spawn' },
+  session: { icon: BrainCircuit, color: 'bg-purple-500', label: 'Session' },
   webhook: { icon: Webhook, color: 'bg-green-500', label: 'Webhook' },
   git_push: { icon: GitMerge, color: 'bg-purple-500', label: 'Git Push' },
-  brain_prime_sync: {
-    icon: BrainCircuit,
-    color: 'bg-orange-500',
-    label: 'Brain Sync',
-  },
+  brain_prime_sync: { icon: BrainCircuit, color: 'bg-orange-500', label: 'Brain Sync' },
   default: { icon: MessageSquare, color: 'bg-gray-500', label: 'Unknown' },
-};
-
-const directionConfig: {
-  [key: string]: { label: string };
-} = {
-  jhawk_to_anton: { label: 'JHawk → Anton' },
-  anton_to_jhawk: { label: 'Anton → JHawk' },
-  internal: { label: 'Internal' },
 };
 
 export default function CommunicationsFeed() {
@@ -42,13 +29,13 @@ export default function CommunicationsFeed() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [filters, setFilters] = useState({ channel: '', direction: '' });
+  const [filters, setFilters] = useState({ channel: '', from: '', to: '' });
 
   const fetchData = async () => {
     try {
       setLoading(true);
       const data = await fetchComms();
-      const sortedData = data.sort((a, b) => b.timestamp - a.timestamp);
+      const sortedData = data.sort((a, b) => b.createdAt - a.createdAt);
       setComms(sortedData);
       setError(null);
     } catch (err) {
@@ -72,14 +59,13 @@ export default function CommunicationsFeed() {
   
   const filteredComms = comms.filter(comm => {
       const channelMatch = !filters.channel || comm.channel === filters.channel;
-      const directionMatch = !filters.direction || comm.direction === filters.direction;
-      return channelMatch && directionMatch;
+      const fromMatch = !filters.from || comm.from === filters.from;
+      const toMatch = !filters.to || comm.to === filters.to;
+      return channelMatch && fromMatch && toMatch;
   });
 
   const getChannelInfo = (channel: string) =>
     channelConfig[channel] || channelConfig.default;
-  const getDirectionInfo = (direction: string) =>
-    directionConfig[direction] || { label: direction };
 
   if (loading) return <div className="text-center p-8">Loading...</div>;
   if (error)
@@ -112,17 +98,21 @@ export default function CommunicationsFeed() {
             )}
           </select>
           
-          {/* Direction Filter */}
+          {/* From Filter */}
           <select
-            name="direction"
-            value={filters.direction}
+            name="from"
+            value={filters.from}
             onChange={handleFilterChange}
             className="bg-background-tertiary border border-border-primary text-foreground text-sm rounded-md focus:ring-accent focus:border-accent p-2"
           >
-            <option value="">All Directions</option>
-            {Object.entries(directionConfig).map(([key, { label }]) => (
-              <option key={key} value={key}>{label}</option>
-            ))}
+            <option value="">All Senders</option>
+            <option value="Anton">Anton</option>
+            <option value="Echo">Echo</option>
+            <option value="Drago">Drago</option>
+            <option value="Dante">Dante</option>
+            <option value="Vincent">Vincent</option>
+            <option value="Hunter">Hunter</option>
+            <option value="Maestro">Maestro</option>
           </select>
         </div>
         <button
@@ -138,7 +128,6 @@ export default function CommunicationsFeed() {
       <div className="space-y-4">
         {filteredComms.map(comm => {
           const { icon: Icon, color, label } = getChannelInfo(comm.channel);
-          const { label: directionLabel } = getDirectionInfo(comm.direction);
 
           return (
             <div
@@ -160,7 +149,7 @@ export default function CommunicationsFeed() {
                     <span>{comm.to}</span>
                   </div>
                   <div className="text-xs text-foreground-secondary mt-1">
-                    {new Date(comm.timestamp).toLocaleString()}
+                    {new Date(comm.createdAt).toLocaleString()}
                   </div>
                 </div>
                 <div className="flex-shrink-0">
@@ -180,9 +169,9 @@ export default function CommunicationsFeed() {
                 <div className="mt-4 pt-4 border-t border-border-primary pl-12">
                   <p className="text-sm whitespace-pre-wrap text-foreground">{comm.message}</p>
                   <div className="mt-3 text-xs text-foreground-secondary">
-                    <strong>Direction:</strong> {directionLabel}
+                    <strong>Channel:</strong> {comm.channel}
                   </div>
-                  {Object.keys(comm.metadata).length > 0 && (
+                  {comm.metadata && Object.keys(comm.metadata).length > 0 && (
                     <pre className="mt-3 p-2 bg-background-tertiary rounded-md text-xs whitespace-pre-wrap">
                       {JSON.stringify(comm.metadata, null, 2)}
                     </pre>

@@ -11,7 +11,7 @@ const AGENT_COLORS: Record<string, string> = {
   anton: '#3b82f6',   // Blue
   dante: '#8b5cf6',   // Purple
   vincent: '#f59e0b', // Orange
-  jhawk: '#10b981',   // Emerald
+  drago: '#10b981',   // Emerald
   default: '#6b7280', // Gray
 };
 

@@ -97,12 +97,10 @@ export const sendAndNotify = action({
       message: args.message,
     });
 
-    // Determine webhook URL based on recipient
+    // Determine webhook URL based on recipient (generic implementation)
     let webhookUrl: string | undefined;
     if (args.to === "anton") {
       webhookUrl = process.env.ANTON_WEBHOOK_URL;
-    } else if (args.to === "jhawk") {
-      webhookUrl = process.env.JHAWK_WEBHOOK_URL;
     }
 
     if (webhookUrl) {
