@@ -1,20 +1,22 @@
-'use client';
-
-import CalendarView from '../../components/CalendarView';
+import CalendarViewV2 from '../../components/CalendarViewV2';
 import Icon from '../../components/ui/Icon';
 
 export default function CalendarPage() {
   return (
-    <div className="p-4 sm:p-6 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="mb-6 sm:mb-8">
-        <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-2 flex items-center gap-2">
-          <Icon name="calendar3" size={24} className="text-emerald-400" /> Scheduled Tasks
+    <div className="h-full flex flex-col p-6">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+          <Icon name="calendar3" size={28} className="text-emerald-400" />
+          Calendar
         </h1>
-        <p className="text-sm sm:text-base text-foreground-secondary">Weekly calendar of all automated cron jobs and scheduled operations</p>
+        <p className="text-foreground-secondary mt-1">
+          View scheduled tasks and cron jobs. Color-coded by agent.
+        </p>
       </div>
-
-      <CalendarView />
+      
+      <div className="flex-1 min-h-0">
+        <CalendarViewV2 />
+      </div>
     </div>
   );
 }

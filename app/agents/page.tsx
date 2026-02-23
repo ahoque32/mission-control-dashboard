@@ -1,9 +1,10 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useAgents, useTasks, useActivity } from '../../lib/convex';
 import { Agent, Task, Activity, AgentLevel } from '../../types';
 import Icon from '../../components/ui/Icon';
+import TeamView from '../../components/TeamView';
 
 // Helper function to format relative time
 function formatRelativeTime(timestamp: any): string {
@@ -349,6 +350,7 @@ export default function AgentsPage() {
   const { agents, loading: agentsLoading, error: agentsError } = useAgents();
   const { tasks, loading: tasksLoading } = useTasks();
   const { activities, loading: activitiesLoading } = useActivity();
+  const [activeTab, setActiveTab] = useState<'agents' | 'team'>('agents');
 
   const loading = agentsLoading || tasksLoading || activitiesLoading;
 
@@ -455,17 +457,63 @@ export default function AgentsPage() {
           </div>
         </div>
 
-        {/* Agents Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {sortedAgents.map((agent) => (
-            <AgentDetailCard
-              key={agent.id}
-              agent={agent}
-              tasks={tasks}
-              activities={activities}
-            />
-          ))}
+        {/* Tab Toggle */}
+        <div className="mb-6 border-b border-border">
+          <div className="flex gap-6">
+            <button
+              onClick={() => setActiveTab('agents')}
+              className={`pb-3 text-sm font-medium transition-colors relative ${
+                activeTab === 'agents'
+                  ? 'text-emerald-400'
+                  : 'text-foreground-secondary hover:text-foreground'
+              }`}
+            >
+              <span className="flex items-center gap-2">
+                <Icon name="grid" size={16} />
+                Agent Cards
+              </span>
+              {activeTab === 'agents' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-400 rounded-full" />
+              )}
+            </button>
+            <button
+              onClick={() => setActiveTab('team')}
+              className={`pb-3 text-sm font-medium transition-colors relative ${
+                activeTab === 'team'
+                  ? 'text-emerald-400'
+                  : 'text-foreground-secondary hover:text-foreground'
+              }`}
+            >
+              <span className="flex items-center gap-2">
+                <Icon name="people-fill" size={16} />
+                Team Hierarchy
+              </span>
+              {activeTab === 'team' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-400 rounded-full" />
+              )}
+            </button>
+          </div>
         </div>
+
+        {/* Content */}
+        {activeTab === 'agents' ? (
+          /* Agents Grid */
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {sortedAgents.map((agent) => (
+              <AgentDetailCard
+                key={agent.id}
+                agent={agent}
+                tasks={tasks}
+                activities={activities}
+              />
+            ))}
+          </div>
+        ) : (
+          /* Team View */
+          <div className="glass-card p-6">
+            <TeamView />
+          </div>
+        )}
       </div>
     </div>
   );

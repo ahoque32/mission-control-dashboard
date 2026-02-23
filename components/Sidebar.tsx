@@ -30,23 +30,13 @@ const navItems: NavItem[] = [
   { label: 'Activity', href: '/activity', icon: 'broadcast' },
   { label: 'Documents', href: '/documents', icon: 'file-text' },
   { label: 'Calendar', href: '/calendar', icon: 'calendar3' },
+  { label: 'Memory', href: '/memory', icon: 'journal-text' },
+  { label: 'Content', href: '/content', icon: 'collection-play' },
+  { label: 'Office', href: '/office', icon: 'building' },
   { label: 'Search', href: '/search', icon: 'search' },
   { label: 'Finance', href: '/finance', icon: 'wallet2' },
   { label: 'Agent Chat', href: '/chat', icon: 'chat-dots' },
-  { label: 'Metrics', href: '/metrics', icon: 'graph-up' },
-  { label: 'Outbound', href: '/outbound', icon: 'funnel' },
-  { label: 'Calls', href: '/calls', icon: 'telephone' },
   { label: 'Skills', href: '/skills', icon: 'lightning-charge' },
-];
-
-const v2NavItems: NavItem[] = [
-  { label: 'V2 Dashboard', href: '/v2', icon: 'rocket' },
-  { label: 'Tasks Board', href: '/v2/tasks', icon: 'kanban-fill' },
-  { label: 'Calendar', href: '/v2/calendar', icon: 'calendar-week' },
-  { label: 'Memory', href: '/v2/memory', icon: 'journal-text' },
-  { label: 'Team', href: '/v2/team', icon: 'people-fill' },
-  { label: 'Content', href: '/v2/content', icon: 'collection-play' },
-  { label: 'Office', href: '/v2/office', icon: 'building' },
 ];
 
 export default function Sidebar() {
@@ -114,34 +104,6 @@ export default function Sidebar() {
             </Link>
           );
         })}
-
-        {/* V2 Section */}
-        <div className="pt-4 mt-4 border-t border-border">
-          <div className="px-4 py-2 text-xs font-semibold text-emerald-400 uppercase tracking-wider">
-            Dashboard V2
-          </div>
-          {v2NavItems.map((item) => {
-            const isActive = pathname === item.href || pathname?.startsWith(item.href + '/');
-            
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`
-                  flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all text-sm
-                  ${isActive 
-                    ? 'bg-emerald-500/15 text-emerald-400 font-medium border border-emerald-500/20' 
-                    : 'text-foreground-secondary hover:bg-white/5 hover:text-foreground border border-transparent'
-                  }
-                `}
-                aria-current={isActive ? 'page' : undefined}
-              >
-                <Icon name={item.icon} size={18} className={isActive ? 'text-emerald-400' : ''} />
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
-        </div>
       </nav>
 
       {/* Agent Status Footer */}
