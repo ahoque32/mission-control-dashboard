@@ -15,7 +15,6 @@ import {
 
 // --- AGENT CAPABILITIES ---
 const AGENTS = [
-  { name: "JHawk", icon: Shield },
   { name: "Ralph", icon: Code },
   { name: "Scout", icon: Zap },
   { name: "Archivist", icon: Brain },

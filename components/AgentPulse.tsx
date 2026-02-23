@@ -32,7 +32,6 @@ const statusConfig: Record<string, { color: string; ring: string; label: string;
 };
 
 const agentIcons: Record<string, string> = {
-  JHawk: "cpu",
   Ralph: "robot",
   Scout: "binoculars",
   Archivist: "book",
