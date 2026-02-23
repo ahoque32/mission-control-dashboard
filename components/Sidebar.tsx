@@ -33,6 +33,9 @@ const navItems: NavItem[] = [
   { label: 'Search', href: '/search', icon: 'search' },
   { label: 'Finance', href: '/finance', icon: 'wallet2' },
   { label: 'Agent Chat', href: '/chat', icon: 'chat-dots' },
+  { label: 'Metrics', href: '/metrics', icon: 'graph-up' },
+  { label: 'Outbound', href: '/outbound', icon: 'funnel' },
+  { label: 'Calls', href: '/calls', icon: 'telephone' },
   { label: 'Skills', href: '/skills', icon: 'lightning-charge' },
 ];
 

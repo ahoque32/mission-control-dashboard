@@ -4,6 +4,7 @@ import "./globals.css";
 import Sidebar from "../components/Sidebar";
 import MobileNav from "../components/MobileNav";
 import SearchShortcut from "../components/SearchShortcut";
+import CommandPalette from "../components/CommandPalette";
 import ConvexClientProvider from "../components/ConvexClientProvider";
 import { AuthProvider } from "../lib/auth-context";
 import AuthGate from "../components/AuthGate";
@@ -84,6 +85,7 @@ export default function RootLayout({
             <AuthGate>
               <ConvexClientProvider>
                 <SearchShortcut />
+                <CommandPalette />
                 <div className="flex h-screen overflow-hidden">
                   {/* Desktop Sidebar - Hidden on mobile */}
                   <div className="hidden lg:block">
